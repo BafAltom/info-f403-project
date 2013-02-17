@@ -93,14 +93,14 @@ class CFGrammar:
 		return follow
 
 	def actionTable(self, emptySymbol='EPSILON'):
+	# dict-matrix where M[symbol1][symbol2] contains the index of an element of self.rules (or None)
 		first = self.first_1(emptySymbol)
 		follow = self.follow_1(emptySymbol)
 		M = {}
 		for s in self.symbols:
 			M[s] = {}
-		print M
 		for i, rule in enumerate(self.rules):
-			print i, rule
+			#print i, rule
 			A = rule[0]
 			foundEpsilon = True
 			current_symbol = 0
@@ -108,15 +108,15 @@ class CFGrammar:
 				foundEpsilon = False
 				current_symbol += 1
 				if current_symbol >= len(rule):
-					print "\tcandidates : follow of", A
+					#print "\tcandidates : follow of", A
 					candidates = follow[A]
 					assert emptySymbol not in candidates
 				else:
-					print "\tcandidates : first of", rule[current_symbol]
+					#print "\tcandidates : first of", rule[current_symbol]
 					candidates = first[rule[current_symbol]]
 				for candidate in candidates:
-					print "\t\tcandidate : ", candidate
-					assert candidate not in M[A] or M[A][candidate] == i, "Grammar is not LL1. Conflicts between rules " + str(M[A][candidate]) + " and " + str(i)
+					#print "\t\tcandidate : ", candidate
+					assert candidate not in M[A] or M[A][candidate] == i, "Grammar is not LL(1). Conflicts between rules " + str(M[A][candidate]) + " and " + str(i)
 					if (candidate == emptySymbol):
 						foundEpsilon = True
 					else:
