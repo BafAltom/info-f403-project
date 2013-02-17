@@ -77,6 +77,7 @@ class CFGrammar:
 							if i + epsilonOffset >= len(rule):
 								#print "\t\t\tCandidates : follow of ", rule[0]
 								candidates = follow[rule[0]]
+								assert emptySymbol not in candidates
 							else:
 								#print "\t\t\tCandidates : first of ", rule[i + epsilonOffset]
 								candidates = first[rule[i + epsilonOffset]]
@@ -91,45 +92,35 @@ class CFGrammar:
 		#print "follow took", cnt, "turns"
 		return follow
 
-EPSILON = 'EPSILON'
-
-if __name__ == '__main__':
-	rules = [
-	['S', 'program', '$'],
-	['program', 'begin', 'st-list', 'end'],
-	['st-list', 'st', 'st-tail'],
-	['st-tail', 'st', 'st-tail'],
-	['st-tail', EPSILON],
-	['st', 'Id', ':=', 'expression', ';'],
-	['st', 'read', '(', 'id-list', ')', ';'],
-	['st', 'write', '(', 'expr-list', ')', ';'],
-	['id-list', 'Id', 'id-tail'],
-	['id-tail', ',', 'Id', 'id-tail'],
-	['id-tail', EPSILON],
-	['expr-list', 'expression', 'expr-tail'],
-	['expr-tail', ',', 'expression', 'expr-tail'],
-	['expr-tail', EPSILON],
-	['expression', 'prim', 'prim-tail'],
-	['prim-tail', 'add-op', 'prim', 'prim-tail'],
-	['prim-tail', EPSILON],
-	['prim', '(', 'expression', ')'],
-	['prim', 'Id'],
-	['prim', 'Nb'],
-	['add-op', '+'],
-	['add-op', '-']
-	]
-	terminals = ['$', 'begin', 'end', 'Id', ':=', 'read', 'write', '(', ')', ',', 'Nb', '+', '-', ';', EPSILON]
-	g = CFGrammar(terminals, rules)
-
-	g.first_1()
-	g.follow_1()
-	"""
-	for a, b in g.first_1().items():
-		print a, b
-	"""
-
-	"""
-	for a, b in g.follow_1().items():
-		print a, b
-	"""
-
+	def actionTable(self, emptySymbol='EPSILON'):
+		first = self.first_1(emptySymbol)
+		follow = self.follow_1(emptySymbol)
+		M = {}
+		for s in self.symbols:
+			M[s] = {}
+		print M
+		for i, rule in enumerate(self.rules):
+			print i, rule
+			A = rule[0]
+			foundEpsilon = True
+			current_symbol = 0
+			while foundEpsilon:  # will not loop because follow never contains epsilon
+				foundEpsilon = False
+				current_symbol += 1
+				if current_symbol >= len(rule):
+					print "\tcandidates : follow of", A
+					candidates = follow[A]
+					assert emptySymbol not in candidates
+				else:
+					print "\tcandidates : first of", rule[current_symbol]
+					candidates = first[rule[current_symbol]]
+				for candidate in candidates:
+					print "\t\tcandidate : ", candidate
+					assert candidate not in M[A] or M[A][candidate] == i, "Grammar is not LL1. Conflicts between rules " + str(M[A][candidate]) + " and " + str(i)
+					if (candidate == emptySymbol):
+						foundEpsilon = True
+					else:
+						M[A][candidate] = i
+		for t in self.terminals:
+			M[t][t] = "M"
+		return M

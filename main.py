@@ -26,7 +26,7 @@ class LL1Compiler:
 		while (not self.error and not self.success):
 			x = self.stack[-1]
 			u = self.input[0]  # only one character as we have an LL1-parser
-			if (x in self.grammar.symbols and self.M[x][u] != None):
+			if (x in self.grammar.symbols and u in self.M[x]):
 				self.produce(self.M[x][u])
 			elif (x in self.terminals and x != endSymbol):
 				self.match()
