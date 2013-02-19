@@ -4,7 +4,7 @@
 
 import cfgrammar
 
-class LL1Compiler:
+class LL1Parser:
 	def __init__(self, grammar):
 		self.grammar = grammar
 		self.M = grammar.actionTable()
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 	for a, b in M.items():
 		print a, b
 
-	comp = LL1Compiler(g)
+	comp = LL1Parser(g)
 
 	inputString = ['ID', '-', '(', 'ID', ')', '$']
 	out = comp.parse(inputString)
