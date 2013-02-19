@@ -49,11 +49,11 @@ class CFGrammar:
 							if candidate not in first[A]:
 								stable = False
 								first[A].append(candidate)
+								#print "\t\t\tadded"
 		#print "first took " + str(cnt) + " turns"
 		return first
 
 	def follow_1(self):
-		# TODO : handle epsilon case
 		follow = {}
 		first = self.first_1()
 		for A in self.symbols:
