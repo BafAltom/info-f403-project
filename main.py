@@ -15,22 +15,26 @@ class LL1Compiler:
 		self.error = False
 		self.success = False
 
-	def parse(self, inputText, startSymbol='S', endSymbol="$"):
+	def parse(self, inputText, endSymbol="$"):
 		self.input = inputText  # list of symbols
 		self.output = []
 		self.error = False
-		self.accept = False
+		self.success = False
 
-		self.stack.append(startSymbol)
+		self.stack.append(self.grammar.startSymbol)
 
 		while (not self.error and not self.success):
+			"""
 			print "-----"
 			print "stack", self.stack
 			print "input", self.input
 			print "output", self.output
+			"""
 
 			x = self.stack[-1]
 			u = self.input[0]  # only one character as we have an LL1-parser
+			print "x", x
+			print "u", u
 			if (x in self.grammar.symbols and u in self.M[x]):
 				self.produce(self.M[x][u])
 			elif (x in self.grammar.terminals and x != endSymbol):
@@ -39,33 +43,35 @@ class LL1Compiler:
 				self.trigger_accept()
 			else:  # Not expected
 				self.trigger_error()
-		print(self.output)
+		return self.output
 
 	def trigger_error(self):
+		self.output.append("E")
+		self.error = True
 		print "------ error"
 		print "stack", self.stack
 		print "input", self.input
 		print "output", self.output
-		self.error = True
 
 	def trigger_accept(self):
-		print("accept")
 		self.output.append("A")
-		self.accept = True
+		self.success = True
+		print("accept")
 
 	def produce(self, i):
 		print "produce", i
 		self.output.append("P" + str(i))
 		self.stack.pop()
-		for j, produced in enumerate(self.grammar.rules[i]):
-			if (j > 0):
+		for produced in reversed(self.grammar.rules[i][1:]):
+			if (produced != self.grammar.emptySymbol):
 				self.stack.append(produced)
 
 	def match(self):
 		print "match"
+		a = self.stack.pop()
+		b = self.input.pop(0)
+		assert a == b, "match : input and stack does not match"
 		self.output.append("M")
-		self.stack.pop()
-		self.input.pop(0)
 
 if __name__ == '__main__':
 	EPSILON = 'EPSILON'
@@ -84,7 +90,17 @@ if __name__ == '__main__':
 
 	g = cfgrammar.CFGrammar(terminals, rules)
 
-	inputString = ['ID', '-', '(', 'ID', ')', '$']
+	M = g.actionTable()
+	for a, b in M.items():
+		print a, b
 
 	comp = LL1Compiler(g)
-	comp.parse(inputString)
+
+	inputString = ['ID', '-', '(', 'ID', ')', '$']
+	out = comp.parse(inputString)
+	assert out[-1] == 'A'
+
+	inputString = ['ID', '-', '(', 'ID', '(', ')', '$']
+	out = comp.parse(inputString)
+	assert out[-1] == 'E'
+

@@ -29,8 +29,15 @@ rules = [
 
 terminals = ['$', 'begin', 'end', 'Id', ':=', 'read', 'write', '(', ')', ',', 'Nb', '+', '-', ';', EPSILON]
 g = cfgrammar.CFGrammar(terminals, rules)
-g.first_1()
-g.follow_1()
+first = g.first_1()
+follow = g.follow_1()
+"""
+for a, b in first.items():
+	print a, b
+print "----"
+for a, b in follow.items():
+	print a, b
+"""
 
 # TODO : Verify that the code returns exact values (TP 6 slide 11)
 
