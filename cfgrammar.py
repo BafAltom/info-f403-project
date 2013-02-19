@@ -8,9 +8,11 @@ class CFGrammar:
 					symbols.append(s)
 		return symbols
 
-	def __init__(self, terminals, rules):
+	def __init__(self, terminals, rules, startSymbol='S', emptySymbol='EPSILON'):
 		self.symbols = CFGrammar.findSymbols(rules)
 		self.terminals = terminals
+		self.startSymbol = startSymbol
+		self.emptySymbol = emptySymbol
 		for t in terminals:
 			assert t in self.symbols, "Provided terminal " + str(t) + " was not found in symbols"
 
@@ -18,7 +20,7 @@ class CFGrammar:
 		# e.g. A -> B C D will be ['A', 'B', 'C', 'D']
 		self.rules = rules
 
-	def first_1(self, emptySymbol='EPSILON'):  # returns a dict matching each symbol to their 'first'
+	def first_1(self):  # returns a dict matching each symbol to their 'first'
 		first = {}
 		for A in self.symbols:
 			if A in self.terminals:
@@ -42,7 +44,7 @@ class CFGrammar:
 						current_symbol += 1
 						for candidate in first[rule[current_symbol]]:
 							#print "\t\t\tCandidate : ", candidate
-							if candidate == emptySymbol:
+							if candidate == self.emptySymbol:
 								found_epsilon = True
 							if candidate not in first[A]:
 								stable = False
@@ -50,10 +52,10 @@ class CFGrammar:
 		#print "first took " + str(cnt) + " turns"
 		return first
 
-	def follow_1(self, emptySymbol='EPSILON'):
+	def follow_1(self):
 		# TODO : handle epsilon case
 		follow = {}
-		first = self.first_1(emptySymbol)
+		first = self.first_1()
 		for A in self.symbols:
 			follow[A] = []
 		stable = False
@@ -77,13 +79,13 @@ class CFGrammar:
 							if i + epsilonOffset >= len(rule):
 								#print "\t\t\tCandidates : follow of ", rule[0]
 								candidates = follow[rule[0]]
-								assert emptySymbol not in candidates
+								assert self.emptySymbol not in candidates
 							else:
 								#print "\t\t\tCandidates : first of ", rule[i + epsilonOffset]
 								candidates = first[rule[i + epsilonOffset]]
 							for candidate in candidates:
 								#print "\t\t\t\tCandidate : ", candidate
-								if candidate == emptySymbol:
+								if candidate == self.emptySymbol:
 									foundEpsilon = True
 								elif candidate not in follow[A]:
 									stable = False
@@ -92,10 +94,10 @@ class CFGrammar:
 		#print "follow took", cnt, "turns"
 		return follow
 
-	def actionTable(self, emptySymbol='EPSILON'):
+	def actionTable(self):
 	# dict-matrix where M[symbol1][symbol2] contains the index of an element of self.rules (or None)
-		first = self.first_1(emptySymbol)
-		follow = self.follow_1(emptySymbol)
+		first = self.first_1()
+		follow = self.follow_1()
 		M = {}
 		for s in self.symbols:
 			M[s] = {}
@@ -110,17 +112,19 @@ class CFGrammar:
 				if current_symbol >= len(rule):
 					#print "\tcandidates : follow of", A
 					candidates = follow[A]
-					assert emptySymbol not in candidates
+					assert self.emptySymbol not in candidates
 				else:
 					#print "\tcandidates : first of", rule[current_symbol]
 					candidates = first[rule[current_symbol]]
 				for candidate in candidates:
 					#print "\t\tcandidate : ", candidate
 					assert candidate not in M[A] or M[A][candidate] == i, "Grammar is not LL(1). Conflicts between rules " + str(M[A][candidate]) + " and " + str(i)
-					if (candidate == emptySymbol):
+					if (candidate == self.emptySymbol):
 						foundEpsilon = True
 					else:
 						M[A][candidate] = i
+		"""
 		for t in self.terminals:
 			M[t][t] = "M"
+		"""
 		return M
