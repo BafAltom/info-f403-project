@@ -1,0 +1,134 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{verbatim}
+\definecolor{grey}{rgb}{0.9,0.9,0.9}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+%\pagestyle{fancy} % voir si laisse ce style ou pas ?
+%\usepackage[top=2.5cm,bottom=2.5cm,right=2.5cm,left=2.5cm]{geometry}
+\usepackage[right=4cm,left=4cm]{geometry}
+\lstset{
+language=C++,
+basicstyle=\footnotesize\fontfamily{pcr},
+backgroundcolor=\color{grey},
+numbers=left,
+numberstyle=\tiny,
+numbersep=5pt,
+showstringspaces=false,
+tabsize=2,
+breaklines=true
+}
+
+
+% Title Page
+\title{INFO-F403 Introduction to Language Theory and Compilation}
+\author{Chapeaux Thomas\\Dagnely Pierre}
+
+\begin{document}
+\maketitle
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%	Quenstion 1
+%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hspace{-4.5cm}\begin{tabular}{|c|l|}
+\hline
+Lexical units  		& regular expressions \\ \hline
+INT					& (UNARY+ + UNARY-)(0+1+2+3+4+5+6+7+8+9)* \\ \hline
+FLOAT				& (UNARY+ + UNARY-)(0+1+2+3+4+5+6+7+8+9)*.(0+1+2+3+4+5+6+7+8+9)* \\ \hline
+BOOL				& (0+1) \\ \hline
+STRING (?)			& $\Sigma$  \\ \hline
+VARIABLE			& INT + FLOAT + BOOL + STRING \\ \hline
+OPERATOR			& ! + * + / + - $+$ + \\ \hline
+OPERATOR-COMP		& $<$ + $>$ + $<=$ + $>=$ + == + != + \&\& + $||$ + not + lt + gt + le + ge + eq + ne \\ \hline
+UNARY+				& + \\ \hline
+UNARY-				& - \\ \hline
+SEMICOLON			& ; \\ \hline
+COMA				& , \\ \hline
+AND					& \& \\ \hline
+OPEN-PAR			& ( \\ \hline
+CLOSE-PAR			& ) \\ \hline
+OPEN-BRAC			& \{ \\ \hline
+CLOSE-BRAC			& \} \\ \hline
+DOLLAR				& \$ \\ \hline
+OPEN-COND			& IF \\ \hline
+CLOSE-COND 			& ELSE \\ \hline
+ADD-COND			& ELSE IF \\ \hline
+NEG-COND			& UNLESS \\ \hline
+RETURN				& return \\ \hline
+FUNCTION-ID			& SUB \\ \hline \hline
+
+
+
+EXPRESSION (?)		& VARIABLE OPERATOR VARIABLE   \\
+					& EXPRESSION OPERATOR VARIABLE \\ \hline
+EXPRESSION-COND (?)	& VARIABLE OPERATOR-COMP VARIABLE   \\
+					& EXPRESSION OPERATOR-COMP VARIABLE \\ \hline
+CONDITION (?)		& ((OPEN-COND+NEG-COND)EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC\\
+					& (ADD-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC)* \\
+					& (CLOSE-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC))\\
+					& + EXPRESSION (OPEN-COND + NEG-COND) EXPRESSION-COND \\ \hline
+INSTRUCTIONS		& ((CONDITION SEMICOLON)* + (EXPRESSION SEMICOLON)* + (FUNCTION-CALL \\ 
+					& SEMICOLON)*)* \\ \hline \hline
+
+
+FUNCTION-NAME		& ?restrictions? \\ \hline
+PARAM-NAME			& ?restrictions? \\ \hline
+PARAM				& DOLLAR PARAM-NAME (COMA DOLLAR PARAM-NAME)* \\ \hline
+USER-FUNCT-CALL		& AND FUNCTION-NAME (OPEN-PAR CLOSE-PAR + OPEN-PAR PARAM CLOSE-PAR  \\
+					& + PARAM) SEMICOLON \\ \hline
+PERL-FUNCT-CALL		& defined EXPRESSION + int EXPRESSION + length EXPRESSION \\ 
+					& scalar EXPRESSION + substr EXPRESSION COMA INT COMA INT \\
+					& scalar EXPRESSION + substr EXPRESSION COMA INT  \\
+					& + print (?liste de string) \\ \hline
+FUNCTION-CALL		& USER-FUNCT-CALL + PERL-FUNCT-CALL \\ \hline
+FUNCTION			& FUNCTION-ID FUNCTION-NAME (OPEN-PAR CLOSE PAR + OPEN-PAR PARAM CLOSE-PAR) \\
+					& OPEN-BRAC INSTRUCTIONS (RETURN EXPRESSION + RETURN EXPRESSION-COND \\
+					& + RETURN VARIABLE) SEMICOLON CLOSE-BRAC \\ \hline
+FUNCTION-LIST		& FUNCTION* \\ \hline
+PROGRAM				& (FUNCTION-LIST + INSTRUCTIONS)*\\ \hline
+
+					
+					
+\end{tabular}
+
+
+
+
+(slide 13)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}          
