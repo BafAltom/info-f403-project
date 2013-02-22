@@ -1,11 +1,10 @@
 class CFGrammar:
 	@staticmethod
 	def findSymbols(rules):
-		symbols = []
+		symbols = set()
 		for r in rules:
 			for s in r:
-				if s not in symbols:
-					symbols.append(s)
+				symbols.add(s)
 		return symbols
 
 	def __init__(self, terminals, rules, startSymbol='S', emptySymbol='EPSILON'):
@@ -13,6 +12,8 @@ class CFGrammar:
 		self.terminals = terminals
 		self.startSymbol = startSymbol
 		self.emptySymbol = emptySymbol
+		assert self.startSymbol in self.symbols
+		assert self.emptySymbol in self.symbols
 		for t in terminals:
 			assert t in self.symbols, "Provided terminal " + str(t) + " was not found in symbols"
 
