@@ -42,18 +42,21 @@ breaklines=true
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\hspace{-4.5cm}\begin{tabular}{|c|l|}
+\hspace{-2.5cm}\begin{tabular}{|c|l|}
 \hline
 Lexical units  		& regular expressions \\ \hline
 INT					& (UNARY+ + UNARY-)(0+1+2+3+4+5+6+7+8+9)* \\ \hline
-FLOAT				& (UNARY+ + UNARY-)(0+1+2+3+4+5+6+7+8+9)*.(0+1+2+3+4+5+6+7+8+9)* \\ \hline
+FLOAT				& (UNARY+ + UNARY-)(0+1+2+3+4+5+6+7+8+9)*.DOT.(0+1+2+3+4+5+6+7+8+9)* \\ \hline
 BOOL				& (0+1) \\ \hline
-STRING (?)			& $\Sigma$  \\ \hline
-VARIABLE			& INT + FLOAT + BOOL + STRING \\ \hline
+STRING (?)			& '$\Sigma$'  \\ \hline
+VALUE				& INT + FLOAT + BOOL + STRING \\ \hline
+VARIABLE			& \$STRING \\ \hline
 OPERATOR			& ! + * + / + - $+$ + \\ \hline
 OPERATOR-COMP		& $<$ + $>$ + $<=$ + $>=$ + == + != + \&\& + $||$ + not + lt + gt + le + ge + eq + ne \\ \hline
 UNARY+				& + \\ \hline
 UNARY-				& - \\ \hline
+EQUAL				& = \\ \hline
+DOT					& . \\ \hline
 SEMICOLON			& ; \\ \hline
 COMA				& , \\ \hline
 AND					& \& \\ \hline
@@ -67,25 +70,30 @@ CLOSE-COND 			& ELSE \\ \hline
 ADD-COND			& ELSE IF \\ \hline
 NEG-COND			& UNLESS \\ \hline
 RETURN				& return \\ \hline
-FUNCTION-ID			& SUB \\ \hline \hline
+FUNCT-CREATION		& SUB \\ \hline
+FUNCTION-NAME (?)	& string \\ \hline 
+FUNCT-CALL			& \&STRING \\ \hline
+PERL-FUNCT-NAME		& defined + int + length + scalar + substr + scalar + substr + print\\ \hline
+COMM				& \#.STRING \\ \hline
 
 
+\end{tabular}
+~\\
 
+\hspace{-4.5cm}\begin{tabular}{|c|l|}
+\hline
 EXPRESSION (?)		& VARIABLE OPERATOR VARIABLE   \\
 					& EXPRESSION OPERATOR VARIABLE \\ \hline
 EXPRESSION-COND (?)	& VARIABLE OPERATOR-COMP VARIABLE   \\
 					& EXPRESSION OPERATOR-COMP VARIABLE \\ \hline
+ASSIGNATION			& VARIABLE EQUAL VALUE \\ \hline
 CONDITION (?)		& ((OPEN-COND+NEG-COND)EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC\\
 					& (ADD-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC)* \\
 					& (CLOSE-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC))\\
 					& + EXPRESSION (OPEN-COND + NEG-COND) EXPRESSION-COND \\ \hline
 INSTRUCTIONS		& ((CONDITION SEMICOLON)* + (EXPRESSION SEMICOLON)* + (FUNCTION-CALL \\ 
-					& SEMICOLON)*)* \\ \hline \hline
-
-
-FUNCTION-NAME		& ?restrictions? \\ \hline
-PARAM-NAME			& ?restrictions? \\ \hline
-PARAM				& DOLLAR PARAM-NAME (COMA DOLLAR PARAM-NAME)* \\ \hline
+					& SEMICOLON)* + (ASSIGNATION SEMICOLON)*)* \\ \hline
+PARAM				& DOLLAR VARIABLE (COMA DOLLAR VARIABLE)* \\ \hline
 USER-FUNCT-CALL		& AND FUNCTION-NAME (OPEN-PAR CLOSE-PAR + OPEN-PAR PARAM CLOSE-PAR  \\
 					& + PARAM) SEMICOLON \\ \hline
 PERL-FUNCT-CALL		& defined EXPRESSION + int EXPRESSION + length EXPRESSION \\ 
