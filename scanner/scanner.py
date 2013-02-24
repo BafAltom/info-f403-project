@@ -87,6 +87,7 @@ def scanner():
 				output.append("SEMICOLON")
 			print "output : ",output
 			print "table des symboles : ",symbolTable
+			print ""
 		
 	fichier.close()
 
