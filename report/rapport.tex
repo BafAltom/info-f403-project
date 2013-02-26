@@ -51,7 +51,7 @@ BOOL				& (0+1) \\ \hline
 STRING (?)			& '$\Sigma$'  \\ \hline
 VALUE				& INT + FLOAT + BOOL + STRING \\ \hline
 VARIABLE			& \$STRING \\ \hline
-OPERATOR			& ! + * + / + - $+$ + \\ \hline
+OPERATOR			& ! + * + / + - + . $+$ + \\ \hline
 OPERATOR-COMP		& $<$ + $>$ + $<=$ + $>=$ + == + != + \&\& + $||$ + not + lt + gt + le + ge + eq + ne \\ \hline
 UNARY+				& + \\ \hline
 UNARY-				& - \\ \hline
@@ -100,7 +100,7 @@ CONDITION			& $\rightarrow$ OPEN-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLO
 
 CONDITION-END		& $\rightarrow$ ADD-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC \\
 					& $\rightarrow$ ADD-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC CONDITION-END \\
-					& $\rightarrow$ CLOSE-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC\\
+					& $\rightarrow$ CLOSE-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC\\
 					& $\rightarrow$ EPSILON \\
 					
 					
@@ -128,10 +128,10 @@ PARAM-END			& $\rightarrow$ COMA DOLLAR VARIABLE \\
 
 
 
-USER-FUNCT-CALL		& $\rightarrow$ AND FUNCT-NAME OPEN-PAR CLOSE-PAR SEMICOLON \\ 
-					& $\rightarrow$ AND FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR SEMICOLON \\ 
-					& $\rightarrow$ AND FUNCT-NAME PARAM SEMICOLON \\ 
-					& $\rightarrow$ AND FUNCT-NAME SEMICOLON \\ 
+USER-FUNCT-CALL		& $\rightarrow$ AND FUNCT-NAME OPEN-PAR CLOSE-PAR\\ 
+					& $\rightarrow$ AND FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR\\ 
+					& $\rightarrow$ AND FUNCT-NAME PARAM\\ 
+					& $\rightarrow$ AND FUNCT-NAME\\ 
 					
 					
 					
@@ -141,7 +141,6 @@ PERL-FUNCT-CALL(?)	& $\rightarrow$ defined EXPRESSION \\
 					& $\rightarrow$ length EXPRESSION \\ 
 					& $\rightarrow$ scalar EXPRESSION \\
 					& $\rightarrow$ substr EXPRESSION COMA INT COMA INT \\
-					& $\rightarrow$ scalar EXPRESSION \\
 					& $\rightarrow$ substr EXPRESSION COMA INT  \\
 					& $\rightarrow$ print (?liste de string) \\ 
 					
@@ -150,13 +149,13 @@ FUNCTION-CALL		& $\rightarrow$ USER-FUNCT-CALL \\
 					& $\rightarrow$ PERL-FUNCT-CALL \\
 
 
-FUNCTION			& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-BRAC INSTRUCTIONS RETURN SEMICOLON CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR CLOSE PAR OPEN-BRAC INSTRUCTIONS RETURN SEMICOLON CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR OPEN-BRAC INSTRUCTIONS RETURN SEMICOLON CLOSE-BRAC \\
+FUNCTION			& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-BRAC INSTRUCTIONS RETURN CLOSE-BRAC \\
+					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR CLOSE PAR OPEN-BRAC INSTRUCTIONS RETURN CLOSE-BRAC \\
+					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR OPEN-BRAC INSTRUCTIONS RETURN CLOSE-BRAC \\
 
-RETURN				& $\rightarrow$ RETURN EXPRESSION \\
-					& $\rightarrow$ RETURN EXPRESSION-COND \\
-					& $\rightarrow$ RETURN VARIABLE \\
+RETURN				& $\rightarrow$ RET EXPRESSION SEMICOLON\\
+					& $\rightarrow$ RET EXPRESSION-COND SEMICOLON\\
+					& $\rightarrow$ RET VARIABLE SEMICOLON\\
 					& $\rightarrow$ EPSILON \\
 					
 FUNCTION-LIST		& $\rightarrow$ FUNCTION \\
