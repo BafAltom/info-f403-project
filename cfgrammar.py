@@ -7,7 +7,7 @@ class CFGrammar:
 				symbols.add(s)
 		return symbols
 
-	def __init__(self, terminals, rules, startSymbol='S', emptySymbol='EPSILON'):
+	def __init__(self, rules, terminals, startSymbol='S', emptySymbol='EPSILON'):
 		self.symbols = CFGrammar.findSymbols(rules)
 		self.terminals = terminals
 		self.startSymbol = startSymbol

@@ -30,7 +30,7 @@ rules = [
 ]
 
 terminals = set(['$', 'begin', 'end', 'Id', ':=', 'read', 'write', '(', ')', ',', 'Nb', '+', '-', ';', EPSILON])
-g1 = cfgrammar.CFGrammar(terminals, rules)
+g1 = cfgrammar.CFGrammar(rules, terminals)
 
 #-----------------------------------------------------------------------------------
 # G2 : from TP6
@@ -48,7 +48,7 @@ rules = [
 ]
 terminals = set(['$', '-', 'ID', '(', ')', EPSILON])
 
-g2 = cfgrammar.CFGrammar(terminals, rules)
+g2 = cfgrammar.CFGrammar(rules, terminals)
 
 # ------------------------------------------------------------------------
 # G3 : from slide 130
@@ -65,4 +65,4 @@ rules = [
 ]
 terminals = set(['$', '+', '*', 'id', '(', ')', EPSILON])
 
-g3 = cfgrammar.CFGrammar(terminals, rules)
+g3 = cfgrammar.CFGrammar(rules, terminals)
