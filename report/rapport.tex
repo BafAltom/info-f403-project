@@ -51,7 +51,7 @@ BOOL				& (0+1) \\ \hline
 STRING (?)			& '$\Sigma$'  \\ \hline
 VALUE				& INT + FLOAT + BOOL + STRING \\ \hline
 VARIABLE			& \$STRING \\ \hline
-OPERATOR			& ! + * + / + - $+$ + \\ \hline
+OPERATOR			& ! + * + / + - + . $+$ + \\ \hline
 OPERATOR-COMP		& $<$ + $>$ + $<=$ + $>=$ + == + != + \&\& + $||$ + not + lt + gt + le + ge + eq + ne \\ \hline
 UNARY+				& + \\ \hline
 UNARY-				& - \\ \hline
@@ -69,15 +69,115 @@ OPEN-COND			& IF \\ \hline
 CLOSE-COND 			& ELSE \\ \hline
 ADD-COND			& ELSE IF \\ \hline
 NEG-COND			& UNLESS \\ \hline
-RETURN				& return \\ \hline
-FUNCT-CREATION		& SUB \\ \hline
-FUNCTION-NAME (?)	& string \\ \hline 
+RET					& return \\ \hline
+FUNCT-ID			& SUB \\ \hline
+FUNCT-NAME (?)		& string \\ \hline 
 FUNCT-CALL			& \&STRING \\ \hline
 PERL-FUNCT-NAME		& defined + int + length + scalar + substr + scalar + substr + print\\ \hline
 COMM				& \#.STRING \\ \hline
 
 
 \end{tabular}
+
+
+
+~\\
+
+\hspace{-4.5cm}\begin{tabular}{rl}
+\hline
+EXPRESSION			& $\rightarrow$ VARIABLE   \\
+					& $\rightarrow$ EXPRESSION OPERATOR EXPRESSION \\ 
+					& $\rightarrow$ EXPRESSION-COMP \\
+EXPRESSION-COMP		& $\rightarrow$ EXPRESSION OPERATOR-COMP EXPRESSION \\
+ASSIGNATION			& $\rightarrow$ VARIABLE EQUAL VALUE \\
+					& $\rightarrow$ VARIABLE EQUAL EXPRESSION \\
+					
+CONDITION			& $\rightarrow$ OPEN-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC CONDITION-END\\
+					& $\rightarrow$ NEG-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC CONDITION-END\\
+					& $\rightarrow$ EXPRESSION OPEN-COND EXPRESSION-COND \\
+					& $\rightarrow$ EXPRESSION NEG-COND EXPRESSION-COND \\
+
+
+CONDITION-END		& $\rightarrow$ ADD-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC \\
+					& $\rightarrow$ ADD-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC CONDITION-END \\
+					& $\rightarrow$ CLOSE-COND OPEN-BRAC INSTRUCTIONS CLOSE-BRAC\\
+					& $\rightarrow$ EPSILON \\
+					
+					
+					
+					
+					
+INSTRUCTIONS		& $\rightarrow$ CONDITION SEMICOLON INSTRUCTIONS\\
+					& $\rightarrow$ EXPRESSION SEMICOLON INSTRUCTIONS\\
+					& $\rightarrow$ FUNCT-CALL SEMICOLON INSTRUCTIONS\\
+					& $\rightarrow$ ASSIGNATION SEMICOLON INSTRUCTIONS\\
+					& $\rightarrow$ CONDITION SEMICOLON \\
+					& $\rightarrow$ EXPRESSION SEMICOLON \\
+					& $\rightarrow$ FUNCT-CALL SEMICOLON \\
+					& $\rightarrow$ ASSIGNATION SEMICOLON \\
+					& $\rightarrow$ EPSILON \\
+					
+					
+					
+PARAM				& $\rightarrow$ DOLLAR VARIABLE \\
+					& $\rightarrow$ DOLLAR VARIABLE PARAM-END\\
+					& $\rightarrow$ EPSILON \\
+PARAM-END			& $\rightarrow$ COMA DOLLAR VARIABLE \\ 
+					& $\rightarrow$ COMA DOLLAR VARIABLE PARAM-END\\ 
+					& $\rightarrow$ EPSILON \\
+
+
+
+USER-FUNCT-CALL		& $\rightarrow$ AND FUNCT-NAME OPEN-PAR CLOSE-PAR\\ 
+					& $\rightarrow$ AND FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR\\ 
+					& $\rightarrow$ AND FUNCT-NAME PARAM\\ 
+					& $\rightarrow$ AND FUNCT-NAME\\ 
+					
+					
+					
+					
+PERL-FUNCT-CALL(?)	& $\rightarrow$ defined EXPRESSION \\
+					& $\rightarrow$ int EXPRESSION \\
+					& $\rightarrow$ length EXPRESSION \\ 
+					& $\rightarrow$ scalar EXPRESSION \\
+					& $\rightarrow$ substr EXPRESSION COMA INT COMA INT \\
+					& $\rightarrow$ substr EXPRESSION COMA INT  \\
+					& $\rightarrow$ print (?liste de string) \\ 
+					
+					
+FUNCTION-CALL		& $\rightarrow$ USER-FUNCT-CALL \\
+					& $\rightarrow$ PERL-FUNCT-CALL \\
+
+
+FUNCTION			& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-BRAC INSTRUCTIONS RETURN CLOSE-BRAC \\
+					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR CLOSE PAR OPEN-BRAC INSTRUCTIONS RETURN CLOSE-BRAC \\
+					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR OPEN-BRAC INSTRUCTIONS RETURN CLOSE-BRAC \\
+
+RETURN				& $\rightarrow$ RET EXPRESSION SEMICOLON\\
+					& $\rightarrow$ RET EXPRESSION-COND SEMICOLON\\
+					& $\rightarrow$ RET VARIABLE SEMICOLON\\
+					& $\rightarrow$ EPSILON \\
+					
+FUNCTION-LIST		& $\rightarrow$ FUNCTION \\
+					& $\rightarrow$ FUNCTION FUNCTION-LIST\\
+					& $\rightarrow$ EPSILON\\
+
+PROGRAM				& $\rightarrow$ PROGRAM FUNCTION-LIST\\
+					& $\rightarrow$ PROGRAM INSTRUCTIONS\\
+					& $\rightarrow$ FUNCTION-LIST\\
+					& $\rightarrow$ INSTRUCTIONS\\
+					& $\rightarrow$ EPSILON\\
+					
+					
+\end{tabular}
+
+
+
+
+
+
+
+
 ~\\
 
 \hspace{-4.5cm}\begin{tabular}{|c|l|}
