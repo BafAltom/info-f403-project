@@ -1,5 +1,3 @@
-import cfgrammar
-
 EPSILON = 'EPSILON'
 
 def test_1():
@@ -72,6 +70,32 @@ def test_3():
 	assert len(M['F']) == 2
 	assert M['F']['id'] == 8
 
-test_1()
-test_2()
-test_3()
+def test_4():
+	from grammars_examples import g4
+	first = g4.first_1()
+	follow = g4.follow_1()
+	M = g4.actionTable()
+
+	assert first and follow and M
+
+try:
+	test_1()
+except AssertionError, e:
+	print "Error during test number 1 : ", e
+
+try:
+	test_2()
+except AssertionError, e:
+	print "Error during test number 2 : ", e
+
+try:
+	test_3()
+except AssertionError, e:
+	print "Error during test number 3 : ", e
+
+try:
+	test_4()
+except AssertionError, e:
+	print "Error during test number 4 : ", e
+
+print "Done."
