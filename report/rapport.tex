@@ -44,19 +44,20 @@ breaklines=true
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ~\\
-\hspace{-2.5cm}\begin{longtable}{|c|l|}
+\hspace{-6cm}\begin{tabular}{cc}
+
+\begin{tabular}{|c|l|}
 \hline
 Lexical units  		& regular expressions \\ \hline
-INT					& (UNARY+ + UNARY-)(0+1+2+3+4+5+6+7+8+9)* \\ \hline
-FLOAT				& (UNARY+ + UNARY-)(0+1+2+3+4+5+6+7+8+9)*.DOT.(0+1+2+3+4+5+6+7+8+9)* \\ \hline
-BOOL				& (0+1) \\ \hline
-STRING (?)			& '.$\Sigma$.'  \\ \hline
-VARIABLE			& \$STRING \\ \hline
+INT					& ([0-9])* \\ \hline
+FLOAT				& ([0-9])*.DOT.([0-9])* \\ \hline
+BOOL				& (0+1+true+false+'') \\ \hline
+STRING				& '.([A-Za-z]+[0-9])*.'  \\ \hline
+VARIABLE			& \$.STRING \\ \hline
 FAC					& ! \\ \hline
 MUL					& * \\ \hline
 DIV					& / \\ \hline
 MINUS				& - \\ \hline
-CONC				& . \\ \hline
 ADD					& + \\ \hline
 LT					& $<$ \\ \hline
 GT					& $>$ \\ \hline
@@ -64,18 +65,22 @@ LE					& $<=$ \\ \hline
 GE					& $>=$ \\ \hline
 EQUIV				& == \\ \hline
 DIF					& != \\ \hline
-AND-LOGIC			& \&\& \\ \hline
+AND					& \&\& \\ \hline
 OR					& $||$ \\ \hline
 NOT					& not \\ \hline
 LT-S				& lt \\ \hline
 GT-S				& gt \\ \hline
 LE-S				& le \\ \hline
 GE-S				& ge \\ \hline
-COMA-LOGIC			& , \\ \hline
 EQ-S				& eq \\ \hline 
 NE-S				& ne \\ \hline
-UNARY+				& + \\ \hline
-UNARY-				& - \\ \hline
+\end{tabular}
+
+&
+
+\begin{tabular}{|c|l|}
+\hline
+Lexical units  		& regular expressions \\ \hline
 EQUAL				& = \\ \hline
 DOT					& . \\ \hline
 SEMICOLON			& ; \\ \hline
@@ -91,9 +96,9 @@ CLOSE-COND 			& ELSE \\ \hline
 ADD-COND			& ELSE IF \\ \hline
 NEG-COND			& UNLESS \\ \hline
 RET					& return \\ \hline
-FUNCT-ID			& SUB \\ \hline
-FUNCT-NAME (?)		& STRING \\ \hline 
-FUNCT-CALL			& \&STRING \\ \hline
+FUNCT-DEF			& SUB \\ \hline
+ID					& STRING \\ \hline 
+FUNCT-CALL			& \&.STRING \\ \hline
 PERL-DEF			& defined  \\ \hline
 PERL-INT			& int  \\ \hline
 PERL-LENG			& length  \\ \hline
@@ -101,9 +106,12 @@ PERL-SCAL			& scalar  \\ \hline
 PERL-SUBS			& substr  \\ \hline
 PERL-PRIN			& print\\ \hline
 COMM				& \#.STRING \\ \hline
+					
 
 
-\end{longtable}
+\end{tabular}
+\end{tabular}
+coma peut définir l'opérateur coma ou juste un coma entre deux param, mais même lexical unit, c'est le parser qui se charge du reste
 
 
 \pagebreak
