@@ -17,7 +17,6 @@ def scanner(pathFile):
 				
 					# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
 					# un moyen plus propre
-
 				token, line = getNextToken(line)
 			
 				if token.name != "" :
@@ -52,193 +51,192 @@ def getNextToken(line):
 		if line[0] == "-" :
 			line = line[1:]
 			return token.token("MINUS", ""), line
-		elif line[0] == "+" :
+		if line[0] == "+" :
 			line = line[1:]
 			return token.token("ADD", ""), line
-		elif line[0] == ">" :
-			if len(line)> 1 and line[1] == " " :
-				line = line[1:]
-				return token.token("GT", ""), line
-			elif len(line)> 2 and line[1] == "=" :
+		if line[0] == ">" :
+			if len(line)> 2 and line[1] == "=" :
 				line = line[2:]
 				return token.token("GE", ""), line
-		elif line[0] == "<" :
-			if len(line)> 1 and line[1] == " " :
+			else :
 				line = line[1:]
-				return token.token("LT", ""), line
-			elif len(line)> 2 and line[1] == "=" :
+				return token.token("GT", ""), line
+		if line[0] == "<" :
+			if len(line)> 2 and line[1] == "=" :
 				line = line[2:]
 				return token.token("LE", ""), line
-		elif line[0] == "/" :
+			else :
+				line = line[1:]
+				return token.token("LT", ""), line	
+		if line[0] == "/" :
 			line = line[1:]
 			return token.token("DIV", ""), line
-		elif line[0] == "*" :
+		if line[0] == "*" :
 			line = line[1:]
 			return token.token("MULTI", ""), line
-		elif line[0] == "}" :
+		if line[0] == "}" :
 			line = line[1:]
 			return token.token("CLOSE-BRAC", ""), line
-		elif line[0] == "{" :
+		if line[0] == "{" :
 			line = line[1:]
 			return token.token("OPEN-BRAC", ""), line
-		elif line[0] == ")" :
+		if line[0] == ")" :
 			line = line[1:]
 			return token.token("CLOSE-PAR", ""), line
-		elif line[0] == "(" :
+		if line[0] == "(" :
 			line = line[1:]
 			return token.token("OPEN-PAR", ""), line
-		elif line[0] == "," :
+		if line[0] == "," :
 			line = line[1:]
 			return token.token("COMA", ""), line
-		elif line[0] == ";" :
+		if line[0] == ";" :
 			line = line[1:]
 			return token.token("SEMICOLON", ""), line
-		elif line[0] == "." :
+		if line[0] == "." :
 			line = line[1:]
 			return token.token("DOT", ""), line
-		elif line[0] == "=" :
-			if len(line)> 1 and line[1] == " " :
-				line = line[1:]
-				return token.token("EQUAL", ""), line
-			elif len(line)> 2 and line[1] == "=" :
+		if line[0] == "=" :
+			if len(line)> 2 and line[1] == "=" :
 				line = line[2:]
 				return token.token("EQUIV", ""), line
-		elif line[0] == "!" :
-			if len(line)> 1 and line[1] == " " :
+			else :
 				line = line[1:]
-				return token.token("FAC", ""), line
-			elif len(line)> 2 and line[1] == "=" :
+				return token.token("EQUAL", ""), line
+		if line[0] == "!" :
+			if len(line)> 2 and line[1] == "=" :
 				line = line[2:]
 				return token.token("DIF", ""), line
-		elif len(line)> 2 and line[0:2] == "||" :
+			else :
+				line = line[1:]
+				return token.token("FAC", ""), line
+		if re.match("\|\|[^a-zA-Z0-9_]",line) :
 			line = line[2:]
 			return token.token("OR", ""), line
-		elif len(line)> 2 and line[0:2] == "&&" :
+		if re.match("\&\&[^a-zA-Z0-9_]",line) :
 			line = line[2:]
 			return token.token("AND", ""), line
-		elif len(line)> 2 and line[0:2] == "''" : # Dans l'enonce on peut definir un false avec un string vide !!!!!!!!!!!!!!!!!!!!!!!!!
+		if re.match("''[^a-zA-Z0-9_]",line) : # Dans l'enonce on peut definir un false avec un string vide !!!!!!!!!!!!!!!!!!!!!!!!!
 			line = line[2:]
 			return token.token("BOOL", "false"), line
 			
 		# On cherche ensuite les operateurs "strings"
-		elif line[0] == "n" :
-			if len(line)> 3 and line[1:4] == "ot " :
+		if line[0] == "n" :
+			if re.match("not[^a-zA-Z0-9_-]",line) :
 				line = line[3:]
 				return token.token("NOT", ""), line
-			elif len(line)> 2 and line[1] == "e" and line[2]==" ":
+			elif re.match("ne[^a-zA-Z0-9__-]",line):
 				line = line[2:]
 				return token.token("NE-S", ""), line
-		elif len(line)> 4 and line[0:5] == "true ":
+		if re.match("true[^a-zA-Z0-9_-]",line):
 			line = line[4:]
 			return token.token("BOOL", "true"), line
-		elif len(line)> 5 and line[0:6] == "false " :
+		if re.match("false[^a-zA-Z0-9_-]",line):
 			line = line[5:]
 			return token.token("BOOL", "false"), line
-		elif line[0] == "l" :
-			if len(line)> 2 and line[1] == "t" and line[2]==" ":
+		if line[0] == "l" :
+			if re.match("lt[^a-zA-Z0-9__-]",line):
 				line = line[2:]
 				return token.token("LT-S", ""), line
-			elif len(line)> 2 and line[1] == "e" and line[2]==" ":
+			if re.match("le[^a-zA-Z0-9__-]",line):
 				line = line[2:]
 				return token.token("LE-S", ""), line
-			elif len(line)> 6 and line[1:7] == "ength " :
+			if re.match("length[^a-zA-Z0-9_-]",line) :
 				line = line[6:]
 				return token.token("PERL-LENG", ""), line
-		elif line[0] == "g" :
-			if len(line)> 2 and line[1] == "t" and line[2]==" ":
+		if line[0] == "g" :
+			if re.match("gt[^a-zA-Z0-9__-]",line):
 				line = line[2:]
 				return token.token("GT-S", ""), line
-			elif len(line)> 2 and line[1] == "e" and line[2]==" ":
+			if re.match("ge[^a-zA-Z0-9__-]",line):
 				line = line[2:]
 				return token.token("GE-S", ""), line
-		elif line[0] == "i" :
-			if len(line)> 2 and line[1] == "f" and line[2]==" ":
+		if line[0] == "i" :
+			if re.match("if[^a-zA-Z0-9_-]",line):
 				line = line[2:]
 				return token.token("OPEN-COND", ""), line
-			elif len(line)> 3 and line[1:4] == "nt " :
+			if re.match("int[^a-zA-Z0-9_-]",line) :
 				line = line[3:]
 				return token.token("PERL-INT", ""), line
-		elif line[0] == "e" :
-			if len(line)> 2 and line[1] == "q" and line[2]==" ":
+		if line[0] == "e" :
+			if re.match("eq[^a-zA-Z0-9__-]",line) :
 				line = line[2:]
 				return token.token("EQ-S", ""), line
-			elif len(line)> 4 and line[1:5] == "lse " :
+			if re.match("else if[^a-zA-Z0-9_-]",line) :
 				line = line[4:]
-				return token.token("CLOSE-COND", ""), line
-			elif len(line)> 7 and line[1:8] == "lse if " :
-				line = line[7:]
 				return token.token("ADD-COND", ""), line
-		elif len(line)> 7 and line[0:8] == "defined " :
+			if re.match("else[^a-zA-Z0-9_-]",line) :
+				line = line[7:]
+				return token.token("CLOSE-COND", ""), line
+		if re.match("defined[^a-zA-Z0-9_-]",line) :
 			line = line[7:]
 			return token.token("PERL-DEF", ""), line
-		elif len(line)> 6 and line[0:7] == "unless " :
+		if re.match("unless[^a-zA-Z0-9_-]",line) :
 			line = line[6:]
 			return token.token("NEG-COND", ""), line
-		elif len(line)> 5 and line[0:6] == "print " :
+		if re.match("print[^a-zA-Z0-9_-]",line) :
 			line = line[5:]
 			return token.token("PERL-PRINT", ""), line
-		elif len(line)> 6 and line[0:7] == "return " :
+		if re.match("return[^a-zA-Z0-9_-]",line) :
 			line = line[6:]
 			return token.token("RET", ""), line
-		elif line[0] == "s" :
-			if len(line)> 3 and line[1:4] == "ub ":
+		if line[0] == "s" :
+			if re.match("sub[^a-zA-Z0-9_-]",line) :
 				line = line[3:]
 				return token.token("FUNCT-DEF", ""), line
-			elif len(line)> 6 and line[1:7] == "ubstr " :
+			if re.match("substr[^a-zA-Z0-9_-]",line) :
 				line = line[6:]
 				return token.token("PERL-SUBS", ""), line
-			elif len(line)> 6 and line[1:7] == "calar " :
+			if re.match("scalar[^a-zA-Z0-9_-]",line) :
 				line = line[6:]
 				return token.token("PERL-SCAL", ""), line
 				
 		# On cherche ensuite les nombres (float et int)		
-		elif re.match("[0-9]", line) :
-			if re.match("([0-9])+\.([0-9])+ ", line) :
+		if re.match("[0-9]", line) :
+			floatNumber = re.match("([0-9])+\.([0-9])+", line)
+			intNumber = re.match("([0-9])+", line) # On sait deja qu il n y a pas de point apres puisqu on teste les float d abord
+			if floatNumber :
 				# On a un float
-				nmbr = line.split(' ')
-				line = line[len(nmbr[0]):]
-				return token.token("FLOAT", nmbr[0]), line
-			elif re.match("([0-9])+ ", line) :
+				line = line[len(floatNumber.group()):]
+				return token.token("FLOAT", floatNumber.group()), line
+			if intNumber :
 				# on a un entier
-				nmbr = line.split(' ')
-				line = line[len(nmbr[0]):]
-				return token.token("INT", nmbr[0]), line
+				line = line[len(intNumber.group()):]
+				return token.token("INT", intNumber.group()), line
 		
 		# On cherche ensuite les variables, fonctions et strings (tout ce qui necessite une boucle)
-		elif line[0] == "&" :
-			if re.match("&([A-Za-z])+([A-Za-z0-9_-])* ", line) :
+		if line[0] == "&" :
+			func = re.match("&([A-Za-z])+([A-Za-z0-9_-])*", line)
+			if func :
 				# On a un appel de fonction (& suivi d'un string)
-				nmbr = line.split(' ')
-				line = line[len(nmbr[0]):]
-				return token.token("FUNCT-CALL", nmbr[0][1:]), line
+				line = line[len(func.group()):]
+				return token.token("FUNCT-CALL", func.group()[1:]), line
 				
-		elif line[0] == "'" :
-			if re.match("'(.)*'", line) :
+		if line[0] == "'" :
+			string = re.match("'(.)*'", line)
+			if string :
 				# On a un string (' suivi d'un string et termine par un autre ')
-				nmbr = line.split("'")
-				line = line[len(nmbr[1])+2:]
-				return token.token("STRING", nmbr[1]), line
+				line = line[len(string.group()):]
+				return token.token("STRING", string.group()[1:-1]), line
 				
-		elif line[0] == "$" :
-			if re.match("[$]([A-Za-z])+([A-Za-z0-9_-])* ", line) :
+		if line[0] == "$" :
+			var = re.match("[$]([A-Za-z])+([A-Za-z0-9_-])*", line)
+			if  var :
 				# On a une variable ($ suivi d'un string)
-				nmbr = line.split(' ')
-				line = line[len(nmbr[0]):]
-				return token.token("VARIABLE", nmbr[0][1:]), line
+				line = line[len(var.group()):]
+				return token.token("VARIABLE", var.group()[1:]), line
 		
 		
 		
 		# tout ce qui reste est alors une variable
-		elif re.match("([A-Za-z])+([A-Za-z0-9_-])* ", line) :
-			# On a un ID (un string)
-			nmbr = line.split(' ')
-			line = line[len(nmbr[0]):]
-			return token.token("ID", nmbr[0]), line
+		if re.match("([A-Za-z])", line) :
+			var = re.match("([A-Za-z])+([A-Za-z0-9_-])*", line)
+			if var :
+				# On a un ID (un string)
+				line = line[len(var.group()):]
+				return token.token("ID", var.group()), line
 	
-		# Si on arrive ici c est qu il y a un probleme avec la syntaxe du fichier
-		else :
-			print "pas bien"
-			return NULL
+		# Si on arrive ici c est qu il y a un probleme avec la syntaxe du fichier	
+		return NULL
 	
 	
 	

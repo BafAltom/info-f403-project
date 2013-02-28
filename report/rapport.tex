@@ -53,7 +53,6 @@ INT					& ([0-9])* \\ \hline
 FLOAT				& ([0-9])*.DOT.([0-9])* \\ \hline
 BOOL				& (0+1+true+false+'') \\ \hline
 STRING				& '.([A-Za-z]+[0-9])*.'  \\ \hline
-VARIABLE			& \$.STRING \\ \hline
 FAC					& ! \\ \hline
 MUL					& * \\ \hline
 DIV					& / \\ \hline
@@ -85,12 +84,10 @@ EQUAL				& = \\ \hline
 DOT					& . \\ \hline
 SEMICOLON			& ; \\ \hline
 COMA				& , \\ \hline
-AND					& \& \\ \hline
 OPEN-PAR			& ( \\ \hline
 CLOSE-PAR			& ) \\ \hline
 OPEN-BRAC			& \{ \\ \hline
 CLOSE-BRAC			& \} \\ \hline
-DOLLAR				& \$ \\ \hline
 OPEN-COND			& IF \\ \hline
 CLOSE-COND 			& ELSE \\ \hline
 ADD-COND			& ELSE IF \\ \hline
@@ -106,13 +103,36 @@ PERL-SCAL			& scalar  \\ \hline
 PERL-SUBS			& substr  \\ \hline
 PERL-PRIN			& print\\ \hline
 COMM				& \#.STRING \\ \hline
+VARIABLE			& \$.STRING \\ \hline
 					
 
 
 \end{tabular}
 \end{tabular}
+~\\
+
 coma peut définir l'opérateur coma ou juste un coma entre deux param, mais même lexical unit, c'est le parser qui se charge du reste
 
+
+\pagebreak
+~\\
+\paragraph{DFA}~\\
+
+ \begin{figure}[H] \hspace*{-2cm} 
+    \centering
+   	  \includegraphics[width=400pt]{automate1.pdf} 
+			\caption{automate "non alphabétique"}
+			\label{automate1}
+  \end{figure}	
+  
+	La plupart des noeuds pointent vers le token ID, trop lourd a représenter, donc met une petite fleche bleu à la place.  
+  
+  \begin{figure}[H] \hspace*{-2cm} 
+    \centering
+   	  \includegraphics[width=450pt]{automate2.pdf} 
+			\caption{automate "alphabétique"}
+			\label{automate2}
+  \end{figure}	
 
 \pagebreak
 ~\\
