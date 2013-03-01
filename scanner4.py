@@ -9,33 +9,24 @@ import re
 def scanner(pathFile):
 	Perlfile = open(pathFile,"r")
 	tokenList = list()
-	
-	try:
 
+	try:
 		for line in Perlfile :
 			while line != "" :
-				
 					# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
 					# un moyen plus propre
-				token, line = getNextToken(line)
-			
-				if token.name != "" :
-					tokenList.append(token)
-				
+				tok, line = getNextToken(line)
+				if tok.name != "" :
+					tokenList.append(tok)
 		for tok in tokenList :
 			print tok.name + "  " + tok.value
 	except :
 		print("Le fichier ne respecte pas la syntaxe PERL")
-	
-	
-	
-		
 	Perlfile.close()
 
 
 
 def getNextToken(line):
-	
 	# On retire le caractere de fin de ligne :
 	line = line.replace("\n","")
 	# On retire les commentaires de la lignes :
@@ -45,7 +36,6 @@ def getNextToken(line):
 	# On ne considere pas les lignes vides :
 	if line == "" :
 		return token.token("", ""), line
-		
 	else :
 		# On cherche d'abord les operateurs "non string"
 		if line[0] == "-" :
