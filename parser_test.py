@@ -1,47 +1,146 @@
 import parser
-import scanner
+from scanner import token
+from scanner import scanner4
 
 def test_1():
 	from grammars_examples import g1
 	ll1_parser = parser.LL1Parser(g1)
 
-	inputString = "begin Id := Id + Nb ; write ( Id + ( Nb - Id ) ) ; end $"
+	inputTokens = []
+	inputTokens.append(token.token("begin"))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token(":="))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token("+"))
+	inputTokens.append(token.token("Nb"))
+	inputTokens.append(token.token(";"))
+	inputTokens.append(token.token("write"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token("+"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("Nb"))
+	inputTokens.append(token.token("-"))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token(";"))
+	inputTokens.append(token.token("end"))
+	inputTokens.append(token.token("$"))
 
-	out = ll1_parser.parse(inputString)
+	out = ll1_parser.parse(inputTokens)
 	assert out[-1] == 'A'
 
-#                                  v unknown symbol
-	inputString = "begin Id := Id * Nb ; write ( Id + ( Nb - Id ) ) ; end $"
+	# unknown symbol (*)
+	inputTokens = []
+	inputTokens.append(token.token("begin"))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token(":="))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token("*"))  # ##
+	inputTokens.append(token.token("Nb"))
+	inputTokens.append(token.token(";"))
+	inputTokens.append(token.token("write"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token("+"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("Nb"))
+	inputTokens.append(token.token("-"))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token(";"))
+	inputTokens.append(token.token("end"))
+	inputTokens.append(token.token("$"))
 
-	out = ll1_parser.parse(inputString)
+	out = ll1_parser.parse(inputTokens)
 	assert out[-1] == 'E'
 
-	inputString = "begin Id := Id + Nb ; write ( Id + ( Nb - Id ) ; end $"
+	# mismatched parenthesis
+	inputTokens = []
+	inputTokens.append(token.token("begin"))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token(":="))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token("+"))
+	inputTokens.append(token.token("Nb"))
+	inputTokens.append(token.token(";"))
+	inputTokens.append(token.token("write"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token("+"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("Nb"))
+	inputTokens.append(token.token("-"))
+	inputTokens.append(token.token("Id"))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token("("))  # ###
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token(";"))
+	inputTokens.append(token.token("end"))
+	inputTokens.append(token.token("$"))
 
-	out = ll1_parser.parse(inputString)
+	out = ll1_parser.parse(inputTokens)
 	assert out[-1] == 'E'
 
 def test_2():
 	from grammars_examples import g2
 	ll1_parser = parser.LL1Parser(g2)
 
-	inputString = 'ID - ( ID ) $'
-	out = ll1_parser.parse(inputString)
+	inputTokens = []
+	inputTokens.append(token.token("ID"))
+	inputTokens.append(token.token("-"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("ID"))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token("$"))
+
+	out = ll1_parser.parse(inputTokens)
 	assert out[-1] == 'A'
 
-	inputString = 'ID - ( ID ( ) $'
-	out = ll1_parser.parse(inputString)
+	inputTokens = []
+	inputTokens.append(token.token("ID"))
+	inputTokens.append(token.token("-"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("ID"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token("$"))
+
+	out = ll1_parser.parse(inputTokens)
 	assert out[-1] == 'E'
 
 def test_3():
 	from grammars_examples import g3
 	ll1_parser = parser.LL1Parser(g3)
 
-	inputString = 'id * ( id + id ) $'
-	out = ll1_parser.parse(inputString)
-	print ll1_parser.parseTree
+	inputTokens = []
+	inputTokens.append(token.token("id", "a"))
+	inputTokens.append(token.token("*"))
+	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("id", "a"))
+	inputTokens.append(token.token("+"))
+	inputTokens.append(token.token("id", "b"))
+	inputTokens.append(token.token(")"))
+	inputTokens.append(token.token("$"))
+	out = ll1_parser.parse(inputTokens)
+
 	assert out[-1] == 'A'
+	out_tree = ll1_parser.parseTree
+	assert (out_tree.value.name == 'S')
+	assert (out_tree.children[0].value.name == 'E')
+	assert (out_tree.children[0].children[0].children[0].children[0].value.value == 'a')
+
+def test_4():
+	from grammars_examples import g4
+	ll1_parser = parser.LL1Parser(g4)
+
+	inputTokens = scanner4.scanner("scanner/test.perl")
+	out = ll1_parser.parse(inputTokens)
+	print out
 
 test_1()
 test_2()
 test_3()
+test_4()

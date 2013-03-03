@@ -1,58 +1,53 @@
 import token
 import re
 
-
-
-	
-	
-
-def scanner(pathFile):
-	Perlfile = open(pathFile,"r")
+def scanner(pathFile, verbose=False):
+	Perlfile = open(pathFile, "r")
 	tokenList = list()
 
 	try:
-		for line in Perlfile :
-			while line != "" :
+		for line in Perlfile:
+			while line != "":
 					# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
 					# un moyen plus propre
 				tok, line = getNextToken(line)
-				if tok.name != "" :
+				if tok.name != "":
 					tokenList.append(tok)
-		for tok in tokenList :
-			print tok.name + "  " + tok.value
-	except :
+		if (verbose):
+			for tok in tokenList:
+				print tok.name + "\t" + tok.value
+	except:
 		print("Le fichier ne respecte pas la syntaxe PERL")
 	Perlfile.close()
-
-
+	return tokenList
 
 def getNextToken(line):
 	# On retire le caractere de fin de ligne :
-	line = line.replace("\n","")
+	line = line.replace("\n", "")
 	# On retire les commentaires de la lignes :
 	line = line.split("#")[0]
 	# On retire les caractere vide au debut de la ligne :
 	line = line.lstrip()
 	# On ne considere pas les lignes vides :
-	if line == "" :
+	if line == "":
 		return token.token("", ""), line
-	else :
+	else:
 		# On cherche d'abord les operateurs "non string"
-		if line[0] == "-" :
+		if line[0] == "-":
 			line = line[1:]
 			return token.token("MINUS", ""), line
-		if line[0] == "+" :
+		if line[0] == "+":
 			line = line[1:]
 			return token.token("ADD", ""), line
-		if line[0] == ">" :
-			if len(line)> 2 and line[1] == "=" :
+		if line[0] == ">":
+			if len(line) > 2 and line[1] == "=":
 				line = line[2:]
 				return token.token("GE", ""), line
-			else :
+			else:
 				line = line[1:]
 				return token.token("GT", ""), line
-		if line[0] == "<" :
-			if len(line)> 2 and line[1] == "=" :
+		if line[0] == "<":
+			if len(line) > 2 and line[1] == "=":
 				line = line[2:]
 				return token.token("LE", ""), line
 			else :
@@ -200,68 +195,29 @@ def getNextToken(line):
 				# On a un appel de fonction (& suivi d'un string)
 				line = line[len(func.group()):]
 				return token.token("FUNCT-CALL", func.group()[1:]), line
-				
-		if line[0] == "'" :
+
+		if line[0] == "'":
 			string = re.match("'(.)*'", line)
-			if string :
+			if string:
 				# On a un string (' suivi d'un string et termine par un autre ')
 				line = line[len(string.group()):]
 				return token.token("STRING", string.group()[1:-1]), line
-				
-		if line[0] == "$" :
+
+		if line[0] == "$":
 			var = re.match("[$]([A-Za-z])+([A-Za-z0-9_-])*", line)
-			if  var :
+			if var:
 				# On a une variable ($ suivi d'un string)
 				line = line[len(var.group()):]
 				return token.token("VARIABLE", var.group()[1:]), line
-		
-		
-		
 		# tout ce qui reste est alors une variable
-		if re.match("([A-Za-z])", line) :
+		if re.match("([A-Za-z])", line):
 			var = re.match("([A-Za-z])+([A-Za-z0-9_-])*", line)
-			if var :
+			if var:
 				# On a un ID (un string)
 				line = line[len(var.group()):]
 				return token.token("ID", var.group()), line
-	
-		# Si on arrive ici c est qu il y a un probleme avec la syntaxe du fichier	
-		return NULL
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		# Si on arrive ici c est qu il y a un probleme avec la syntaxe du fichier
+		return None
 
-
-
-scanner("test.perl")
+if __name__ == '__main__':
+	scanner("test.perl", verbose=True)

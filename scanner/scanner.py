@@ -6,7 +6,7 @@
 #while not os.path.exists(nomFichier) :
 #    print("Ce fichier n'existe pas !")
 #    nomFichier = raw_input("Quel fichier voulez-vous utiliser ? ")
- 
+
 # Ouvrir le fichier :
 #fichier = open(nomFichier,"r")
 
@@ -91,5 +91,5 @@ def scanner():
 		
 	fichier.close()
 
-
-scanner()
+if __name__ == '__main__':
+	scanner()

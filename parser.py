@@ -1,3 +1,5 @@
+from scanner import token
+
 class parseTreeNode:
 	def __init__(self, value):
 		self.value = value
@@ -19,7 +21,7 @@ class parseTreeNode:
 
 	def __repr__(self):
 		my_repr = "\t" * self.getDepth()
-		my_repr += self.value + "\n"
+		my_repr += str(self.value) + "\n"
 		for child in self.children:
 			my_repr += str(child)
 		return my_repr
@@ -49,7 +51,7 @@ class LL1Parser:
 		self.error = False
 		self.success = False
 
-		self.parseTree = parseTreeNode(self.grammar.startSymbol)
+		self.parseTree = parseTreeNode(token.token(self.grammar.startSymbol))
 		self.currentNode = self.parseTree
 
 		self.parse_recursiveCall()
@@ -65,20 +67,28 @@ class LL1Parser:
 			print "output", self.output
 			print "parseTree :\n", self.parseTree
 			print "currentNode", self.currentNode.value
-		x = self.currentNode.value
-		u = self.input[0]  # only one character as we have an LL1-parser
+			#print "first", self.grammar.first_1()
+			#print "follow", self.grammar.follow_1()
+			#print "action", self.grammar.actionTable()
+
+		stack_token = self.currentNode.value
+		input_token = self.input[0]  # only one character as we have an LL1-parser
+		# notation from the syllabus - pp. 116
+		X = stack_token.name
+		u = input_token.name
+		assert X in self.grammar.symbols
 
 		if (self.verbose):
-			print "x", x
-			print "u", u
+			print "from stack", stack_token
+			print "from input", input_token
 
-		if (x in self.grammar.symbols and u in self.M[x]):
-			self.produce(self.M[x][u])
-		elif (x in self.grammar.terminals and x != self.endSymbol):
+		if (u in self.M[X]):
+			self.produce(self.M[X][u])
+		elif (X in self.grammar.terminals and X != self.endSymbol):
 			self.match()
-		elif (x == u and x == '$'):
+		elif (X == u and X == '$'):
 			self.trigger_accept()
-		else:  # Not expected
+		else:
 			self.trigger_error()
 
 	def trigger_error(self):
@@ -105,7 +115,7 @@ class LL1Parser:
 		saved_current = self.currentNode
 		for produced in self.grammar.rules[i][1:]:
 			if (produced != self.grammar.emptySymbol):
-				self.currentNode.giveChild(produced)
+				self.currentNode.giveChild(token.token(produced))
 				self.currentNode = self.currentNode.children[-1]
 				self.parse_recursiveCall()
 				self.currentNode = saved_current
@@ -114,7 +124,9 @@ class LL1Parser:
 	def match(self):
 		if (self.verbose):
 			print "match"
-		a = self.currentNode.value
-		b = self.input.pop(0)
-		assert a == b, "match : input and stack does not match"
+		parseTreeToken = self.currentNode.value
+		inputToken = self.input.pop(0)
+		assert parseTreeToken.name == inputToken.name, "match : input and stack does not match"
+
+		parseTreeToken.value = inputToken.value
 		self.output.append("M")
