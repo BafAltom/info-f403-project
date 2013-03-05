@@ -104,7 +104,7 @@ def test_2():
 	inputTokens.append(token.token("-"))
 	inputTokens.append(token.token("("))
 	inputTokens.append(token.token("ID"))
-	inputTokens.append(token.token("("))
+	inputTokens.append(token.token("("))  # ##
 	inputTokens.append(token.token(")"))
 	inputTokens.append(token.token("$"))
 
@@ -133,8 +133,20 @@ def test_3():
 	assert (out_tree.children[0].children[0].children[0].children[0].value.value == 'a')
 
 def test_4():
-	from grammars_examples import g4
-	ll1_parser = parser.LL1Parser(g4)
+	from grammars_examples import g5
+
+	print "first"
+	first = g5.first_1()
+	for a, b in first.items():
+		if a not in g5.terminals:
+			print a, b
+	print "follow"
+	follow = g5.follow_1()
+	for a, b in follow.items():
+		if a not in g5.terminals:
+			print a, b
+
+	ll1_parser = parser.LL1Parser(g5)
 
 	inputTokens = scanner4.scanner("scanner/test.perl")
 	out = ll1_parser.parse(inputTokens)

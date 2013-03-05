@@ -49,6 +49,7 @@ class CFGrammar:
 								found_epsilon = True
 							if candidate not in first[A]:
 								stable = False
+								assert candidate not in first[A], "Grammar is not LL(1) : conflict when adding " + str(candidate) + " as a First symbol of " + str(A)
 								first[A].append(candidate)
 								#print "\t\t\tadded"
 		#print "first took " + str(cnt) + " turns"
@@ -90,10 +91,18 @@ class CFGrammar:
 									foundEpsilon = True
 								elif candidate not in follow[A]:
 									stable = False
+									assert candidate not in follow[A], "Grammar is not LL(1) : conflict when adding " + str(candidate) + " as a Follow symbol of " + str(A)
 									follow[A].append(candidate)
 									#print "\t\t\t\tadded"
 		#print "follow took", cnt, "turns"
 		return follow
+
+	def actionTableAsString(self):
+		M = self.actionTable()
+		MRepr = ""
+		for a, b in M.items():
+			MRepr += str(a) + "\t" + str(b) + "\n"
+		return MRepr
 
 	def actionTable(self):
 	# dict-matrix where M[symbol1][symbol2] contains the index of an element of self.rules (or None)
@@ -119,7 +128,7 @@ class CFGrammar:
 					candidates = first[rule[current_symbol]]
 				for candidate in candidates:
 					#print "\t\tcandidate : ", candidate
-					assert candidate not in M[A] or M[A][candidate] == i, "Grammar is not LL(1). Conflicts between rules " + str(M[A][candidate]) + " and " + str(i)
+					assert candidate not in M[A] or M[A][candidate] == i, "Grammar is not LL(1). Conflicts between rules " + str(M[A][candidate]) + " and " + str(i) + " when adding " + str(candidate) + " to " + str(A) + "\n" + str(M)
 					if (candidate == self.emptySymbol):
 						foundEpsilon = True
 					else:

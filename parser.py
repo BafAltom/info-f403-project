@@ -31,7 +31,7 @@ class LL1Parser:
 		self.grammar = grammar
 		self.M = grammar.actionTable()
 
-		self.endSymbol = "__UNDEFINED"
+		self.endSymbol = None
 
 		self.input = None
 
@@ -46,6 +46,7 @@ class LL1Parser:
 	def parse(self, inputText, endSymbol="$"):
 
 		self.input = inputText  # list of symbols
+		assert endSymbol in self.grammar.symbols
 		self.endSymbol = endSymbol
 		self.output = []
 		self.error = False
