@@ -114,7 +114,8 @@ VARIABLE			& \$.STRING \\ \hline
 \end{tabular}
 ~\\
 
-coma peut définir l'opérateur coma ou juste un coma entre deux param, mais même lexical unit, c'est le parser qui se charge du reste
+coma peut définir l'opérateur coma ou juste un coma entre deux param, mais même lexical unit, c'est le parser qui se charge du reste\\
+COMM ne sera plus utilisé par la suite, on les supprime avant de faire l'analyse lexicale
 
 
 \pagebreak
@@ -161,17 +162,17 @@ FUNCT-LIST			& $\rightarrow$ FUNCT \\
 					& $\rightarrow$ FUNCT FUNCT-LIST\\
 					& $\rightarrow$ EPSILON\\
 					
-FUNCT				& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR CLOSE PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
+FUNCT				& $\rightarrow$ FUNCT-DEF ID OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
+					& $\rightarrow$ FUNCT-DEF ID OPEN-PAR CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
+					& $\rightarrow$ FUNCT-DEF ID OPEN-PAR PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
 
 FUNCT-CALL			& $\rightarrow$ USER-FUNCT-CALL \\
 					& $\rightarrow$ PERL-FUNCT-CALL \\
 
-USER-FUNCT-CALL		& $\rightarrow$ FUNCT-NAME OPEN-PAR CLOSE-PAR\\ 
-					& $\rightarrow$ FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR\\ 
-					& $\rightarrow$ FUNCT-NAME PARAM\\ 
-					& $\rightarrow$ FUNCT-NAME\\ 
+USER-FUNCT-CALL		& $\rightarrow$ ID OPEN-PAR CLOSE-PAR\\ 
+					& $\rightarrow$ ID OPEN-PAR PARAM CLOSE-PAR\\ 
+					& $\rightarrow$ ID PARAM\\ 
+					& $\rightarrow$ ID\\ 
 
 				
 PERL-FUNCT-CALL		& $\rightarrow$ PERL-DEF EXP \\
@@ -252,6 +253,8 @@ OPERATOR			& $\rightarrow$ MUL \\
 					& $\rightarrow$ MINUS \\ 
 					& $\rightarrow$ CONC \\ 
 					& $\rightarrow$ ADD	\\ 
+					& $\rightarrow$ COMA\\ 
+					& $\rightarrow$ DOT	\\ 
 OPERATOR-COMP		& $\rightarrow$ LT\\
 					& $\rightarrow$ GT	\\
 					& $\rightarrow$ LE	\\
@@ -274,6 +277,7 @@ VALUE				& $\rightarrow$ INT \\
 					& $\rightarrow$ STRING \\
 					
 VAR					& $\rightarrow$ VALUE \\
+					& $\rightarrow$ VARIABLE \\
 					& $\rightarrow$ MINUS VAR\\
 					& $\rightarrow$ ADD VAR \\
 					& $\rightarrow$ OPEN-PAR EXP CLOSE-PAR \\
@@ -296,13 +300,17 @@ Cela ne modifie que les règles EXP, EXP-COND, OPERATOR et OPERATOR-COND qui dev
 $<$EXP$>$			& $\rightarrow$ $<$EXP$>$ LT $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ LT-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ GT $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LT-S $<$EXP2$>$\\
+					& $\rightarrow$ $<$EXP$>$ GT-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ LE $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ LE-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ GE $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ GE-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ EQUIV $<$EXP2$>$\\
+					& $\rightarrow$ $<$EXP$>$ EQ-S $<$EXP2$>$\\
+					& $\rightarrow$ $<$EXP$>$ NE-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ DIF $<$EXP2$>$\\
+					& $\rightarrow$ $<$EXP$>$ DOT $<$EXP2$>$\\
+					& $\rightarrow$ $<$EXP$>$ COMA $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
 					& $\rightarrow$ NOT $<$EXP$>$ \\
 					& $\rightarrow$ FAC $<$EXP$>$ \\
@@ -353,18 +361,18 @@ FUNCT-LIST			& $\rightarrow$ FUNCT FUNCT-LIST-END\\
 FUNCT-LIST-END		& $\rightarrow$ FUNCT-LIST\\
 					& $\rightarrow$ EPSILON\\
 					
-FUNCT				& $\rightarrow$ FUNCT-ID FUNCT-NAME FUNCT-END \\
+FUNCT				& $\rightarrow$ FUNCT-DEF ID FUNCT-END \\
 
 FUNCT-END			& $\rightarrow$ OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
 					& $\rightarrow$ OPEN-PAR FUNCT-END2 \\
 
-FUNCT-END2			& $\rightarrow$ CLOSE PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
+FUNCT-END2			& $\rightarrow$ CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
 					& $\rightarrow$ PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
 
 FUNCT-CALL			& $\rightarrow$ USER-FUNCT-CALL \\
 					& $\rightarrow$ PERL-FUNCT-CALL \\
 
-USER-FUNCT-CALL		& $\rightarrow$ FUNCT-NAME USER-FUNCT-CALL-END\\ 
+USER-FUNCT-CALL		& $\rightarrow$ ID USER-FUNCT-CALL-END\\ 
 
 USER-FUNCT-CALL-END	& $\rightarrow$ OPEN-PAR USER-FUNCT-CALL-END2\\ 
 					& $\rightarrow$ PARAM\\ 
@@ -468,13 +476,17 @@ $<$EXP$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP-END$>$\\
 $<$EXP-END$>$		& $\rightarrow$ LT $<$EXP2$>$\\
 					& $\rightarrow$ LT-S $<$EXP2$>$\\
 					& $\rightarrow$ GT $<$EXP2$>$\\
-					& $\rightarrow$ LT-S $<$EXP2$>$\\
+					& $\rightarrow$ GT-S $<$EXP2$>$\\
 					& $\rightarrow$ LE $<$EXP2$>$\\
 					& $\rightarrow$ LE-S $<$EXP2$>$\\
 					& $\rightarrow$ GE $<$EXP2$>$\\
 					& $\rightarrow$ GE-S $<$EXP2$>$\\
 					& $\rightarrow$ EQUIV $<$EXP2$>$\\
+					& $\rightarrow$ EQ-S $<$EXP2$>$\\
+					& $\rightarrow$ NE-S $<$EXP2$>$\\
 					& $\rightarrow$ DIF $<$EXP2$>$\\
+					& $\rightarrow$ DOT $<$EXP2$>$\\
+					& $\rightarrow$ COMA $<$EXP2$>$\\
 										
 					
 $<$EXP2$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP2-END$>$\\
@@ -498,6 +510,7 @@ VALUE				& $\rightarrow$ INT \\
 					& $\rightarrow$ STRING \\
 					
 VAR					& $\rightarrow$ VALUE \\
+					& $\rightarrow$ VARIABLE \\
 					& $\rightarrow$ MINUS VAR\\
 					& $\rightarrow$ ADD VAR \\
 					& $\rightarrow$ OPEN-PAR EXP CLOSE-PAR \\
@@ -512,18 +525,43 @@ VAR					& $\rightarrow$ VALUE \\
 
 \subsection{récursion gauche}
 
+On doit juste changer les règles PROGRAM et EXP qui deviennent:\\
+~\\
 
 
+\begin{tabular}{rl}
+PROGRAM				& $\rightarrow$ PROG PROG-TAIL \\
+PROG				& $\rightarrow$ FUNCT-LIST\\
+					& $\rightarrow$ INSTRUCT\\
+					& $\rightarrow$ EPSILON\\
+PROG-TAIL			& $\rightarrow$ PROG-END PROG-TAIL\\
+					& $\rightarrow$ EPSILON\\
+
+$<$EXP$>$			& $\rightarrow$ $<$E$>$ $<$EXP-TAIL$>$\\
+E					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
+					& $\rightarrow$ NOT $<$EXP$>$ \\
+					& $\rightarrow$ FAC $<$EXP$>$ \\
+					& $\rightarrow$ $<$EXP2$>$ \\
+
+EXP-TAIL			& $\rightarrow$ EXP-END EXP-TAIL \\
+					& $\rightarrow$ EPSILON \\
+					
+\end{tabular}
 
 \pagebreak
 \subsection{Grammaire finale}
-\textbf{VERSION PROVISOIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!}
+
+
 ~\\
+
 \hspace{-3.5cm}\begin{tabular}{rl}
-PROGRAM				& $\rightarrow$ PROGRAM PROG-END \\
-					& $\rightarrow$ FUNCT-LIST\\
+PROGRAM				& $\rightarrow$ PROG PROG-TAIL \\
+PROG				& $\rightarrow$ FUNCT-LIST\\
 					& $\rightarrow$ INSTRUCT\\
 					& $\rightarrow$ EPSILON\\
+PROG-TAIL			& $\rightarrow$ PROG-END PROG-TAIL\\
+					& $\rightarrow$ EPSILON\\
+					
 PROG-END			& $\rightarrow$ FUNCT-LIST\\
 					& $\rightarrow$ INSTRUCT\\
 					
@@ -533,18 +571,18 @@ FUNCT-LIST			& $\rightarrow$ FUNCT FUNCT-LIST-END\\
 FUNCT-LIST-END		& $\rightarrow$ FUNCT-LIST\\
 					& $\rightarrow$ EPSILON\\
 					
-FUNCT				& $\rightarrow$ FUNCT-ID FUNCT-NAME FUNCT-END \\
+FUNCT				& $\rightarrow$ FUNCT-DEF ID FUNCT-END \\
 
 FUNCT-END			& $\rightarrow$ OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
 					& $\rightarrow$ OPEN-PAR FUNCT-END2 \\
 
-FUNCT-END2			& $\rightarrow$ CLOSE PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
+FUNCT-END2			& $\rightarrow$ CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
 					& $\rightarrow$ PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
 
 FUNCT-CALL			& $\rightarrow$ USER-FUNCT-CALL \\
 					& $\rightarrow$ PERL-FUNCT-CALL \\
 
-USER-FUNCT-CALL		& $\rightarrow$ FUNCT-NAME USER-FUNCT-CALL-END\\ 
+USER-FUNCT-CALL		& $\rightarrow$ ID USER-FUNCT-CALL-END\\ 
 
 USER-FUNCT-CALL-END	& $\rightarrow$ OPEN-PAR USER-FUNCT-CALL-END2\\ 
 					& $\rightarrow$ PARAM\\ 
@@ -627,23 +665,30 @@ COND-END			& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-
 COND-END3			& $\rightarrow$ COND-END \\
 					& $\rightarrow$ EPSILON \\					
 
-$<$EXP$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP-END$>$\\
-					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
+$<$EXP$>$			& $\rightarrow$ $<$E$>$ $<$EXP-TAIL$>$\\
+E					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
 					& $\rightarrow$ NOT $<$EXP$>$ \\
 					& $\rightarrow$ FAC $<$EXP$>$ \\
 					& $\rightarrow$ $<$EXP2$>$ \\
+
+EXP-TAIL			& $\rightarrow$ EXP-END EXP-TAIL \\
+					& $\rightarrow$ EPSILON \\
 					
 					
 $<$EXP-END$>$		& $\rightarrow$ LT $<$EXP2$>$\\
 					& $\rightarrow$ LT-S $<$EXP2$>$\\
 					& $\rightarrow$ GT $<$EXP2$>$\\
-					& $\rightarrow$ LT-S $<$EXP2$>$\\
+					& $\rightarrow$ GT-S $<$EXP2$>$\\
 					& $\rightarrow$ LE $<$EXP2$>$\\
 					& $\rightarrow$ LE-S $<$EXP2$>$\\
 					& $\rightarrow$ GE $<$EXP2$>$\\
 					& $\rightarrow$ GE-S $<$EXP2$>$\\
 					& $\rightarrow$ EQUIV $<$EXP2$>$\\
+					& $\rightarrow$ EQ-S $<$EXP2$>$\\
+					& $\rightarrow$ NE-S $<$EXP2$>$\\
 					& $\rightarrow$ DIF $<$EXP2$>$\\
+					& $\rightarrow$ DOT $<$EXP2$>$\\
+					& $\rightarrow$ COMA $<$EXP2$>$\\
 										
 					
 $<$EXP2$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP2-END$>$\\
@@ -667,6 +712,7 @@ VALUE				& $\rightarrow$ INT \\
 					& $\rightarrow$ STRING \\
 					
 VAR					& $\rightarrow$ VALUE \\
+					& $\rightarrow$ VARIABLE \\
 					& $\rightarrow$ MINUS VAR\\
 					& $\rightarrow$ ADD VAR \\
 					& $\rightarrow$ OPEN-PAR EXP CLOSE-PAR \\
@@ -825,7 +871,7 @@ COND-END			& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC \\
 $<$EXP$>$			& $\rightarrow$ $<$EXP$>$ LT $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ LT-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ GT $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LT-S $<$EXP2$>$\\
+					& $\rightarrow$ $<$EXP$>$ GT-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ LE $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ LE-S $<$EXP2$>$\\
 					& $\rightarrow$ $<$EXP$>$ GE $<$EXP2$>$\\

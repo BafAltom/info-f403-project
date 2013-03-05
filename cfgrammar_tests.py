@@ -69,12 +69,13 @@ def test_3():
 	assert M['T2']['$'] == 6
 	assert len(M['F']) == 2
 	assert M['F']['id'] == 8
-
-def test_4():
-	from grammars_examples import g4
-	first = g4.first_1()
-	follow = g4.follow_1()
-	M = g4.actionTable()
+	
+	
+def test_5():
+	from grammars_examples import g5
+	first = g5.first_1()
+	follow = g5.follow_1()
+	M = g5.actionTable()
 
 	assert first and follow and M
 
@@ -94,8 +95,8 @@ except AssertionError, e:
 	print "Error during test number 3 : ", e
 
 try:
-	test_4()
+	test_5()
 except AssertionError, e:
-	print "Error during test number 4 : ", e
+	print "Error during test number 5 : ", e
 
 print "Done."
