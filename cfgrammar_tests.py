@@ -71,11 +71,11 @@ def test_3():
 	assert M['F']['id'] == 8
 	
 	
-def test_5():
-	from grammars_examples import g5
-	first = g5.first_1()
-	follow = g5.follow_1()
-	M = g5.actionTable()
+def test_6():
+	from grammars_examples import g6
+	first = g6.first_1()
+	follow = g6.follow_1()
+	M = g6.actionTable()
 
 	assert first and follow and M
 
@@ -95,7 +95,7 @@ except AssertionError, e:
 	print "Error during test number 3 : ", e
 
 try:
-	test_5()
+	test_6()
 except AssertionError, e:
 	print "Error during test number 5 : ", e
 

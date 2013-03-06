@@ -10,7 +10,7 @@
 \usepackage{float}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
-%\pagestyle{fancy} % voir si laisse ce style ou pas ?
+\pagestyle{fancy} % voir si laisse ce style ou pas ?
 %\usepackage[top=2.5cm,bottom=2.5cm,right=2.5cm,left=2.5cm]{geometry}
 \usepackage[right=4cm,left=4cm]{geometry}
 \lstset{
@@ -24,6 +24,10 @@ showstringspaces=false,
 tabsize=2,
 breaklines=true
 }
+\usepackage{titlesec}
+\titleformat{\section}[frame]{\normalfont\Huge\bfseries}{\thesection}{0.5em}{}
+\titleformat{\subsection}[block]{\normalfont\LARGE\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}[block]{\normalfont\large\bfseries}{\thesubsubsection}{1em}{}
 
 
 % Title Page
@@ -38,7 +42,7 @@ breaklines=true
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %%
-%%	Quenstion 1
+%%	Quenstion 1 : Lexèmes
 %%
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,7 +102,7 @@ NEG-COND			& UNLESS \\ \hline
 RET					& return \\ \hline
 FUNCT-DEF			& SUB \\ \hline
 ID					& STRING \\ \hline 
-FUNCT-CALL			& \&.STRING \\ \hline
+FUNCT-NAME			& \&.STRING \\ \hline
 PERL-DEF			& defined  \\ \hline
 PERL-INT			& int  \\ \hline
 PERL-LENG			& length  \\ \hline
@@ -119,6 +123,13 @@ COMM ne sera plus utilisé par la suite, on les supprime avant de faire l'analys
 
 
 \pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%	Quenstion 2 : Automates
+%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Automates}
 
 Définition des automates finis
@@ -141,12 +152,408 @@ Définition des automates finis
 			\label{automate2}
   \end{figure}	
 
+
+
+
+
+
+
+
+
 \pagebreak
-~\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%	Quenstion 3 : Grammaire LL1
+%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Grammaire}
 
-\section{Gramaires}
+	\subsection{Grammaire de base}
+	
+	Nous utilisons pour définir la grammaire la version simplifiée de l'assistant : \\
+	
+	
+\hspace{-3.0cm}\begin{tabular}{rl}
+$<$PROGRAM$>$		& $\rightarrow$ $<$FUNCT-LIST$>$ $<$INSTRUCT-LIST$>$\\
+					& $\rightarrow$ $<$FUNCT-LIST$>$\\
+					& $\rightarrow$ $<$INSTRUCT-LIST$>$\\
+					
+					
+$<$FUNCT-LIST$>$	& $\rightarrow$ $<$FUNCT$>$ \\
+					& $\rightarrow$ $<$FUNCT-LIST$>$ $<$FUNCT$>$\\
+					
+$<$FUNCT$>$			& $\rightarrow$ funct-def id $<$FUNCT-ARG$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac \\
 
-\subsection{Définition de la grammaire}
+
+					
+$<$FUNCT-ARG$>$		& $\rightarrow$ $<$ARG-LIST$>$ \\
+
+$<$ARG-LIST$>$		& $\rightarrow$ $<$ARG-LIST$>$ coma variable \\ 
+					& $\rightarrow$ variable\\ 
+					& $\rightarrow$ epsilon \\
+
+$<$INSTRUCT-LIST$>$	& $\rightarrow$ $<$INSTRUCT-LIST$>$ $<$INSTRUCT$>$ semicolon\\
+					& $\rightarrow$ $<$INSTRUCT$>$ semicolon\\
+					
+$<$FUNCT-CALL$>$	& $\rightarrow$ funct-name $<$FUNCT-CALL-ARG$>$\\
+
+$<$FUNCT-CALL-ARG$>$& $\rightarrow$ $<$FUNCT-CALL-ARG$>$ coma $<$EXP$>$\\
+					& $\rightarrow$ $<$EXP$>$\\
+					& $\rightarrow$ epsilon\\
+
+$<$INSTRUCT$>$		& $\rightarrow$ variable equal $<$EXP$>$\\
+					& $\rightarrow$ $<$EXP$>$\\
+					& $\rightarrow$ ret $<$EXP$>$\\
+					& $\rightarrow$ $<$COND$>$\\
+					
+$<$COND$>$			& $\rightarrow$ open-cond $<$EXP$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac $<$COND-END$>$\\
+
+
+
+$<$COND-END$>$		& $\rightarrow$ add-cond $<$EXP$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac $<$COND-END$>$ \\
+					& $\rightarrow$ close-cond open-brac $<$INSTRUCT-LIST$>$ close-brac\\
+					& $\rightarrow$ epsilon \\
+					
+$<$SIMPLE-EXP$>$	& $\rightarrow$ int \\
+					& $\rightarrow$ $<$FUNCT-CALL$>$ \\
+					& $\rightarrow$ variable \\
+					& $\rightarrow$ string \\				
+
+$<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
+					& $\rightarrow$ open-par $<$EXP$>$ close-par\\ 
+					& $\rightarrow$ $<$EXP$>$ add $<$EXP$>$ \\
+					& $\rightarrow$ $<$EXP$>$ minus $<$EXP$>$ \\
+					& $\rightarrow$ $<$EXP$>$ multi $<$EXP$>$ \\
+					& $\rightarrow$ $<$EXP$>$ div $<$EXP$>$ \\
+					& $\rightarrow$ $<$EXP$>$ equiv $<$EXP$>$ \\
+					& $\rightarrow$ $<$EXP$>$ gt $<$EXP$>$ \\
+					
+					
+\end{tabular}
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Suppression des symboles inutiles}
+	
+	on vire les non-productifs et inaccessibles.\\
+	Y en a pas donc ca va vite.
+	
+
+
+
+
+
+
+	
+\subsection{Gestion des priorités et associativité}
+	Cela ne concerne que la règle EXP, on la transforme donc en : \\
+	
+
+	\begin{center}\begin{tabular}{rl}
+		$<$EXP$>$			& $\rightarrow$ $<$EXP-2$>$ equiv $<$EXP-2$>$ $<$EXP$>$  \\
+							& $\rightarrow$ $<$EXP-2$>$ gt $<$EXP-2$>$ $<$EXP$>$\\ 
+							& $\rightarrow$ $<$EXP-2$>$ \\
+					
+		$<$EXP-2$>$			& $\rightarrow$ $<$EXP-3$>$ add $<$EXP-3$>$ $<$EXP-2$>$  \\
+							& $\rightarrow$ $<$EXP-3$>$ minus $<$EXP-3$>$ $<$EXP-2$>$\\ 
+							& $\rightarrow$ $<$EXP-3$>$ \\
+
+		$<$EXP-3$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$ mul $<$SIMPLE-EXP$>$ $<$EXP-3$>$  \\
+							& $\rightarrow$ $<$SIMPLE-EXP$>$ div $<$SIMPLE-EXP$>$ $<$EXP-3$>$\\ 
+							& $\rightarrow$ $<$SIMPLE-EXP$>$ \\					
+	\end{tabular}\end{center}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{left factoring}
+	Cela ne concerne que EXP, EXP-2, EXP-3 et PROGRAM : \\
+	\begin{center}\begin{tabular}{rl}
+		$<$PROGRAM$>$		& $\rightarrow$ $<$FUNCT-LIST$>$ $<$PROG-TAIL$>$\\
+							& $\rightarrow$ $<$INSTRUCT-LIST$>$\\
+		$<$PROG-TAIL$>$		& $\rightarrow$ $<$INSTRUCT-LIST$>$\\
+							& $\rightarrow$ epsilon\\
+							&\\
+							&\\
+		$<$EXP$>$			& $\rightarrow$ $<$EXP-2$>$ $<$EXP-TAIL$>$ \\
+
+		$<$EXP-TAIL$>$		& $\rightarrow$ equiv $<$EXP-2$>$ $<$EXP-TAIL$>$\\
+							& $\rightarrow$ gt $<$EXP-2$>$ $<$EXP-TAIL$>$\\ 
+							& $\rightarrow$ epsilon \\
+					
+		$<$EXP-2$>$			& $\rightarrow$ $<$EXP-3$>$ $<$EXP-2-TAIL$>$ \\
+
+		$<$EXP-2-TAIL$>$	& $\rightarrow$ add $<$EXP-3$>$ $<$EXP-2-TAIL$>$\\
+							& $\rightarrow$ minus $<$EXP-3$>$ $<$EXP-2-TAIL$>$\\ 
+							& $\rightarrow$ epsilon \\
+					
+		$<$EXP-3$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$ $<$EXP-3-TAIL$>$ \\
+
+		$<$EXP-3-TAIL$>$	& $\rightarrow$ mul $<$SIMPLE-EXP$>$ $<$EXP-3-TAIL$>$\\
+							& $\rightarrow$ div $<$SIMPLE-EXP$>$ $<$EXP-3-TAIL$>$\\ 
+							& $\rightarrow$ epsilon \\				
+	\end{tabular}\end{center}
+
+
+
+
+
+
+
+\subsection{Left recursion}
+	concerne FUNCT-LIST, ARG-LIST, INSTRUCT-LIST, FUNCT-CALL-ARG : \\
+
+	\begin{center}\begin{tabular}{rl}				
+					
+		$<$FUNCT-LIST$>$		& $\rightarrow$ $<$FUNCT-LIST-BEG$>$ $<$FUNCT-LIST-END$>$\\
+		$<$FUNCT-LIST-BEG$>$	& $\rightarrow$ $<$FUNCT$>$ \\
+		$<$FUNCT-LIST-END$>$	& $\rightarrow$ $<$FUNCT$>$ $<$FUNCT-LIST-END$>$\\
+								& $\rightarrow$ EPSILON \\
+								&\\
+								&\\
+
+		$<$ARG-LIST$>$			& $\rightarrow$ $<$ARG-LIST-BEG$>$ $<$ARG-LIST-END$>$\\ 
+		$<$ARG-LIST-BEG$>$		& $\rightarrow$ variable\\ 
+								& $\rightarrow$ epsilon \\
+		$<$ARG-LIST-END$>$		& $\rightarrow$ coma variable $<$ARG-LIST-END$>$\\ 
+								& $\rightarrow$ epsilon \\
+								&\\
+								&\\
+		$<$INSTRUCT-LIST$>$		& $\rightarrow$ $<$INSTRUCT$>$ semicolon $<$INSTRUCT-LIST$>$\\
+								& $\rightarrow$ epsilon\\
+								&\\
+								&\\
+
+		$<$FUNCT-CALL-ARG$>$	& $\rightarrow$ $<$FUNCT-CALL-ARG-BEG$>$ $<$FUNCT-CALL-ARG-END$>$\\ 
+		$<$FUNCT-CALL-ARG-BEG$>$& $\rightarrow$ $<$EXP$>$\\ 
+								& $\rightarrow$ epsilon \\
+		$<$FUNCT-CALL-ARG-END$>$& $\rightarrow$ coma $<$EXP$>$ $<$FUNCT-CALL-ARG-END$>$\\ 
+								& $\rightarrow$ epsilon \\
+	\end{tabular}\end{center}
+
+
+
+
+\subsection{Suppresion des productions unitaires}
+	La règle FUNCT-ARG ($<$FUNCT-ARG$>$ $\rightarrow$ $<$ARG-LIST$>$) est dans ce cas\\
+	On la remplace donc directement par ARG-LIST.\\
+	~\\
+	Seul FUNCT est touché et devient : ($<$FUNCT$>$	 $\rightarrow$ funct-def id $<$FUNCT-ARG$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac) \\
+
+
+
+
+
+\subsection{Suppression des ambiguïté}
+
+	Il reste encore une ambiguïté avec cette grammaire, au niveau de FUNCT-CALL-ARG : \\
+	Soit : 
+		\begin{center}\begin{tabular}{rl}				
+			
+			$<$FUNCT-CALL$>$	& $\rightarrow$ funct-name $<$FUNCT-CALL-ARG$>$\\
+			
+			$<$FUNCT-CALL-ARG$>$	& $\rightarrow$ $<$FUNCT-CALL-ARG-BEG$>$ $<$FUNCT-CALL-ARG-END$>$\\ 
+			$<$FUNCT-CALL-ARG-BEG$>$& $\rightarrow$ $<$EXP$>$\\ 
+									& $\rightarrow$ epsilon \\
+			$<$FUNCT-CALL-ARG-END$>$& $\rightarrow$ coma $<$EXP$>$ $<$FUNCT-CALL-ARG-END$>$\\ 
+									& $\rightarrow$ epsilon \\
+									& $\vdots$\\
+									
+			$<$SIMPLE-EXP$>$		& $\rightarrow$ $<$FUNCT-CALL$>$ \\
+									& $\vdots$\\				
+			$<$EXP$>$				& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
+									& $\vdots$\\
+	\end{tabular}\end{center}
+	On voit qu'on a un problème car les fonction peuvent appeler des fonctions en paramètres.\\
+	On peut ainsi se retrouver avec une fonction du type : 
+	\begin{center}
+		foo bar 4, 3
+	\end{center}
+	Il est alors impossible de savoir si 3 est le deuxième argument de bar ou de foo.\\
+	On rajoute alors des parenthèses pour lever cette ambiguïté.
+		\begin{center}\begin{tabular}{rl}							
+			$<$FUNCT-CALL$>$	& $\rightarrow$ funct-name open-par $<$FUNCT-CALL-ARG$>$ close-par\\
+	\end{tabular}\end{center}
+	\textcolor{red}{voir si on peut faire ça, on si existe un moyen de résoudre ça en modifiant la grammaire}\\
+
+
+
+
+
+\subsection{Grammaire finale}
+
+\hspace{-3.0cm}\begin{tabular}{rl}	
+	$<$PROGRAM$>$				& $\rightarrow$ $<$FUNCT-LIST$>$ $<$PROG-TAIL$>$ \\
+								& $\rightarrow$ $<$INSTRUCT-LIST$>$ \\
+	$<$PROG-TAIL$>$				& $\rightarrow$ $<$INSTRUCT-LIST$>$ \\
+								& $\rightarrow$ epsilon \\
+						
+	$<$FUNCT-LIST$>$			& $\rightarrow$ $<$FUNCT-LIST-BEG$>$ $<$FUNCT-LIST-END$>$ \\
+	$<$FUNCT-LIST-BEG$>$		& $\rightarrow$ $<$FUNCT$>$ \\
+	$<$FUNCT-LIST-END$>$		& $\rightarrow$ $<$FUNCT$>$ $<$FUNCT-LIST-END$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$FUNCT$>$					& $\rightarrow$ funct-def id $<$ARG-LIST$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac \\
+	$<$ARG-LIST$>$				& $\rightarrow$ $<$ARG-LIST-BEG$>$ $<$ARG-LIST-END$>$ \\
+	$<$ARG-LIST-BEG$>$			& $\rightarrow$ variable \\
+								& $\rightarrow$ epsilon \\
+	$<$ARG-LIST-END$>$			& $\rightarrow$ coma variable $<$ARG-LIST-END$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$INSTRUCT-LIST$>$			& $\rightarrow$ $<$INSTRUCT$>$ semicolon $<$INSTRUCT-LIST$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$FUNCT-CALL$>$			& $\rightarrow$ funct-name open-par $<$FUNCT-CALL-ARG$>$ close-par \\
+	$<$FUNCT-CALL-ARG$>$		& $\rightarrow$ $<$FUNCT-CALL-ARG-BEG$>$ $<$FUNCT-CALL-ARG-END$>$ \\
+	$<$FUNCT-CALL-ARG-BEG$>$	& $\rightarrow$ $<$EXP$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$FUNCT-CALL-ARG-END$>$	& $\rightarrow$ coma $<$EXP$>$ $<$FUNCT-CALL-ARG-END$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$INSTRUCT$>$				& $\rightarrow$ variable equal $<$EXP$>$ \\
+								& $\rightarrow$ ret $<$EXP$>$ \\
+								& $\rightarrow$ $<$COND$>$ \\
+	$<$COND$>$					& $\rightarrow$ open-cond $<$EXP$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac $<$COND-END$>$ \\
+	$<$COND-END$>$				& $\rightarrow$ close-cond open-brac $<$INSTRUCT-LIST$>$ close-brac \\
+								& $\rightarrow$ add-cond $<$EXP$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac $<$COND-END$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$SIMPLE-EXP$>$			& $\rightarrow$ $<$FUNCT-CALL$>$ \\
+								& $\rightarrow$ variable \\
+								& $\rightarrow$ int \\
+								& $\rightarrow$ string \\
+								& $\rightarrow$ open-par $<$EXP$>$ close-par \\
+	$<$EXP$>$					& $\rightarrow$ $<$EXP-2$>$ $<$EXP-TAIL$>$ \\
+	$<$EXP-TAIL$>$				& $\rightarrow$ equiv $<$EXP-2$>$ $<$EXP-TAIL$>$ \\
+								& $\rightarrow$ gt $<$EXP-2$>$ $<$EXP-TAIL$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$EXP-2$>$					& $\rightarrow$ $<$EXP-3$>$ $<$EXP-2-TAIL$>$ \\
+	$<$EXP-2-TAIL$>$			& $\rightarrow$ add $<$EXP-3$>$ $<$EXP-2-TAIL$>$ \\
+								& $\rightarrow$ minus $<$EXP-3$>$ $<$EXP-2-TAIL$>$ \\
+								& $\rightarrow$ epsilon \\
+	$<$EXP-3$>$					& $\rightarrow$ $<$SIMPLE-EXP$>$ $<$EXP-3-TAIL$>$ \\
+	$<$EXP-3-TAIL$>$			& $\rightarrow$ mul $<$SIMPLE-EXP$>$ $<$EXP-3-TAIL$>$ \\
+								& $\rightarrow$ div $<$SIMPLE-EXP$>$ $<$EXP-3-TAIL$>$ \\
+								& $\rightarrow$ epsilon \\
+					
+					
+\end{tabular}
+
+
+
+
+
+
+
+
+
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%	scanner
+%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Scanner}
+
+	reconnait plus de token que ceux supporté par la grammaire.\\
+	because passé de grammaire complète à grammaire simplifié
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%	parser
+%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Parser}
+
+
+
+	\subsection{Table de parsing}
+	
+	
+	
+	\subsection{First and follow}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%	Poubelle
+%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Poubelle}
+
+\subsection{Grammaire complète : bug}
 
 On se base sur la BNF donné par l'assistant et on l'adapte à notre version de perl
 
@@ -735,7 +1142,6 @@ VAR					& $\rightarrow$ VALUE \\
 
 
 
-\section{Poubelle}
 
 
 

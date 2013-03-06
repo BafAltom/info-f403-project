@@ -133,24 +133,24 @@ def test_3():
 	assert (out_tree.children[0].children[0].children[0].children[0].value.value == 'a')
 
 def test_4():
-	from grammars_examples import g5
+	from grammars_examples import g6
 
 	print "first"
-	first = g5.first_1()
+	first = g6.first_1()
 	for a, b in first.items():
-		if a not in g5.terminals:
+		if a not in g6.terminals:
 			print a, b
 	print "follow"
-	follow = g5.follow_1()
+	follow = g6.follow_1()
 	for a, b in follow.items():
-		if a not in g5.terminals:
+		if a not in g6.terminals:
 			print a, b
 
-	ll1_parser = parser.LL1Parser(g5)
+	#ll1_parser = parser.LL1Parser(g5)
 
-	inputTokens = scanner4.scanner("scanner/test.perl")
-	out = ll1_parser.parse(inputTokens)
-	print out
+	#inputTokens = scanner4.scanner("scanner/test.perl")
+	#out = ll1_parser.parse(inputTokens)
+	#print out
 
 test_1()
 test_2()
