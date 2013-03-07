@@ -31,8 +31,6 @@ class LL1Parser:
 		self.grammar = grammar
 		self.M = grammar.actionTable()
 
-		self.endSymbol = None
-
 		self.input = None
 
 		self.parseTree = None
@@ -43,11 +41,8 @@ class LL1Parser:
 		self.success = False
 		self.output = None
 
-	def parse(self, inputText, endSymbol="$"):
-
+	def parse(self, inputText):
 		self.input = inputText  # list of symbols
-		assert endSymbol in self.grammar.symbols
-		self.endSymbol = endSymbol
 		self.output = []
 		self.error = False
 		self.success = False
@@ -85,10 +80,8 @@ class LL1Parser:
 
 		if (u in self.M[X]):
 			self.produce(self.M[X][u])
-		elif (X in self.grammar.terminals and X != self.endSymbol):
+		elif (X in self.grammar.terminals and X == u):
 			self.match()
-		elif (X == u and X == '$'):
-			self.trigger_accept()
 		else:
 			self.trigger_error()
 
@@ -128,6 +121,8 @@ class LL1Parser:
 		parseTreeToken = self.currentNode.value
 		inputToken = self.input.pop(0)
 		assert parseTreeToken.name == inputToken.name, "match : input and stack does not match"
-
 		parseTreeToken.value = inputToken.value
 		self.output.append("M")
+		if (len(self.input) == 0):
+			self.trigger_accept()
+
