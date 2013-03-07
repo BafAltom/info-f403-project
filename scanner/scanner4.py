@@ -161,7 +161,7 @@ def getNextToken(line):
 			return token.token("NEG-COND", ""), line
 		if re.match("print[^a-zA-Z0-9_-]",line) :
 			line = line[5:]
-			return token.token("PERL-PRINT", ""), line
+			return token.token("PERL-PRIN", ""), line
 		if re.match("return[^a-zA-Z0-9_-]",line) :
 			line = line[6:]
 			return token.token("RET", ""), line
