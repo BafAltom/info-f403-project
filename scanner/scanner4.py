@@ -2,22 +2,23 @@ import token
 import re
 
 def scanner(pathFile, verbose=False):
-	Perlfile = open(pathFile, "r")
-	tokenList = list()
-
 	try:
+		Perlfile = open(pathFile, "r")
+		tokenList = list()
+
 		for line in Perlfile:
 			while line != "":
 					# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
 					# un moyen plus propre
+					# (thomas) : il faudrait faire une classe je pense.
 				tok, line = getNextToken(line)
 				if tok.name != "":
 					tokenList.append(tok)
-		if (verbose):
-			for tok in tokenList:
-				print tok.name + "\t" + tok.value
-	except:
-		print("Le fichier ne respecte pas la syntaxe PERL")
+					if (verbose):
+						print tok
+	except Exception as e:
+		raise Exception("Le fichier ne respecte pas la syntaxe PERL", e)
+		tokenList = list()
 	Perlfile.close()
 	return tokenList
 
@@ -220,4 +221,4 @@ def getNextToken(line):
 		return None
 
 if __name__ == '__main__':
-	scanner("test.perl", verbose=True)
+	scanner("test.pl", verbose=True)
