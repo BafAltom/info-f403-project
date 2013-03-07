@@ -184,11 +184,11 @@ $<$PROGRAM$>$		& $\rightarrow$ $<$FUNCT-LIST$>$ $<$INSTRUCT-LIST$>$\\
 $<$FUNCT-LIST$>$	& $\rightarrow$ $<$FUNCT$>$ \\
 					& $\rightarrow$ $<$FUNCT-LIST$>$ $<$FUNCT$>$\\
 					
-$<$FUNCT$>$			& $\rightarrow$ funct-def id $<$FUNCT-ARG$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac \\
+$<$FUNCT$>$			& $\rightarrow$ funct-def id open-par $<$FUNCT-ARG$>$ close-par open-brac $<$INSTRUCT-LIST$>$ close-brac \\
 
 
 					
-$<$FUNCT-ARG$>$		& $\rightarrow$ $<$ARG-LIST$>$ \\
+$<$FUNCT-ARG$>$		& $\rightarrow$ open-par $<$ARG-LIST$>$ close-par\\
 
 $<$ARG-LIST$>$		& $\rightarrow$ $<$ARG-LIST$>$ coma variable \\ 
 					& $\rightarrow$ variable\\ 
@@ -356,46 +356,18 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 
 
 \subsection{Suppresion des productions unitaires}
-	La règle FUNCT-ARG ($<$FUNCT-ARG$>$ $\rightarrow$ $<$ARG-LIST$>$) est dans ce cas\\
-	On la remplace donc directement par ARG-LIST.\\
+	 règle FUNCT-ARG ($<$FUNCT-ARG$>$ $\rightarrow$ open-par $<$ARG-LIST$>$ close-par) est dans ce cas\\
+	On la remplace donc directement par ARG-LIST dans funct.\\
 	~\\
-	Seul FUNCT est touché et devient : ($<$FUNCT$>$	 $\rightarrow$ funct-def id $<$FUNCT-ARG$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac) \\
+	FUNCT devient donc : ($<$FUNCT$>$	 $\rightarrow$ funct-def id $<$ARG-LIST$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac) \\
+	et arg-list devient : ($<$ARG-LIST$>$  $\rightarrow$ open-ar $<$ARG-LIST-BEG$>$ $<$ARG-LIST-END$>$ close-par)\\
+	supprime donc une règle pas intermédiaire peu utile
 
 
 
 
 
-\subsection{Suppression des ambiguïté}
 
-	Il reste encore une ambiguïté avec cette grammaire, au niveau de FUNCT-CALL-ARG : \\
-	Soit : 
-		\begin{center}\begin{tabular}{rl}				
-			
-			$<$FUNCT-CALL$>$	& $\rightarrow$ funct-name $<$FUNCT-CALL-ARG$>$\\
-			
-			$<$FUNCT-CALL-ARG$>$	& $\rightarrow$ $<$FUNCT-CALL-ARG-BEG$>$ $<$FUNCT-CALL-ARG-END$>$\\ 
-			$<$FUNCT-CALL-ARG-BEG$>$& $\rightarrow$ $<$EXP$>$\\ 
-									& $\rightarrow$ epsilon \\
-			$<$FUNCT-CALL-ARG-END$>$& $\rightarrow$ coma $<$EXP$>$ $<$FUNCT-CALL-ARG-END$>$\\ 
-									& $\rightarrow$ epsilon \\
-									& $\vdots$\\
-									
-			$<$SIMPLE-EXP$>$		& $\rightarrow$ $<$FUNCT-CALL$>$ \\
-									& $\vdots$\\				
-			$<$EXP$>$				& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
-									& $\vdots$\\
-	\end{tabular}\end{center}
-	On voit qu'on a un problème car les fonction peuvent appeler des fonctions en paramètres.\\
-	On peut ainsi se retrouver avec une fonction du type : 
-	\begin{center}
-		foo bar 4, 3
-	\end{center}
-	Il est alors impossible de savoir si 3 est le deuxième argument de bar ou de foo.\\
-	On rajoute alors des parenthèses pour lever cette ambiguïté.
-		\begin{center}\begin{tabular}{rl}							
-			$<$FUNCT-CALL$>$	& $\rightarrow$ funct-name open-par $<$FUNCT-CALL-ARG$>$ close-par\\
-	\end{tabular}\end{center}
-	\textcolor{red}{voir si on peut faire ça, on si existe un moyen de résoudre ça en modifiant la grammaire}\\
 
 
 
@@ -414,7 +386,7 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 	$<$FUNCT-LIST-END$>$		& $\rightarrow$ $<$FUNCT$>$ $<$FUNCT-LIST-END$>$ \\
 								& $\rightarrow$ epsilon \\
 	$<$FUNCT$>$					& $\rightarrow$ funct-def id $<$ARG-LIST$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac \\
-	$<$ARG-LIST$>$				& $\rightarrow$ $<$ARG-LIST-BEG$>$ $<$ARG-LIST-END$>$ \\
+	$<$ARG-LIST$>$				& $\rightarrow$ open-par $<$ARG-LIST-BEG$>$ $<$ARG-LIST-END$>$ close-par\\
 	$<$ARG-LIST-BEG$>$			& $\rightarrow$ variable \\
 								& $\rightarrow$ epsilon \\
 	$<$ARG-LIST-END$>$			& $\rightarrow$ coma variable $<$ARG-LIST-END$>$ \\
