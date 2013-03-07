@@ -135,6 +135,7 @@ def test_3():
 def test_4():
 	from grammars_examples import g6
 
+	#"""
 	print "first"
 	first = g6.first_1()
 	for a, b in first.items():
@@ -145,12 +146,19 @@ def test_4():
 	for a, b in follow.items():
 		if a not in g6.terminals:
 			print a, b
+	print "actionTable"
+	aT = g6.actionTable()
+	for a, b in aT.items():
+		if a not in g6.terminals:
+			print a, b
+	# """
 
-	#ll1_parser = parser.LL1Parser(g5)
+	ll1_parser = parser.LL1Parser(g6, verbose=True)
 
-	#inputTokens = scanner4.scanner("scanner/test.perl")
-	#out = ll1_parser.parse(inputTokens)
-	#print out
+	inputTokens = scanner4.scanner("scanner/test.pl")
+	print inputTokens
+	out = ll1_parser.parse(inputTokens)
+	print out
 
 test_1()
 test_2()
