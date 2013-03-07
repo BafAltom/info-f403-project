@@ -26,6 +26,14 @@ class parseTreeNode:
 			my_repr += str(child)
 		return my_repr
 
+class ParseError(Exception):
+	def __init__(self, errorType, symbol):
+		self.errorType = errorType
+		self.symbol = symbol
+
+	def __str__(self):
+		return "ParseError : " + repr(self.errorType) + " " + repr(self.symbol)
+
 class LL1Parser:
 	def __init__(self, grammar, verbose=False):
 		self.grammar = grammar
@@ -77,15 +85,14 @@ class LL1Parser:
 		if (self.verbose):
 			print "from stack", stack_token
 			print "from input", input_token
-
 		if (u in self.M[X]):
 			self.produce(self.M[X][u])
 		elif (X in self.grammar.terminals and X == u):
 			self.match()
 		else:
-			self.trigger_error()
+			self.trigger_error(X, u)
 
-	def trigger_error(self):
+	def trigger_error(self, X, u):
 		self.output.append("E")
 
 		if (self.verbose):
@@ -94,7 +101,11 @@ class LL1Parser:
 			print "input", self.input
 			print "output", self.output
 
-		self.error = True
+		if u not in self.grammar.symbols:
+			raise ParseError("Unknown symbol", u)
+		else:
+			raise ParseError("Misplaced symbol", u)
+
 
 	def trigger_accept(self):
 		self.output.append("A")

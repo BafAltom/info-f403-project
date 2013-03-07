@@ -54,8 +54,11 @@ def test_1():
 	inputTokens.append(token.token("end"))
 	inputTokens.append(token.token("$"))
 
-	out = ll1_parser.parse(inputTokens)
-	assert out[-1] == 'E'
+	try:
+		out = ll1_parser.parse(inputTokens)
+	except parser.ParseError as parse_e:
+		assert parse_e.errorType == "Unknown symbol", "Got " + repr(parse_e.errorType)
+		assert parse_e.symbol == "*", "Got " + repr(parse_e.symbol)
 
 	# mismatched parenthesis
 	inputTokens = []
@@ -81,8 +84,11 @@ def test_1():
 	inputTokens.append(token.token("end"))
 	inputTokens.append(token.token("$"))
 
-	out = ll1_parser.parse(inputTokens)
-	assert out[-1] == 'E'
+	try:
+		out = ll1_parser.parse(inputTokens)
+	except parser.ParseError as parse_e:
+		assert parse_e.errorType == "Misplaced symbol", "Got " + repr(parse_e.errorType)
+		assert parse_e.symbol == "(", "Got " + repr(parse_e.symbol)
 
 def test_2():
 	from grammars_examples import g2
@@ -108,8 +114,11 @@ def test_2():
 	inputTokens.append(token.token(")"))
 	inputTokens.append(token.token("$"))
 
-	out = ll1_parser.parse(inputTokens)
-	assert out[-1] == 'E'
+	try:
+		out = ll1_parser.parse(inputTokens)
+	except parser.ParseError as parse_e:
+		assert parse_e.errorType == "Misplaced symbol", "Got " + repr(parse_e.errorType)
+		assert parse_e.symbol == ")", "Got " + repr(parse_e.symbol)
 
 def test_3():
 	from grammars_examples import g3
