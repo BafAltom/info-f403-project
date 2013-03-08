@@ -4,7 +4,6 @@ import re
 class PerlScanner:
 	def __init__(self, verbose=False):
 		self.verbose=verbose
-		print "lance scanner"
 		
 	def scans(self, pathFile):
 		try:
@@ -16,6 +15,7 @@ class PerlScanner:
 						# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
 						# un moyen plus propre
 						# (thomas) : il faudrait faire une classe je pense.
+						# (pierre) : marche pas non plus, line n'est pas mis a jour ?
 					tok, line = self.getNextToken(line)
 					if tok.name != "":
 						tokenList.append(tok)
@@ -225,6 +225,3 @@ class PerlScanner:
 					return token.token("ID", var.group()), line
 			# Si on arrive ici c est qu il y a un probleme avec la syntaxe du fichier
 			return None
-
-#if __name__ == '__main__':
-#	scans("test.pl", verbose=True)
