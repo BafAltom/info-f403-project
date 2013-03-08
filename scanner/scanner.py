@@ -71,7 +71,7 @@ def scanner():
 				output.append("SEMICOLON")
 			elif operations[0][0] == "&" :
 				value = operations[0].split('&')
-				output.append("FUNCT-CALL")
+				output.append("FUNCT-NAME")
 				symbolTable.append(value[1])
 				assert(operations[1]=="(")
 				if operations[1] == "(":

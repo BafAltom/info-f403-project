@@ -16,6 +16,7 @@ def scanner(pathFile, verbose=False):
 					tokenList.append(tok)
 					if (verbose):
 						print tok
+		tokenList.append(token.token('END-SYMBOL'))
 	except Exception as e:
 		raise Exception("Le fichier ne respecte pas la syntaxe PERL", e)
 		tokenList = list()
@@ -195,7 +196,7 @@ def getNextToken(line):
 			if func :
 				# On a un appel de fonction (& suivi d'un string)
 				line = line[len(func.group()):]
-				return token.token("FUNCT-CALL", func.group()[1:]), line
+				return token.token("FUNCT-NAME", func.group()[1:]), line
 
 		if line[0] == "'":
 			string = re.match("'(.)*'", line)
