@@ -1,0 +1,1 @@
+/Dropbox/Repositories/info-f403-project/Makefile$ /home/thomas/Desktop/android-ndk-r8d/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86/bin/arm-linux-androideabi-gcc --sysroot=/home/thomas/Desktop/android-ndk-r8d/platforms/android-8/arch-arm/ -Wall /home/thomas/Dropbox/Repositories/info-f403-project/codegeneration/HelloWorld.c -S
