@@ -9,18 +9,20 @@ class PerlScanner:
 		try:
 			Perlfile = open(pathFile, "r")
 			tokenList = list()
-
-			for line in Perlfile:
-				while line != "":
+			line = ""
+			for line2 in Perlfile:
+				line = line + line2
+			
+			while line != "":
 						# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
 						# un moyen plus propre
 						# (thomas) : il faudrait faire une classe je pense.
 						# (pierre) : marche pas non plus, line n'est pas mis a jour ?
-					tok, line = self.getNextToken(line)
-					if tok.name != "":
-						tokenList.append(tok)
-						if (self.verbose):
-							print tok
+				tok, line = self.getNextToken(line)
+				if tok.name != "":
+					tokenList.append(tok)
+					if (self.verbose):
+						print tok
 			tokenList.append(token.token('END-SYMBOL'))
 		except Exception as e:
 			raise Exception("Le fichier ne respecte pas la syntaxe PERL", e)
@@ -30,12 +32,16 @@ class PerlScanner:
 
 	def getNextToken(slef, line):
 		# On retire le caractere de fin de ligne :
-		line = line.replace("\n", "")
+		#line = line.replace("\n", "")
 		# On retire les commentaires de la lignes :
-		line = line.split("#")[0]
+		#line = line.split("#")[0]
 		# On retire les caractere vide au debut de la ligne :
 		line = line.lstrip()
-		# On ne considere pas les lignes vides :
+		
+		while re.match("\n",line):
+			line = line[2:]
+			print "ligne vide"
+
 		if line == "":
 			return token.token("", ""), line
 		else:
@@ -101,13 +107,13 @@ class PerlScanner:
 				else :
 					line = line[1:]
 					return token.token("FAC", ""), line
-			if re.match("\|\|[^a-zA-Z0-9_]",line) :
+			if re.match("\|\|",line) :
 				line = line[2:]
 				return token.token("OR", ""), line
-			if re.match("\&\&[^a-zA-Z0-9_]",line) :
+			if re.match("\&\&",line) :
 				line = line[2:]
 				return token.token("AND", ""), line
-			if re.match("''[^a-zA-Z0-9_]",line) : # Dans l'enonce on peut definir un false avec un string vide !!!!!!!!!!!!!!!!!!!!!!!!!
+			if re.match("''",line) : # Dans l'enonce on peut definir un false avec un string vide !!!!!!!!!!!!!!!!!!!!!!!!!
 				line = line[2:]
 				return token.token("BOOL", "false"), line
 				
@@ -204,11 +210,18 @@ class PerlScanner:
 					return token.token("FUNCT-NAME", func.group()[1:]), line
 
 			if line[0] == "'":
-				string = re.match("'(.)*'", line)
+				string = re.match("'([^'])*'", line)
 				if string:
 					# On a un string (' suivi d'un string et termine par un autre ')
 					line = line[len(string.group()):]
 					return token.token("STRING", string.group()[1:-1]), line
+					
+			if line[0] == "#":
+				com = re.match("#(.)*\n", line)
+				if com:
+					# On a un commentaire (# suivi d'un string et termine par un autre \n)
+					line = line[len(com.group()):]
+					return token.token("", ""), line
 
 			if line[0] == "$":
 				var = re.match("[$]([A-Za-z])+([A-Za-z0-9_-])*", line)
