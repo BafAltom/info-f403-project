@@ -1,8 +1,9 @@
 # function declaration
 sub println ($str) {
-	print $str.' \n ';
+	$str = $str;
 }
 # variable & string declaration
 $message = 'Hello World';
+$number = 4 - 3 - 2;
 # function call
-&println($message)
+&println($message);

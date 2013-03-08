@@ -144,7 +144,7 @@ def test_3():
 def test_4():
 	from grammars_examples import g6
 
-	#"""
+	"""
 	print "first"
 	first = g6.first_1()
 	for a, b in first.items():
@@ -162,12 +162,12 @@ def test_4():
 			print a, b
 	# """
 
-	ll1_parser = parser.LL1Parser(g6, verbose=True)
+	ll1_parser = parser.LL1Parser(g6, verbose=False)
 
 	inputTokens = scanner4.scanner("scanner/test.pl")
-	print inputTokens
-	out = ll1_parser.parse(inputTokens)
-	print out
+	#print inputTokens
+	ll1_parser.parse(inputTokens)
+	print ll1_parser.parseTree
 
 test_1()
 test_2()
