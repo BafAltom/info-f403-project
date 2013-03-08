@@ -1,6 +1,6 @@
 import parser
 from scanner import token
-from scanner import scanner4
+from scanner import scanner
 
 def test_1():
 	from grammars_examples import g1
@@ -163,8 +163,9 @@ def test_4():
 	# """
 
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
-
-	inputTokens = scanner4.scanner("scanner/test.pl")
+	perlScanner = scanner.PerlScanner(verbose = True)
+	
+	inputTokens = perlScanner.scans("scanner/test.pl")
 	#print inputTokens
 	ll1_parser.parse(inputTokens)
 	print ll1_parser.parseTree

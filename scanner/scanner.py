@@ -1,95 +1,230 @@
-# coding: utf-8
-# Iportation du fichier pour faire plus joli, on hardcode en attendant
-#import os
+import token
+import re
 
-#nomFichier = raw_input("Quel fichier voulez-vous utiliser ? ")
-#while not os.path.exists(nomFichier) :
-#    print("Ce fichier n'existe pas !")
-#    nomFichier = raw_input("Quel fichier voulez-vous utiliser ? ")
-
-# Ouvrir le fichier :
-#fichier = open(nomFichier,"r")
-
-def scanner():
-	fichier = open("test.perl","r")
-	output = list()
-	symbolTable = list()
-
-	for ligne in fichier :
-		# On retire le caractere de fin de ligne :
-		ligne = ligne.replace("\n","")
-		# On retire les commentaires de la lignes :
-		ligne = ligne.split("#")[0]
-		# On ne considere pas les lignes vides :
-		if ligne != "" :
-			#print ligne 
-			operations = ligne.split(' ')
-			#print operations 
-			# Suppose que tout est separe par des espaces vides dans un premier temps
-			#for operation in operations :
-			print "ligne : ",ligne
-			if operations[0] == "sub":
-				output.append("FUNCT-CREATION")
-				output.append("FUNCTION-NAME")
-				symbolTable.append(operations[1])
-				
-				if operations[2] == "{":
-					output.append("OPEN-BRAC")
-				else :
-					output.append("OPEN-PAR")
-					if operations[3]==")":
-						output.append("CLOSE-PAR")
-					else :
-						value = operations[3].split('$')
-						output.append("VARIABLE")
-						symbolTable.append(value[1])
-						assert(operations[4]==")")
-						output.append("CLOSE-PAR")
-						assert(operations[5]=="{")
-						output.append("OPEN-BRAC")
-			elif operations[0] == "}" :
-				output.append("CLOSE-BRAC")
-			elif operations[0] == "print" :
-				output.append("PERL-FUNCT-NAME")
-				symbolTable.append(operations[0])
-				value = operations[1].split('$')
-				output.append("VARIABLE")
-				symbolTable.append(value[1])
-				assert(operations[2]==";")
-				output.append("SEMICOLON")
-			elif operations[0][0] == "$" :
-				value = operations[0].split('$')
-				output.append("VARIABLE")
-				symbolTable.append(value[1])
-				assert(operations[1]=="=")
-				output.append("EQUAL")
-				value = operations[2].split("’")
-				value2 = operations[3].split("’")
-				output.append("STRING")
-				symbolTable.append(""+value[1]+" "+value2[0])
-				assert(operations[4]==";")
-				output.append("SEMICOLON")
-			elif operations[0][0] == "&" :
-				value = operations[0].split('&')
-				output.append("FUNCT-NAME")
-				symbolTable.append(value[1])
-				assert(operations[1]=="(")
-				if operations[1] == "(":
-					output.append("OPEN-PAR")
-					if operations[2]==")":
-						output.append("CLOSE-PAR")
-					else :
-						value = operations[2].split('$')
-						output.append("VARIABLE")
-						symbolTable.append(value[1])
-						assert(operations[3]==")")
-						output.append("CLOSE-PAR")
-				output.append("SEMICOLON")
-			print "output : ",output
-			print "table des symboles : ",symbolTable
-			print ""
+class PerlScanner:
+	def __init__(self, verbose=False):
+		self.verbose=verbose
+		print "lance scanner"
 		
-	fichier.close()
+	def scans(self, pathFile):
+		try:
+			Perlfile = open(pathFile, "r")
+			tokenList = list()
 
-if __name__ == '__main__':
-	scanner()
+			for line in Perlfile:
+				while line != "":
+						# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
+						# un moyen plus propre
+						# (thomas) : il faudrait faire une classe je pense.
+					tok, line = self.getNextToken(line)
+					if tok.name != "":
+						tokenList.append(tok)
+						if (self.verbose):
+							print tok
+			tokenList.append(token.token('END-SYMBOL'))
+		except Exception as e:
+			raise Exception("Le fichier ne respecte pas la syntaxe PERL", e)
+			tokenList = list()
+		Perlfile.close()
+		return tokenList
+
+	def getNextToken(slef, line):
+		# On retire le caractere de fin de ligne :
+		line = line.replace("\n", "")
+		# On retire les commentaires de la lignes :
+		line = line.split("#")[0]
+		# On retire les caractere vide au debut de la ligne :
+		line = line.lstrip()
+		# On ne considere pas les lignes vides :
+		if line == "":
+			return token.token("", ""), line
+		else:
+			# On cherche d'abord les operateurs "non string"
+			if line[0] == "-":
+				line = line[1:]
+				return token.token("MINUS", ""), line
+			if line[0] == "+":
+				line = line[1:]
+				return token.token("ADD", ""), line
+			if line[0] == ">":
+				if len(line) > 2 and line[1] == "=":
+					line = line[2:]
+					return token.token("GE", ""), line
+				else:
+					line = line[1:]
+					return token.token("GT", ""), line
+			if line[0] == "<":
+				if len(line) > 2 and line[1] == "=":
+					line = line[2:]
+					return token.token("LE", ""), line
+				else :
+					line = line[1:]
+					return token.token("LT", ""), line	
+			if line[0] == "/" :
+				line = line[1:]
+				return token.token("DIV", ""), line
+			if line[0] == "*" :
+				line = line[1:]
+				return token.token("MULTI", ""), line
+			if line[0] == "}" :
+				line = line[1:]
+				return token.token("CLOSE-BRAC", ""), line
+			if line[0] == "{" :
+				line = line[1:]
+				return token.token("OPEN-BRAC", ""), line
+			if line[0] == ")" :
+				line = line[1:]
+				return token.token("CLOSE-PAR", ""), line
+			if line[0] == "(" :
+				line = line[1:]
+				return token.token("OPEN-PAR", ""), line
+			if line[0] == "," :
+				line = line[1:]
+				return token.token("COMA", ""), line
+			if line[0] == ";" :
+				line = line[1:]
+				return token.token("SEMICOLON", ""), line
+			if line[0] == "." :
+				line = line[1:]
+				return token.token("DOT", ""), line
+			if line[0] == "=" :
+				if len(line)> 2 and line[1] == "=" :
+					line = line[2:]
+					return token.token("EQUIV", ""), line
+				else :
+					line = line[1:]
+					return token.token("EQUAL", ""), line
+			if line[0] == "!" :
+				if len(line)> 2 and line[1] == "=" :
+					line = line[2:]
+					return token.token("DIF", ""), line
+				else :
+					line = line[1:]
+					return token.token("FAC", ""), line
+			if re.match("\|\|[^a-zA-Z0-9_]",line) :
+				line = line[2:]
+				return token.token("OR", ""), line
+			if re.match("\&\&[^a-zA-Z0-9_]",line) :
+				line = line[2:]
+				return token.token("AND", ""), line
+			if re.match("''[^a-zA-Z0-9_]",line) : # Dans l'enonce on peut definir un false avec un string vide !!!!!!!!!!!!!!!!!!!!!!!!!
+				line = line[2:]
+				return token.token("BOOL", "false"), line
+				
+			# On cherche ensuite les operateurs "strings"
+			if line[0] == "n" :
+				if re.match("not[^a-zA-Z0-9_-]",line) :
+					line = line[3:]
+					return token.token("NOT", ""), line
+				elif re.match("ne[^a-zA-Z0-9__-]",line):
+					line = line[2:]
+					return token.token("NE-S", ""), line
+			if re.match("true[^a-zA-Z0-9_-]",line):
+				line = line[4:]
+				return token.token("BOOL", "true"), line
+			if re.match("false[^a-zA-Z0-9_-]",line):
+				line = line[5:]
+				return token.token("BOOL", "false"), line
+			if line[0] == "l" :
+				if re.match("lt[^a-zA-Z0-9__-]",line):
+					line = line[2:]
+					return token.token("LT-S", ""), line
+				if re.match("le[^a-zA-Z0-9__-]",line):
+					line = line[2:]
+					return token.token("LE-S", ""), line
+				if re.match("length[^a-zA-Z0-9_-]",line) :
+					line = line[6:]
+					return token.token("PERL-LENG", ""), line
+			if line[0] == "g" :
+				if re.match("gt[^a-zA-Z0-9__-]",line):
+					line = line[2:]
+					return token.token("GT-S", ""), line
+				if re.match("ge[^a-zA-Z0-9__-]",line):
+					line = line[2:]
+					return token.token("GE-S", ""), line
+			if line[0] == "i" :
+				if re.match("if[^a-zA-Z0-9_-]",line):
+					line = line[2:]
+					return token.token("OPEN-COND", ""), line
+				if re.match("int[^a-zA-Z0-9_-]",line) :
+					line = line[3:]
+					return token.token("PERL-INT", ""), line
+			if line[0] == "e" :
+				if re.match("eq[^a-zA-Z0-9__-]",line) :
+					line = line[2:]
+					return token.token("EQ-S", ""), line
+				if re.match("else if[^a-zA-Z0-9_-]",line) :
+					line = line[4:]
+					return token.token("ADD-COND", ""), line
+				if re.match("else[^a-zA-Z0-9_-]",line) :
+					line = line[7:]
+					return token.token("CLOSE-COND", ""), line
+			if re.match("defined[^a-zA-Z0-9_-]",line) :
+				line = line[7:]
+				return token.token("PERL-DEF", ""), line
+			if re.match("unless[^a-zA-Z0-9_-]",line) :
+				line = line[6:]
+				return token.token("NEG-COND", ""), line
+			if re.match("print[^a-zA-Z0-9_-]",line) :
+				line = line[5:]
+				return token.token("PERL-PRIN", ""), line
+			if re.match("return[^a-zA-Z0-9_-]",line) :
+				line = line[6:]
+				return token.token("RET", ""), line
+			if line[0] == "s" :
+				if re.match("sub[^a-zA-Z0-9_-]",line) :
+					line = line[3:]
+					return token.token("FUNCT-DEF", ""), line
+				if re.match("substr[^a-zA-Z0-9_-]",line) :
+					line = line[6:]
+					return token.token("PERL-SUBS", ""), line
+				if re.match("scalar[^a-zA-Z0-9_-]",line) :
+					line = line[6:]
+					return token.token("PERL-SCAL", ""), line
+					
+			# On cherche ensuite les nombres (float et int)		
+			if re.match("[0-9]", line) :
+				floatNumber = re.match("([0-9])+\.([0-9])+", line)
+				intNumber = re.match("([0-9])+", line) # On sait deja qu il n y a pas de point apres puisqu on teste les float d abord
+				if floatNumber :
+					# On a un float
+					line = line[len(floatNumber.group()):]
+					return token.token("FLOAT", floatNumber.group()), line
+				if intNumber :
+					# on a un entier
+					line = line[len(intNumber.group()):]
+					return token.token("INT", intNumber.group()), line
+			
+			# On cherche ensuite les variables, fonctions et strings (tout ce qui necessite une boucle)
+			if line[0] == "&" :
+				func = re.match("&([A-Za-z])+([A-Za-z0-9_-])*", line)
+				if func :
+					# On a un appel de fonction (& suivi d'un string)
+					line = line[len(func.group()):]
+					return token.token("FUNCT-NAME", func.group()[1:]), line
+
+			if line[0] == "'":
+				string = re.match("'(.)*'", line)
+				if string:
+					# On a un string (' suivi d'un string et termine par un autre ')
+					line = line[len(string.group()):]
+					return token.token("STRING", string.group()[1:-1]), line
+
+			if line[0] == "$":
+				var = re.match("[$]([A-Za-z])+([A-Za-z0-9_-])*", line)
+				if var:
+					# On a une variable ($ suivi d'un string)
+					line = line[len(var.group()):]
+					return token.token("VARIABLE", var.group()[1:]), line
+			# tout ce qui reste est alors une variable
+			if re.match("([A-Za-z])", line):
+				var = re.match("([A-Za-z])+([A-Za-z0-9_-])*", line)
+				if var:
+					# On a un ID (un string)
+					line = line[len(var.group()):]
+					return token.token("ID", var.group()), line
+			# Si on arrive ici c est qu il y a un probleme avec la syntaxe du fichier
+			return None
+
+#if __name__ == '__main__':
+#	scans("test.pl", verbose=True)
