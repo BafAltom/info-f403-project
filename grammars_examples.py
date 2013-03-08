@@ -257,11 +257,11 @@ g5 = cfgrammar.CFGrammar(rules, terminals)
 # ---------------------------------------------------------------------------
 # G6 : grammaire du projet : Grammaire simplifiee
 rules = [
-	['S', 'PROGRAM'],
+	['S', 'PROGRAM', 'END-SYMBOL'],
 	['PROGRAM', 'FUNCT-LIST', 'PROG-TAIL'],
 	['PROGRAM', 'INSTRUCT-LIST'],
 	['PROG-TAIL', 'INSTRUCT-LIST'],
-	['PROG-TAIL', EPSILON],
+	#['PROG-TAIL', EPSILON],
 	['FUNCT-LIST', 'FUNCT-LIST-BEG', 'FUNCT-LIST-END'],
 	['FUNCT-LIST-BEG', 'FUNCT'],
 	['FUNCT-LIST-END', 'FUNCT', 'FUNCT-LIST-END'],
@@ -280,6 +280,7 @@ rules = [
 	['FUNCT-CALL-ARG-BEG', EPSILON],
 	['FUNCT-CALL-ARG-END', 'COMA', 'EXP', 'FUNCT-CALL-ARG-END'],
 	['FUNCT-CALL-ARG-END', EPSILON],
+	['INSTRUCT', 'FUNCT-CALL'],
 	['INSTRUCT', 'VARIABLE', 'EQUAL', 'EXP'],
 	['INSTRUCT', 'RET', 'EXP'],
 	['INSTRUCT', 'COND'],
@@ -305,6 +306,6 @@ rules = [
 	['EXP-3-TAIL', 'DIV', 'SIMPLE-EXP', 'EXP-3-TAIL'],
 	['EXP-3-TAIL', EPSILON],
 ]
-terminals = set(['INT', 'STRING', 'MUL', 'DIV', 'MINUS', 'ADD', 'GT', 'EQUIV', 'EQUAL', 'SEMICOLON', 'COMA', 'OPEN-PAR', 'CLOSE-PAR', 'OPEN-BRAC', 'CLOSE-BRAC', 'OPEN-COND', 'CLOSE-COND', 'ADD-COND', 'RET', 'FUNCT-DEF', 'ID', 'FUNCT-CALL', 'VARIABLE', EPSILON])
+terminals = set(['END-SYMBOL', 'INT', 'STRING', 'MUL', 'DIV', 'MINUS', 'ADD', 'GT', 'EQUIV', 'EQUAL', 'SEMICOLON', 'COMA', 'OPEN-PAR', 'CLOSE-PAR', 'OPEN-BRAC', 'CLOSE-BRAC', 'OPEN-COND', 'CLOSE-COND', 'ADD-COND', 'RET', 'FUNCT-DEF', 'ID', 'FUNCT-NAME', 'VARIABLE', EPSILON])
 g6 = cfgrammar.CFGrammar(rules, terminals)
 
