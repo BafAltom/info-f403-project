@@ -222,4 +222,4 @@ def getNextToken(line):
 		return None
 
 if __name__ == '__main__':
-	scanner("test.pl", verbose=True)
+	scanner("../inputTests/test.pl", verbose=True)

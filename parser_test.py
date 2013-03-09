@@ -164,7 +164,8 @@ def test_4():
 
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
 
-	inputTokens = scanner4.scanner("scanner/test.pl")
+	inputTokens = scanner4.scanner("inputTests/test.pl")
+	#inputTokens = scanner4.scanner("inputTests/test_nofunction.pl")
 	#print inputTokens
 	ll1_parser.parse(inputTokens)
 	print ll1_parser.parseTree
