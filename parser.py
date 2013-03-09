@@ -8,8 +8,18 @@ class parseTreeNode:
 
 	def giveChild(self, value):
 		child = parseTreeNode(value)
-		child.father = self
-		self.children.append(child)
+		self.giveNodeChild(child)
+
+	def giveNodeChild(self, node):
+		node.father = self
+		self.children.append(node)
+
+	def findToken(self, value):
+		if (self.value.name == value):
+			yield self
+		for child in self.children:
+			for found in child.findToken(value):
+				yield found
 
 	def getDepth(self):
 		current_depth = 1
@@ -136,4 +146,3 @@ class LL1Parser:
 		self.output.append("M")
 		if (len(self.input) == 0):
 			self.trigger_accept()
-

@@ -163,7 +163,8 @@ def test_4():
 	# """
 
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
-	inputTokens = scanner4.scanner("inputTests/test.pl")
+	perl_scanner = scanner.PerlScanner()
+	inputTokens = perl_scanner.scans("inputTests/test.pl")
 	#inputTokens = scanner4.scanner("inputTests/test_nofunction.pl")
 	#print inputTokens
 	ll1_parser.parse(inputTokens)
