@@ -1,6 +1,6 @@
 import parser
 from scanner import token
-from scanner import scanner4
+from scanner import scanner
 
 def test_1():
 	from grammars_examples import g1
@@ -163,7 +163,6 @@ def test_4():
 	# """
 
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
-
 	inputTokens = scanner4.scanner("inputTests/test.pl")
 	#inputTokens = scanner4.scanner("inputTests/test_nofunction.pl")
 	#print inputTokens
