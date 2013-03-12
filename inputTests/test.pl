@@ -39,11 +39,9 @@
 #&test1($number, 3*$number, 2*$number, 4*$number);
 
 
-
 #if $number == 1 { print ($number); print('is equal to 1'); } 
 #elsif $number == 2 { print ($number); print('is equal to 2'); } 
 #elsif $number == 3 { print ($number); print('is equal to 3'); } 
 #elsif $number == 4 { print ($number); print('is equal to 4'); } 
 #elsif $number == 5 { print ($number); print('is equal to 5'); } 
 #else { print ($number); print('is smaller than 5'); };
-
