@@ -26,8 +26,6 @@ print ($number); # function call
 &println($message);
 &test1($number, 3*$number, 2*$number, 4*$number);
 
-
-
 if $number == 1 { print ($number); print('is equal to 1'); } 
 elsif $number == 2 { print ($number); print('is equal to 2'); } 
 elsif $number == 3 { print ($number); print('is equal to 3'); } 
