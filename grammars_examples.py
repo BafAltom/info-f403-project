@@ -192,6 +192,9 @@ g5 = cfgrammar.CFGrammar(rules, terminals)
 
 # ---------------------------------------------------------------------------
 # G6 : grammaire du projet : Grammaire simplifiee
+# Thomas : j'ai retire les EXPi-TAIL dans les regles des EXPi-TAIL
+#          Ca veut dire qu'on ne peut plus ecrire par ex. 3 + 4 + 5 mais ca oblige a ecrire 3 + (4 + 5)
+#          Je trouve que ca se justifie :)
 rules = [
 	['S', 'PROGRAM', 'END-SYMBOL'],
 	['PROGRAM', 'FUNCT-LIST', 'PROG-TAIL'],
@@ -231,16 +234,16 @@ rules = [
 	['SIMPLE-EXP', 'STRING'],
 	['SIMPLE-EXP', 'OPEN-PAR', 'EXP', 'CLOSE-PAR'],
 	['EXP', 'EXP-2', 'EXP-TAIL'],
-	['EXP-TAIL', 'EQUIV', 'EXP-2', 'EXP-TAIL'],
-	['EXP-TAIL', 'GT', 'EXP-2', 'EXP-TAIL'],
+	['EXP-TAIL', 'EQUIV', 'EXP-2'],
+	['EXP-TAIL', 'GT', 'EXP-2'],
 	['EXP-TAIL', EPSILON],
 	['EXP-2', 'EXP-3', 'EXP-2-TAIL'],
-	['EXP-2-TAIL', 'ADD', 'EXP-3', 'EXP-2-TAIL'],
-	['EXP-2-TAIL', 'MINUS', 'EXP-3', 'EXP-2-TAIL'],
+	['EXP-2-TAIL', 'ADD', 'EXP-3'],
+	['EXP-2-TAIL', 'MINUS', 'EXP-3'],
 	['EXP-2-TAIL', EPSILON],
 	['EXP-3', 'SIMPLE-EXP', 'EXP-3-TAIL'],
-	['EXP-3-TAIL', 'MUL', 'SIMPLE-EXP', 'EXP-3-TAIL'],
-	['EXP-3-TAIL', 'DIV', 'SIMPLE-EXP', 'EXP-3-TAIL'],
+	['EXP-3-TAIL', 'MUL', 'SIMPLE-EXP'],
+	['EXP-3-TAIL', 'DIV', 'SIMPLE-EXP'],
 	['EXP-3-TAIL', EPSILON],
 ]
 terminals = set(['END-SYMBOL', 'INT', 'STRING', 'MUL', 'DIV', 'MINUS', 'ADD', 'GT', 'EQUIV', 'EQUAL', 'SEMICOLON', 'COMA', 'OPEN-PAR', 'CLOSE-PAR', 'OPEN-BRAC', 'CLOSE-BRAC', 'OPEN-COND', 'CLOSE-COND', 'ADD-COND', 'RET', 'FUNCT-DEF', 'ID', 'FUNCT-NAME', 'VARIABLE', 'PERL-PRIN', EPSILON])
