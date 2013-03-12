@@ -13,14 +13,19 @@ class SyntaxTreeAbstracter:
 		assert self.currentInputNode.value.name == "S"
 		assert len(self.currentInputNode.children) == 2
 
+		thereWasAFctList = False
 		# for loop : because the input tree can contain 1 or 0 "funct-list"
 		for fctListInputNode in self.currentInputNode.findToken("FUNCT-LIST", maxDepth=2):
+			thereWasAFctList = True
 			fctListAbstractNode = parser.parseTreeNode(token.token("Funct-List"))
 			for fctNode in fctListInputNode.findToken("FUNCT"):
 				fctListAbstractNode.giveNodeChild(self.abstractFct(fctNode))
 			self.currentAbstractNode.giveNodeChild(fctListAbstractNode)
 
-		for instrListRoot in self.currentInputNode.findToken("INSTRUCT-LIST", maxDepth=3):
+		depthIntrList = 3 if thereWasAFctList else 2
+
+		for instrListRoot in self.currentInputNode.findToken("INSTRUCT-LIST", maxDepth=depthIntrList):
+			print "adding one instruction"
 			self.currentAbstractNode.giveNodeChild(self.abstractInstrList(instrListRoot))
 
 	def abstractFct(self, inputFctNode):
@@ -105,12 +110,37 @@ class SyntaxTreeAbstracter:
 		abstractReturnNode.giveNodeChild(self.abstractExp(expNode))
 		return abstractReturnNode
 
-	def abstractCond(self, instrNode):
-		assert instrNode.value.name == "INSTRUCT"
-		condNode = instrNode.children[0]
-		assert condNode.value.name == "COND"
-		
-		return parser.parseTreeNode(token.token("cond", value="???"))
+	def abstractCond(self, condNode):
+		if condNode.value.name == "INSTRUCT":
+			condNode = condNode.children[0]
+			assert condNode.value.name == "COND"
+		else:
+			assert condNode.value.name == "COND-END"
+
+		abstractCondNode = parser.parseTreeNode(token.token("Cond"))
+		assert len(condNode.children) > 3
+
+		if not condNode.children[0].value.name == "CLOSE-COND":  # this cond is a final 'end'
+			try:
+				ifNode = condNode.findToken("EXP", maxDepth=1).next()
+			except StopIteration:
+				raise Exception("Symbol 'EXP' was not found in COND Node : \n" + str(condNode))
+			abstractCondNode.giveNodeChild(self.abstractExp(ifNode))
+
+		try:
+			thenNode = condNode.findToken("INSTRUCT-LIST", maxDepth=1).next()
+		except StopIteration:
+			raise Exception("Symbol 'INSTRUCT-LIST' was not found in COND Node : \n" + str(condNode))
+		abstractCondNode.giveNodeChild(self.abstractInstrList(thenNode))
+
+		if not condNode.children[0].value.name == "CLOSE-COND":  # this cond is a final 'end'
+			try:
+				elseNode = condNode.findToken("COND-END", maxDepth=1).next()
+			except StopIteration:
+				raise Exception("Symbol 'COND-END' was not found in COND Node : \n" + str(condNode))
+			abstractCondNode.giveNodeChild(self.abstractCond(elseNode))
+
+		return abstractCondNode
 
 	def abstractAssign(self, instrNode):
 		assert instrNode.value.name == "INSTRUCT"
@@ -135,7 +165,7 @@ class SyntaxTreeAbstracter:
 			expTailNextLNode = expTailNode.children[1]
 			assert expTailNextLNode.value.name == nextLevelName
 			expType = expTailNode.children[0].value.name
-			assert expType in operators
+			assert expType in operators, str(expType + " is not in the list of accepted operators : " + str(operators))
 			abstractExpNode = parser.parseTreeNode(token.token("OPERATOR", value=expType))
 			abstractExpNode.giveNodeChild(nextLevelFct(expNextLNode))
 			abstractExpNode.giveNodeChild(nextLevelFct(expTailNextLNode))
@@ -144,7 +174,7 @@ class SyntaxTreeAbstracter:
 			raise Exception("Misformed expression node (should have 2 or 0 children) :\n" + str(thisLevelExpNode))
 
 	def abstractExp(self, expNode):
-		return self.abstractExpLevel(expNode, "EXP", "EXP-2", self.abstractExp2, ["EQ", "GT"])
+		return self.abstractExpLevel(expNode, "EXP", "EXP-2", self.abstractExp2, ["EQUIV", "GT"])
 
 	def abstractExp2(self, exp2Node):
 		return self.abstractExpLevel(exp2Node, "EXP-2", "EXP-3", self.abstractExp3, ["ADD", "MINUS"])
