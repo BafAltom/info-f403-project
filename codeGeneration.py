@@ -9,6 +9,7 @@ class ASMcodeGenerator:
 		self.register = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict() # cle = string, value = lien vers le string (str1, ...)
+		self.numberOfCond = 0
 	
 		
 	def generate_code(self):
@@ -28,17 +29,19 @@ class ASMcodeGenerator:
 		self.header = self.header + "	.eabi_attribute 18 , 4\n \n"
 		self.header = self.header + "	.text\n \n"
 		
-		self.code = self.code + "	.global main\n"
-		self.code = self.code + "	.type main , % function\n\n"
-		self.code = self.code + "main :\n"
+
 		
 
 		#self.instruct_list()
 		for codeNode in self.tree.children:
-			if codeNode.value.name =="Instr-List":
-				self.instruct_list(codeNode)
-			elif codeNode.value.value =="Funct-List":
+			if codeNode.value.value =="Funct-List":
 				self.funct_list(codeNode)
+				
+			elif codeNode.value.name =="Instr-List":
+				self.code = self.code + "	.global main\n"
+				self.code = self.code + "	.type main , % function\n\n"
+				self.code = self.code + "main :\n"
+				self.instruct_list(codeNode)
 			else:
 				raise "bug main"
 		
@@ -75,10 +78,39 @@ class ASMcodeGenerator:
 		print "funct-list"
 	
 	def cond(self, codeNode):
-		print "cond"
+		print "cond =============================================================> OK (manque appel de fonction)"	
+		if codeNode.children[0].value.name == "OPERATOR": # On a une expression
+			self.expression(codeNode.children[0])
+			self.code = self.code + " else"+str(self.numberOfCond)+"\n"
+					
+		if codeNode.children[0].value.name == "Instr-List": # On a un instruc-list
+			self.instruct_list(codeNode.children[0])
+
+		elif codeNode.children[1].value.name == "Instr-List": # On a un instruc-list
+			self.instruct_list(codeNode.children[1])
+
+		
+		if len(codeNode.children) > 2 and codeNode.children[2].value.name == "Cond": # On a un else ou elsif
+			self.code = self.code + "	B end\n"
+			self.code = self.code + "else"+str(self.numberOfCond)+": "
+			self.numberOfCond = self.numberOfCond + 1
+			self.cond(codeNode.children[2])
+		else:
+			self.code = self.code + "end:\n"
+		
+		
+			
+			
+		
+		
+		
+		
+		
+		
+		
 	
 	def assign(self, codeNode):
-		print "assign ==============================> OK"
+		print "assign =============================================================> OK (manque appel de fonction)"
 		##print codeNode
 		var = self.setRegisterOfVariable(codeNode.value.value)
 		for child in codeNode.children:
@@ -112,7 +144,7 @@ class ASMcodeGenerator:
 				
 
 	def retur(self, codeNode):
-		print "return ==============================> OK"
+		print "return ===================================================================> OK (manque appel de fonction)"
 		
 		for child in codeNode.children:
 			
@@ -145,7 +177,7 @@ class ASMcodeGenerator:
 
 	
 	def expression(self, codeNode):
-		print "exp reste a gere GT, equiv a faire quand fera les conditions"
+		print "exp reste a gere  DIV !"
 		##print codeNode
 		Reg = []
 		op =""
@@ -156,8 +188,8 @@ class ASMcodeGenerator:
 			op = "SUB"
 		elif codeNode.value.value == "MUL":
 			op = "MUL"
-		elif codeNode.value.value == "":
-			op = "SUB"
+		elif codeNode.value.value == "DIV":
+			op = "???"
 		elif codeNode.value.value == "GT":
 			op = "BLE"
 		elif codeNode.value.value == "EQUIV":
@@ -190,9 +222,14 @@ class ASMcodeGenerator:
 			
 			cmpt = cmpt+1
 		
-		# On fait le calcul
-		Reg.append( self.getFreeRegister())
-		self.code = self.code + "	" + op + " R"+str(Reg[2])+ " R"+str(Reg[0])+ " R"+str(Reg[1])+"\n"
+		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
+			# On fait le calcul
+			Reg.append( self.getFreeRegister())
+			self.code = self.code + "	" + op + " R"+str(Reg[2])+ " R"+str(Reg[0])+ " R"+str(Reg[1])+"\n"
+		else:	# Operateur de comparaison
+			self.code = self.code + "	CMP" + " R"+str(Reg[0])+ " R"+str(Reg[1])+"\n"
+			self.code = self.code + "	" + op
+		
 		
 		# Si les deux registres utilise dans le calculs ne sont pas ceux d une variable on les effaces
 		# On regardera pour effacer le troisieme registre du resltat dans la fonction appelante
@@ -200,7 +237,9 @@ class ASMcodeGenerator:
 			self.register[Reg[0]] = 0
 		if Reg[1] not in self.listVariable.values():
 			self.register[Reg[1]] = 0
-		return Reg[2]
+			
+		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
+			return Reg[2]
 	
 	
 	
