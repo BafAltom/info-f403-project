@@ -159,11 +159,11 @@ class PerlScanner:
 				if re.match("eq[^a-zA-Z0-9__-]",line) :
 					line = line[2:]
 					return token.token("EQ-S", ""), line
-				if re.match("else if[^a-zA-Z0-9_-]",line) :
-					line = line[4:]
+				if re.match("elsif[^a-zA-Z0-9_-]",line) :
+					line = line[5:]
 					return token.token("ADD-COND", ""), line
 				if re.match("else[^a-zA-Z0-9_-]",line) :
-					line = line[7:]
+					line = line[4:]
 					return token.token("CLOSE-COND", ""), line
 			if re.match("defined[^a-zA-Z0-9_-]",line) :
 				line = line[7:]

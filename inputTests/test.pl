@@ -25,3 +25,9 @@ $number = 4 - (3 - 2);
 print ($number); # function call
 &println($message);
 &println(&test1($number));
+
+
+
+if $number>5 { print ($number); } 
+elsif $number == 5 { print ($number);} 
+else { print ($number); };
