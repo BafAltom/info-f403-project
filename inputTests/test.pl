@@ -17,10 +17,10 @@
 	#$arg2 = $arg2 + 'sdhfg';
 	#$arg4 = $arg2 - $arg1;
 	#$arg4 = $arg2 - 'zuyefz';
-	return $arg1 * ($arg2 + ($arg3 + $arg4));
-	return $arg1;
-	return 4;
-	return 'qhdg';
+	#return $arg1 * ($arg2 + ($arg3 + $arg4));
+	#return $arg1;
+	#return 4;
+	#return 'qhdg';
 	$number = 6;
 #}
 # variable & string declaration
@@ -47,9 +47,17 @@
 #elsif $number == 5 { print ($number); print('is equal to 5'); } 
 #else { print ($number); print('is smaller than 5'); };
 
-if $number == ((4+5)*2) { $arg1 = ($arg2 + ($arg3 + $arg4)); $arg2 = $arg3; } 
-elsif $number == 2 { $arg3 = 5; $arg2 = 'is equal to 2'; } 
-elsif $number == 3 { $arg3 = 5; $arg2 = 'is equal to 2'; } 
-elsif $number > $arg1 { $arg1 = ($arg2 * ($arg3 + $arg4)); $arg2 = $arg3; } 
-elsif $number == $arg1 { $arg1 = ($arg2 + ($arg3 + $arg4)); $arg2 = $arg3;} 
-else { $arg3 = 5; $arg2 = 'is equal to 7'; };
+if $number == 1 { $number = 6; } 
+elsif $number == 2 { 
+	if $number == 7 { $number = 6; } 
+	elsif $number == 8 { 	
+		if $number == 7 { $number = 6; } 
+		elsif $number == 8 { $number = 6;} 
+		else { $number = 6; };
+	}
+	else { $number = 6; } ;
+} 
+elsif $number == 3 { $number = 6; } 
+else { $number = 6; };
+
+

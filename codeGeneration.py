@@ -9,7 +9,17 @@ class ASMcodeGenerator:
 		self.register = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict() # cle = string, value = lien vers le string (str1, ...)
-		self.numberOfCond = 0
+		
+		# Pour gerer les conditions imbriquees, on utilise ces cinq parametres afin
+		# de retenir dans quel condition on est ce qui permet de gerer les JUMP 
+		# pour les end
+		self.currentCondBlock = 0 
+		self.maxCondBlock = 0
+		self.initCondBlock = 0
+		# pour les else
+		#self.numberOfCond = 0
+		self.listOfCond = list()
+		self.listOfCond.append(0)
 	
 		
 	def generate_code(self):
@@ -38,21 +48,18 @@ class ASMcodeGenerator:
 				self.funct_list(codeNode)
 				
 			elif codeNode.value.name =="Instr-List":
-				self.code = self.code + "	.global main\n"
-				self.code = self.code + "	.type main, %function\n\n"
-				self.code = self.code + "main :\n"
+				self.code = self.code + "	.global _start\n"
+				#self.code = self.code + "	.type main, %function\n\n"
+				self.code = self.code + "_start :\n"
 				self.instruct_list(codeNode)
 			else:
 				raise "bug main"
 		
+		self.code = self.code + "/* syscall exit(int status) */ \n"
+		self.code = self.code + "MOV     R0, #0     /* status -> 0 */ \n"
+		self.code = self.code + "MOV     R7, #1     /* exit is syscall #1 */ \n"
+		self.code = self.code + "SWI     #0          /* invoke syscall */ \n"
 		
-
-		self.code = self.code + "\n"
-		self.code = self.code + "	BX LR\n"
-		self.code = self.code + ".end\n"
-		
-		
-
 
 		print "fin generation du code"
 		
@@ -81,22 +88,31 @@ class ASMcodeGenerator:
 		print "cond =============================================================> OK (manque appel de fonction)"	
 		if codeNode.children[0].value.name == "OPERATOR": # On a une expression
 			self.expression(codeNode.children[0])
-			self.code = self.code + " else"+str(self.numberOfCond)+"\n"
+			self.code = self.code + " else"+str(self.currentCondBlock)+str(self.listOfCond[self.currentCondBlock])+"\n"
 					
 		if codeNode.children[0].value.name == "Instr-List": # On a un instruc-list
 			self.instruct_list(codeNode.children[0])
 
 		elif codeNode.children[1].value.name == "Instr-List": # On a un instruc-list
+			self.currentCondBlock = self.currentCondBlock +1
+			self.listOfCond.append(0) # Moche faudrait voir ou le mettre, la cree des list plus grande que ce dont on a besoin
 			self.instruct_list(codeNode.children[1])
-
+			self.currentCondBlock = self.currentCondBlock -1
 		
 		if len(codeNode.children) > 2 and codeNode.children[2].value.name == "Cond": # On a un else ou elsif
-			self.code = self.code + "	B end\n"
-			self.code = self.code + "else"+str(self.numberOfCond)+": "
-			self.numberOfCond = self.numberOfCond + 1
+			self.code = self.code + "	B end"+str(self.currentCondBlock)+"\n"
+			self.code = self.code + "else"+str(self.currentCondBlock)+str(self.listOfCond[self.currentCondBlock])+": \n"
+			#self.numberOfCond = self.numberOfCond + 1
+			self.listOfCond[self.currentCondBlock] = self.listOfCond[self.currentCondBlock] +1
 			self.cond(codeNode.children[2])
 		else:
-			self.code = self.code + "end:\n"
+			self.code = self.code + "end"+str(self.currentCondBlock)+":\n"
+			if self.currentCondBlock > self.maxCondBlock:
+				self.maxCondBlock = self.currentCondBlock
+			elif self.currentCondBlock == self.initCondBlock:
+				self.maxCondBlock = self.maxCondBlock +1
+				self.currentCondBlock = self.maxCondBlock
+				self.initCondBlock = self.maxCondBlock
 		
 		
 			
@@ -127,9 +143,10 @@ class ASMcodeGenerator:
 				if child.value.value not in self.listString.keys():
 					self.listString[child.value.value] =  "str" + str(len(self.listString))
 					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+					self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 
 				# On gere ensuite l assignation
-				self.code = self.code + "	MOV 	R"+str(var)+", "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R"+str(var)+", "+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
 				self.code = self.code + "	MOV 	R"+str(var)+", #"+child.value.value+"\n"
@@ -160,9 +177,10 @@ class ASMcodeGenerator:
 				if child.value.value not in self.listString.keys():
 					self.listString[child.value.value] =  "str" + str(len(self.listString))
 					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+					self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 
 				# On gere ensuite l assignation
-				self.code = self.code + "	MOV 	R0, "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R0, "+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
 				self.code = self.code + "	MOV 	R0, #"+child.value.value+"\n"
@@ -212,10 +230,11 @@ class ASMcodeGenerator:
 				if child.value.value not in self.listString.keys():
 					self.listString[child.value.value] =  "str" + str(len(self.listString))
 					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+					self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 				
 				# ensuite on s occupe des calculs
 				Reg.append(self.getFreeRegister())
-				self.code = self.code + "	MOV 	R"+ str(Reg[cmpt])+", "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R"+ str(Reg[cmpt])+", "+self.listString[child.value.value]+"\n"
 					
 			elif child.value.name == "OPERATOR":
 				Reg.append(self.expression(child))
