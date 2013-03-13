@@ -39,7 +39,7 @@ class ASMcodeGenerator:
 				
 			elif codeNode.value.name =="Instr-List":
 				self.code = self.code + "	.global main\n"
-				self.code = self.code + "	.type main , % function\n\n"
+				self.code = self.code + "	.type main, %function\n\n"
 				self.code = self.code + "main :\n"
 				self.instruct_list(codeNode)
 			else:
@@ -117,7 +117,7 @@ class ASMcodeGenerator:
 			
 			if child.value.name == "OPERATOR": # On a une expression
 				result = self.expression(child)
-				self.code = self.code + "	MOV R"+str(var)+" R"+str(result)+"\n"
+				self.code = self.code + "	MOV 	R"+str(var)+", R"+str(result)+"\n"
 				# Si on a plus besoin du registre contenant le resultat de l assignation on l efface
 				if result not in self.listVariable.values():
 					self.register[result] = 0
@@ -129,13 +129,13 @@ class ASMcodeGenerator:
 					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
 
 				# On gere ensuite l assignation
-				self.code = self.code + "	MOV R"+str(var)+" "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	MOV 	R"+str(var)+", "+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
-				self.code = self.code + "	MOV R"+str(var)+" #"+child.value.value+"\n"
+				self.code = self.code + "	MOV 	R"+str(var)+", #"+child.value.value+"\n"
 				
 			elif child.value.name == "VARIABLE": # On a une variable
-				self.code = self.code + "	MOV R"+str(var)+" R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
+				self.code = self.code + "	MOV 	R"+str(var)+", R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
 
 				
 			else:
@@ -150,7 +150,7 @@ class ASMcodeGenerator:
 			
 			if child.value.name == "OPERATOR": # On a une expression
 				result = self.expression(child)
-				self.code = self.code + "	MOV R0 R"+str(result)+"\n"
+				self.code = self.code + "	MOV 	R0, R"+str(result)+"\n"
 				# Si on a plus besoin du registre contenant le resultat de l assignation on l efface
 				if result not in self.listVariable.values():
 					self.register[result] = 0
@@ -162,13 +162,13 @@ class ASMcodeGenerator:
 					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
 
 				# On gere ensuite l assignation
-				self.code = self.code + "	MOV R0 "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	MOV 	R0, "+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
-				self.code = self.code + "	MOV R0 #"+child.value.value+"\n"
+				self.code = self.code + "	MOV 	R0, #"+child.value.value+"\n"
 				
 			elif child.value.name == "VARIABLE": # On a une variable
-				self.code = self.code + "	MOV R0 R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
+				self.code = self.code + "	MOV 	R0, R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
 
 				
 			else:
@@ -205,7 +205,7 @@ class ASMcodeGenerator:
 			elif child.value.name == "INT":
 				print "int"
 				Reg.append(self.getFreeRegister())
-				self.code = self.code + "	MOV R"+ str(Reg[cmpt])+" #"+str(child.value.value)+"\n"
+				self.code = self.code + "	MOV 	R"+ str(Reg[cmpt])+", #"+str(child.value.value)+"\n"
 			
 			elif child.value.name == "STRING":
 				# Les string doivent etre declare avant le code, donc ajoute au header
@@ -215,7 +215,7 @@ class ASMcodeGenerator:
 				
 				# ensuite on s occupe des calculs
 				Reg.append(self.getFreeRegister())
-				self.code = self.code + "	MOV R"+ str(Reg[cmpt])+" "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	MOV 	R"+ str(Reg[cmpt])+", "+self.listString[child.value.value]+"\n"
 					
 			elif child.value.name == "OPERATOR":
 				Reg.append(self.expression(child))
@@ -225,9 +225,9 @@ class ASMcodeGenerator:
 		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
 			# On fait le calcul
 			Reg.append( self.getFreeRegister())
-			self.code = self.code + "	" + op + " R"+str(Reg[2])+ " R"+str(Reg[0])+ " R"+str(Reg[1])+"\n"
+			self.code = self.code + "	" + op + "	R"+str(Reg[2])+ ", R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
 		else:	# Operateur de comparaison
-			self.code = self.code + "	CMP" + " R"+str(Reg[0])+ " R"+str(Reg[1])+"\n"
+			self.code = self.code + "	CMP" + "	R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
 			self.code = self.code + "	" + op
 		
 		
