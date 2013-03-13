@@ -35,9 +35,9 @@
 # }
 # function call
 
-#print ($number); # function call
-#&println($message);
-#&test1($number, 3*$number, 2*$number, 4*$number);
+print ('is equal to 2', '\n', 'shgdfjshfg\n'); # function call
+&println($message);
+&test1($number, 3*$number, 2*$number, 4*$number);
 
 
 #if $number == 1 { print ($number); print('is equal to 1'); } 
@@ -47,17 +47,17 @@
 #elsif $number == 5 { print ($number); print('is equal to 5'); } 
 #else { print ($number); print('is smaller than 5'); };
 
-if $number == 1 { $number = 6; } 
-elsif $number == 2 { 
-	if $number == 7 { $number = 6; } 
-	elsif $number == 8 { 	
-		if $number == 7 { $number = 6; } 
-		elsif $number == 8 { $number = 6;} 
-		else { $number = 6; };
-	}
-	else { $number = 6; } ;
-} 
-elsif $number == 3 { $number = 6; } 
-else { $number = 6; };
+#if $number == 1 { $number = 6; } 
+#elsif $number == 2 { 
+#	if $number == 7 { $number = 6; } 
+#	elsif $number == 8 { 	
+#		if $number == 7 { $number = 6; } 
+#		elsif $number == 8 { $number = 6;} 
+#		else { $number = 6; };
+#	}
+#	else { $number = 6; } ;
+#} 
+#elsif $number == 3 { $number = 6; } 
+#else { $number = 6; };
 
 

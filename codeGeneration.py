@@ -9,6 +9,7 @@ class ASMcodeGenerator:
 		self.register = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict() # cle = string, value = lien vers le string (str1, ...)
+		self.listStringLen = dict() # cle = string, value = lien vers la longueur du string (len1, ...)
 		
 		# Pour gerer les conditions imbriquees, on utilise ces cinq parametres afin
 		# de retenir dans quel condition on est ce qui permet de gerer les JUMP 
@@ -37,7 +38,7 @@ class ASMcodeGenerator:
 		self.header = self.header + "	.eabi_attribute 26 , 2\n"
 		self.header = self.header + "	.eabi_attribute 30 , 6\n"
 		self.header = self.header + "	.eabi_attribute 18 , 4\n \n"
-		self.header = self.header + "	.text\n \n"
+		self.header = self.header + "	.data\n \n"
 		
 
 		
@@ -48,6 +49,7 @@ class ASMcodeGenerator:
 				self.funct_list(codeNode)
 				
 			elif codeNode.value.name =="Instr-List":
+				self.code = self.code + "	.text\n \n"
 				self.code = self.code + "	.global _start\n"
 				#self.code = self.code + "	.type main, %function\n\n"
 				self.code = self.code + "_start :\n"
@@ -76,6 +78,8 @@ class ASMcodeGenerator:
 				self.assign(child)
 			elif child.value.name =="return":
 				self.retur(child)
+			elif child.value.name =="Fct-Call":
+				self.funct_list(child)
 			elif child.value.name !="Instr" and child.value.value !="END":
 				raise "bug instruct-list"
 			self.code = self.code +"\n"
@@ -83,6 +87,27 @@ class ASMcodeGenerator:
 	
 	def funct_list(self, codeNode):
 		print "funct-list"
+		if codeNode.value.value == "PERL-PRIN":
+			for stringNode in codeNode.children:
+				if stringNode.value.name == "STRING":
+					self.registerString(stringNode.value.value)
+					self.code = self.code + "	/* syscall write	*/ \n"
+					self.code = self.code + "	MOV 	R0, #1\n"
+					self.code = self.code + "	LDR 	R1, ="+self.listString[stringNode.value.value]+"\n"
+					self.code = self.code + "	LDR 	R2, ="+self.listStringLen[stringNode.value.value]+"\n"
+					self.code = self.code + "	MOV 	R7, #4\n"
+					self.code = self.code + "	SWI 	#0\n"
+				else:
+					raise "perl-print ne prend que des strings"
+			
+		else: # fonctions definies par l utilisateur
+			print "funct de l'user"
+		
+		
+		
+		
+		
+		
 	
 	def cond(self, codeNode):
 		print "cond =============================================================> OK (manque appel de fonction)"	
@@ -140,10 +165,11 @@ class ASMcodeGenerator:
 					
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
-				if child.value.value not in self.listString.keys():
-					self.listString[child.value.value] =  "str" + str(len(self.listString))
-					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
-					self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
+				self.registerString(self, child.value.value)
+				#if child.value.value not in self.listString.keys():
+				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
+				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 
 				# On gere ensuite l assignation
 				self.code = self.code + "	LDR 	R"+str(var)+", "+self.listString[child.value.value]+"\n"
@@ -174,10 +200,11 @@ class ASMcodeGenerator:
 					
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
-				if child.value.value not in self.listString.keys():
-					self.listString[child.value.value] =  "str" + str(len(self.listString))
-					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
-					self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
+				self.registerString(self, child.value.value)
+				#if child.value.value not in self.listString.keys():
+				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
+				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 
 				# On gere ensuite l assignation
 				self.code = self.code + "	LDR 	R0, "+self.listString[child.value.value]+"\n"
@@ -227,10 +254,13 @@ class ASMcodeGenerator:
 			
 			elif child.value.name == "STRING":
 				# Les string doivent etre declare avant le code, donc ajoute au header
-				if child.value.value not in self.listString.keys():
-					self.listString[child.value.value] =  "str" + str(len(self.listString))
-					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
-					self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
+				self.registerString(self, child.value.value)
+				#if child.value.value not in self.listString.keys():
+				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
+				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
+				
+				
 				
 				# ensuite on s occupe des calculs
 				Reg.append(self.getFreeRegister())
@@ -295,7 +325,12 @@ class ASMcodeGenerator:
 			return reg
 	
 	
-	
+	def registerString(self, nameString):
+		if nameString not in self.listString.keys():
+			self.listString[nameString] =  "str" + str(len(self.listString))
+			self.listStringLen[nameString] = "len" + str(len(self.listString)-1)
+			self.header = self.header + self.listString[nameString]+ ":	.string \""+nameString+"\"\n"
+			self.header = self.header + self.listStringLen[nameString]+ " = . - "+self.listString[nameString]+"\n"
 	
 	
 	
