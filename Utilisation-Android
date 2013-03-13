@@ -35,7 +35,8 @@ Ecrire son code assembleur et le sauver dans un fichier .S
 Le transformer en un exécutable pour android avec les deux commandes suivantes :
 "arm-linux-androideabi-as -o foo.o foo.S"
 "arm-linux-androideabi-ld -s -o foo foo.o"
-(les bin sont dans le dossier "Android/android-ndk-r8d/toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86/bin")
+(les bin sont dans le dossier "Android/android-ndk-r8d/toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86/bin"
+ce qui donne : "android-ndk-r8d/toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86/bin/arm-linux-androideabi-as -o test.o test.S")
 
 
 Utilisation de l'émulateur
@@ -44,7 +45,7 @@ taper "android" dans un terminal.
 Une fois l'application lancée, aller dans "tools->Manage AVDs" sélectionner le virtual device précédement créé et le lancer
 
 Quand il est lancé :
-(optionel) vérifier que le device est bien lancé avec la commande "adb device"
+(optionel) vérifier que le device est bien lancé avec la commande "adb devices"
 
 Copier l'exécutable sur l'émulateur avec la commande :
 "adb push "path de l'exécutable sur la machine" /data/local/tmp/"nom de l'exécutable""    

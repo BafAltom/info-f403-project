@@ -1,23 +1,25 @@
 from scanner import token
 import codeGeneration
-
+from scanner import scanner
+import parser
+import syntaxtreeabstracter
 
 def test_1():
 	
-	code_generator = codeGeneration.ASMcodeGenerator()
-	tokenList = []
-	tokenList.append(token.token("COND"))
-	tokenList.append(token.token("open-cond"))
-	tokenList.append(token.token("INT", "2"))
-	tokenList.append(token.token("GT"))
-	tokenList.append(token.token("INT", "3"))
-	tokenList.append(token.token("add-cond"))
-	tokenList.append(token.token("INT", "4"))
-	tokenList.append(token.token("EQUIV"))
-	tokenList.append(token.token("INT", "5"))
-	tokenList.append(token.token("close-cond"))
-	tokenList.append(token.token("END-SYMBOL"))
-	code = code_generator.generate_code(tokenList)
+	from grammars_examples import g6
+	ll1_parser = parser.LL1Parser(g6, verbose=False)
+
+	perl_scanner = scanner.PerlScanner()
+	inputTokens = perl_scanner.scans("inputTests/test.pl")
+	#print inputTokens
+	ll1_parser.parse(inputTokens)
+	parseTree = ll1_parser.parseTree
+	sta = syntaxtreeabstracter.SyntaxTreeAbstracter(parseTree)
+	sta.abstract()
+	
+	
+	code_generator = codeGeneration.ASMcodeGenerator(sta.ast)
+	code = code_generator.generate_code()
 	
 	print ""
 	print "code ASM :\n"

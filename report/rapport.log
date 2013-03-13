@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2012.10.21)  13 MAR 2013 14:03
+=======
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.2.17)  12 MAR 2013 01:38
+>>>>>>> 4020568ad12990014a60be06f18f80381e4e5414
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -477,13 +481,188 @@ File: lstlang1.sty 2004/09/05 1.3 listings language file
 )
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+<<<<<<< HEAD
 )
 
 ! LaTeX Error: File `titlesec.sty' not found.
+=======
+)
+(/usr/share/texmf-texlive/tex/latex/titlesec/titlesec.sty
+Package: titlesec 2007/08/12 v2.8 Sectioning titles
+\ttl@box=\box34
+\beforetitleunit=\skip56
+\aftertitleunit=\skip57
+\ttl@plus=\dimen117
+\ttl@minus=\dimen118
+\ttl@toksa=\toks25
+\titlewidth=\dimen119
+\titlewidthlast=\dimen120
+\titlewidthfirst=\dimen121
+)
+(/usr/share/texmf-texlive/tex/latex/titlesec/frame.tss
+File: frame.tss 2007/08/12
+)
+(/usr/share/texmf-texlive/tex/latex/titlesec/block.tss
+File: block.tss 2007/08/12
+) (./rapport.aux)
+\openout1 = `rapport.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+Package hyperref Info: Link coloring OFF on input line 37.
+
+(/usr/share/texmf-texlive/tex/latex/hyperref/nameref.sty
+Package: nameref 2007/05/29 v2.31 Cross-referencing by name of section
+
+(/usr/share/texmf-texlive/tex/latex/oberdiek/refcount.sty
+Package: refcount 2008/08/11 v3.1 Data extraction from references (HO)
+)
+\c@section@level=\count112
+)
+LaTeX Info: Redefining \ref on input line 37.
+LaTeX Info: Redefining \pageref on input line 37.
+ (./rapport.out)
+(./rapport.out)
+\@outlinefile=\write3
+\openout3 = `rapport.out'.
+
+\AtBeginShipoutBox=\box35
+\c@lstlisting=\count113
+ (/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count114
+\scratchdimen=\dimen122
+\scratchbox=\box36
+\nofMPsegments=\count115
+\nofMParguments=\count116
+\everyMPshowfont=\toks26
+\MPscratchCnt=\count117
+\MPscratchDim=\dimen123
+\MPnumerator=\count118
+\everyMPtoPDFconversion=\toks27
+)
+*geometry auto-detecting driver*
+*geometry detected driver: pdftex*
+-------------------- Geometry parameters
+paper: a4paper
+landscape: --
+twocolumn: --
+twoside: --
+asymmetric: --
+h-parts: 113.81102pt, 369.88583pt, 113.81102pt
+v-parts: 101.40665pt, 0.7\paperheight , 152.11pt (default)
+hmarginratio: --
+vmarginratio: 2:3
+lines: --
+heightrounded: --
+bindingoffset: 0.0pt
+truedimen: --
+includehead: --
+includefoot: --
+includemp: --
+driver: pdftex
+-------------------- Page layout dimensions and switches
+\paperwidth  597.50787pt
+\paperheight 845.04684pt
+\textwidth  369.88583pt
+\textheight 591.5302pt
+\oddsidemargin  41.54103pt
+\evensidemargin 41.54103pt
+\topmargin  -7.86334pt
+\headheight 12.0pt
+\headsep    25.0pt
+\footskip   30.0pt
+\marginparwidth 57.0pt
+\marginparsep   11.0pt
+\columnsep  10.0pt
+\skip\footins  9.0pt plus 4.0pt minus 2.0pt
+\hoffset 0.0pt
+\voffset 0.0pt
+\mag 1000
+
+(1in=72.27pt, 1cm=28.45pt)
+-----------------------
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 39.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 39.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 39.
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 52--53
+
+ []
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 54.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 54.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 96.
+(/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 96.
+
+Overfull \hbox (17.69814pt too wide) in paragraph at lines 54--120
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 54--120
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 54--120
+
+ []
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 13.07225pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 135--137
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 137--138
+
+ []
+
+<automate1.pdf, id=103, 1100.11pt x 985.6825pt>
+File: automate1.pdf Graphic file (type pdf)
+ <use automate1.pdf>
+<automate2.pdf, id=104, 1394.20876pt x 1808.7575pt>
+File: automate2.pdf Graphic file (type pdf)
+ <use automate2.pdf>
+Overfull \hbox (25.43088pt too wide) in paragraph at lines 148--151
+ []|  [] 
+ []
+>>>>>>> 4020568ad12990014a60be06f18f80381e4e5414
 
 Type X to quit or <RETURN> to proceed,
 or enter new name. (Default extension: sty)
 
+<<<<<<< HEAD
 Enter file name: 
 ! Emergency stop.
 <read *> 
@@ -502,3 +681,206 @@ Here is how much of TeX's memory you used:
  14 hyphenation exceptions out of 8191
  33i,0n,58p,205b,222s stack positions out of 5000i,500n,10000p,200000b,50000s
 !  ==> Fatal error occurred, no output PDF file produced!
+=======
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.154 
+       <./automate1.pdf>]
+Overfull \vbox (28.19637pt too high) has occurred while \output is active []
+
+
+[4pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) 
+has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.154 
+       <./automate2.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 175--176
+
+ []
+
+
+Overfull \hbox (110.22897pt too wide) in paragraph at lines 178--235
+[] [] 
+ []
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 259--260
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 291--292
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 325--326
+
+ []
+
+
+Overfull \hbox (69.94818pt too wide) in paragraph at lines 327--353
+ [] 
+ []
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 359--365
+
+ []
+
+
+Overfull \hbox (28.68315pt too wide) in paragraph at lines 359--365
+\OT1/cmr/m/n/10 FUNCT de-vient donc : ($\OML/cmm/m/it/10 <$\OT1/cmr/m/n/10 FUNC
+T$\OML/cmm/m/it/10 >$ $\OMS/cmsy/m/n/10 !$ \OT1/cmr/m/n/10 funct-def id $\OML/c
+mm/m/it/10 <$\OT1/cmr/m/n/10 ARG-LIST$\OML/cmm/m/it/10 >$ \OT1/cmr/m/n/10 open-
+brac $\OML/cmm/m/it/10 <$\OT1/cmr/m/n/10 INSTRUCT-
+ []
+
+
+Overfull \hbox (64.63176pt too wide) in paragraph at lines 378--429
+ [] 
+ []
+
+[7] [8] [9] [10]
+Overfull \hbox (121.63322pt too wide) in paragraph at lines 532--589
+[] [] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 590--591
+
+ []
+
+
+Overfull \hbox (15.38312pt too wide) in paragraph at lines 592--665
+[] [] 
+ []
+
+[11]
+Overfull \vbox (99.4698pt too high) has occurred while \output is active []
+
+
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 666--667
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 670--673
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 670--673
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 725--726
+
+ []
+
+[13]
+Overfull \hbox (45.78027pt too wide) in paragraph at lines 729--810
+[] [] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 811--812
+
+ []
+
+
+Overfull \hbox (47.37755pt too wide) in paragraph at lines 813--898
+[] [] 
+ []
+
+[14]
+Overfull \vbox (111.4698pt too high) has occurred while \output is active []
+
+
+[15]
+Underfull \hbox (badness 10000) in paragraph at lines 907--909
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 907--909
+
+ []
+
+[16]
+Underfull \hbox (badness 10000) in paragraph at lines 934--935
+
+ []
+
+
+Overfull \hbox (45.78027pt too wide) in paragraph at lines 936--1012
+[] [] 
+ []
+
+[17]
+Overfull \hbox (47.37755pt too wide) in paragraph at lines 1014--1101
+[] []
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1014--1101
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1014--1101
+
+ []
+
+[18]
+Overfull \vbox (135.4698pt too high) has occurred while \output is active []
+
+
+[19]
+Overfull \hbox (97.32776pt too wide) in paragraph at lines 1122--1154
+ [] 
+ []
+
+[20]
+Underfull \hbox (badness 10000) in paragraph at lines 1157--1158
+
+ []
+
+
+Overfull \hbox (170.93886pt too wide) in paragraph at lines 1161--1218
+[] [] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1219--1220
+
+ []
+
+[21] [22] (./rapport.aux) ) 
+Here is how much of TeX's memory you used:
+ 6771 strings out of 495061
+ 95910 string characters out of 1182621
+ 206483 words of memory out of 3000000
+ 9802 multiletter control sequences out of 15000+50000
+ 8249 words of font info for 29 fonts, out of 3000000 for 9000
+ 28 hyphenation exceptions out of 8191
+ 38i,13n,58p,273b,355s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texmf-texlive/fonts/type1/public/amsfont
+s/cm/cmbx10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12
+.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/
+share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-
+texlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/font
+s/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/publ
+ic/amsfonts/cm/cmsl10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts
+/cm/cmsy10.pfb>
+Output written on rapport.pdf (22 pages, 254560 bytes).
+PDF statistics:
+ 234 PDF objects out of 1000 (max. 8388607)
+ 46 named destinations out of 1000 (max. 500000)
+ 179 words of extra memory for PDF output out of 10000 (max. 10000000)
+
+>>>>>>> 4020568ad12990014a60be06f18f80381e4e5414

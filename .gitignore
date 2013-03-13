@@ -2,6 +2,10 @@
 
 Project-1213.pdf
 
+report/*
+!report.tex
+!report.pdf
+
 *.py[cod]
 
 # C extensions
