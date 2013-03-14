@@ -66,7 +66,7 @@ class SyntaxTreeAbstracter:
 			instrTypeNode = inputInstrNode.children[0]
 			instrType = instrTypeNode.value.name
 			if (instrType == "FUNCT-CALL"):
-				abstractInstrNode = self.abstractFctCall(inputInstrNode)
+				abstractInstrNode = self.abstractFctCall(instrTypeNode)
 			elif (instrType == "VARIABLE"):
 				abstractInstrNode = self.abstractAssign(inputInstrNode)
 			elif (instrType == "COND"):
@@ -79,9 +79,10 @@ class SyntaxTreeAbstracter:
 				nextInstruction = nextInstrNode
 		return abstractInstrNode, nextInstruction
 
-	def abstractFctCall(self, instrNode):
-		assert instrNode.value.name == "INSTRUCT", "Problem with INSTRUCT Node (Wrong name) :\n" + str(instrNode)
-		fctCallNode = instrNode.children[0]
+	def abstractFctCall(self, fctCallNode):
+		#assert instrNode.value.name == "INSTRUCT", "Problem with INSTRUCT Node (Wrong name) :\n" + str(instrNode)
+		#fctCallNode = instrNode.children[0]
+		# un funct-call peut venir d'un simple-exp, donc vire cette partie
 		assert fctCallNode.value.name == "FUNCT-CALL"
 		assert len(fctCallNode.children) == 4
 		nameNode = fctCallNode.children[0]

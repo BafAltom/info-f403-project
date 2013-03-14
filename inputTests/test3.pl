@@ -18,9 +18,8 @@ sub println ($number, $arg1, $arg2) {
 	elsif $number == 3 { print ('premier if : elsif2 : erreur'); } 
 	else { print ('premier if : else : erreur'); };
 	
-	$number = &test1($arg1); #BUG, ????????
-	#$number = 1;
-	#&test1($arg1);
+	$number = &test1($arg1);
+	# Met number a 1
 	
 	if $number == 1 { print ('premier if : ok\n'); } 
 	elsif $number == 6 { 
@@ -89,5 +88,6 @@ else { print ('premier if : else : erreur'); };
 
 
 &println($number, $arg1, $arg2);
+
 
 $arg1 = $arg1 * ($arg2 + ($number - $arg2));

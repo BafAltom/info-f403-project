@@ -168,10 +168,9 @@ else02:
 
 end0:
 
-	MOV 	R4, #1
-
 	MOV 	R0, R5
 	BL	test1
+	MOV 	R4, R0
 
 	MOV 	R7, #1
 	CMP	R4, R7
