@@ -2,10 +2,13 @@
 #';
 
 # function declaration
-#sub println ($str) {
-#	return $str;
-#}
-#sub test1 ($arg1, $arg2, $arg3, $arg4) {
+sub println () {#$str) {
+	
+	print ('funct1');
+	return 4;
+	
+}
+sub test1 (){#$arg1, $arg2, $arg3, $arg4) {
 	$arg1 = 2;
 	$arg2 = 9;
 	#$argS1 = 'zuyefz';
@@ -22,7 +25,9 @@
 	#return 4;
 	#return 'qhdg';
 	$number = 6;
-#}
+	print ('funct2');
+	return 4;
+}
 # variable & string declaration
 
 
@@ -37,8 +42,10 @@
 
 print ('is equal to 2', '\n', 'shgdfjshfg\n'); # function call
 &println($message);
-&test1($number, 3*$number, 2*$number, 4*$number);
-
+#$arg4 = &println($message);
+#return &test1($number, 3*$number, 2*$number, 4*$number);
+#$arg4 = &println($message) + ($arg4 * &println($message));
+#$arg4 = &println($message) + &println($message);
 
 #if $number == 1 { print ($number); print('is equal to 1'); } 
 #elsif $number == 2 { print ($number); print('is equal to 2'); } 

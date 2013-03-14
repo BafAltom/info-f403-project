@@ -45,11 +45,12 @@ class ASMcodeGenerator:
 
 		#self.instruct_list()
 		for codeNode in self.tree.children:
-			if codeNode.value.value =="Funct-List":
+			if codeNode.value.name =="Funct-List":
+				self.code = self.code + "	.text\n \n"
 				self.funct_list(codeNode)
 				
 			elif codeNode.value.name =="Instr-List":
-				self.code = self.code + "	.text\n \n"
+				
 				self.code = self.code + "	.global _start\n"
 				#self.code = self.code + "	.type main, %function\n\n"
 				self.code = self.code + "_start :\n"
@@ -57,16 +58,34 @@ class ASMcodeGenerator:
 			else:
 				raise "bug main"
 		
-		self.code = self.code + "/* syscall exit(int status) */ \n"
-		self.code = self.code + "MOV     R0, #0     /* status -> 0 */ \n"
-		self.code = self.code + "MOV     R7, #1     /* exit is syscall #1 */ \n"
-		self.code = self.code + "SWI     #0          /* invoke syscall */ \n"
+		self.code = self.code + "	/* syscall exit*/ \n"
+		self.code = self.code + "	MOV     R0, #0\n"
+		self.code = self.code + "	MOV     R7, #1\n"
+		self.code = self.code + "	SWI     #0\n"
 		
 
 		print "fin generation du code"
 		
 		
-		return self.header + "\n \n" + self.funct + "\n \n" + self.code	
+		return self.header + "\n \n" + self.funct + "\n \n" + self.code
+		
+		
+	def funct_list(self, codeNode):
+		for child in codeNode.children:
+			assert child.value.name == "Funct", "Fonction definie au mauvais endroit"
+			self.code = self.code + ".global "+ child.value.value+"\n"
+			self.code = self.code + ".type "+ child.value.value+", %function\n"
+			self.code = self.code + ""+ child.value.value+":\n"
+			
+			for child2 in child.children:
+				if child2.value.name == "arg":
+					print "voir comment gere les arguments"
+				else: # instructions
+					assert child2.value.name == "Instr-List", "instruct-list au mauvais endroit"
+					self.instruct_list(child2)
+			
+			self.code = self.code + "	BX	LR\n \n"
+					
 	
 	def instruct_list(self, codeNode):
 		print "instruct-list"
@@ -79,14 +98,14 @@ class ASMcodeGenerator:
 			elif child.value.name =="return":
 				self.retur(child)
 			elif child.value.name =="Fct-Call":
-				self.funct_list(child)
+				self.funct_call(child)
 			elif child.value.name !="Instr" and child.value.value !="END":
 				raise "bug instruct-list"
 			self.code = self.code +"\n"
 			
 	
-	def funct_list(self, codeNode):
-		print "funct-list"
+	def funct_call(self, codeNode):
+		print "funct-list ==================================================================> manque fonction de l user"
 		if codeNode.value.value == "PERL-PRIN":
 			for stringNode in codeNode.children:
 				if stringNode.value.name == "STRING":
@@ -102,6 +121,7 @@ class ASMcodeGenerator:
 			
 		else: # fonctions definies par l utilisateur
 			print "funct de l'user"
+			self.code = self.code + "	BL	"+codeNode.value.value+"\n"
 		
 		
 		
@@ -151,7 +171,7 @@ class ASMcodeGenerator:
 		
 	
 	def assign(self, codeNode):
-		print "assign =============================================================> OK (manque appel de fonction)"
+		print "assign =============================================================> OK (manque appel de fonction- a tester)"
 		##print codeNode
 		var = self.setRegisterOfVariable(codeNode.value.value)
 		for child in codeNode.children:
@@ -179,7 +199,10 @@ class ASMcodeGenerator:
 				
 			elif child.value.name == "VARIABLE": # On a une variable
 				self.code = self.code + "	MOV 	R"+str(var)+", R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
-
+				
+			elif child.value.name == "Fct-Call": # On a un appel de fonction
+				self.funct_call(child)
+				self.code = self.code + "	MOV 	R"+str(var)+", R0\n"
 				
 			else:
 				raise "bug assignation"
@@ -214,11 +237,15 @@ class ASMcodeGenerator:
 				
 			elif child.value.name == "VARIABLE": # On a une variable
 				self.code = self.code + "	MOV 	R0, R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
+				
+			elif child.value.name == "Fct-Call": # On a un appel de fonction
+				self.funct_call(child)
+				# le resltat est deja ans R0
 
 				
 			else:
 				raise "bug return"
-			
+			self.code = self.code + "	MOV		PC, LR\n"
 
 	
 	def expression(self, codeNode):
@@ -268,6 +295,11 @@ class ASMcodeGenerator:
 					
 			elif child.value.name == "OPERATOR":
 				Reg.append(self.expression(child))
+				
+			elif child.value.name == "Fct-Call": # On a un appel de fonction
+				self.funct_call(child)
+				Reg.append(self.getFreeRegister())
+				self.code = self.code + "	MOV 	R"+ str(Reg[cmpt])+", R0\n"
 			
 			cmpt = cmpt+1
 		
