@@ -10,7 +10,7 @@ def test_1():
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
 
 	perl_scanner = scanner.PerlScanner()
-	inputTokens = perl_scanner.scans("inputTests/test.pl")
+	inputTokens = perl_scanner.scans("inputTests/test3.pl")
 	#print inputTokens
 	ll1_parser.parse(inputTokens)
 	parseTree = ll1_parser.parseTree
