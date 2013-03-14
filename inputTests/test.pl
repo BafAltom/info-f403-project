@@ -2,10 +2,13 @@
 #';
 
 # function declaration
-#sub println ($str) {
-#	return $str;
-#}
-#sub test1 ($arg1, $arg2, $arg3, $arg4) {
+sub println () {#$str) {
+	
+	print ('funct1');
+	return 4;
+	
+}
+sub test1 (){#$arg1, $arg2, $arg3, $arg4) {
 	$arg1 = 2;
 	$arg2 = 9;
 	#$argS1 = 'zuyefz';
@@ -17,12 +20,14 @@
 	#$arg2 = $arg2 + 'sdhfg';
 	#$arg4 = $arg2 - $arg1;
 	#$arg4 = $arg2 - 'zuyefz';
-	return $arg1 * ($arg2 + ($arg3 + $arg4));
-	return $arg1;
-	return 4;
-	return 'qhdg';
+	#return $arg1 * ($arg2 + ($arg3 + $arg4));
+	#return $arg1;
+	#return 4;
+	#return 'qhdg';
 	$number = 6;
-#}
+	print ('funct2');
+	return 4;
+}
 # variable & string declaration
 
 
@@ -35,10 +40,12 @@
 # }
 # function call
 
-#print ($number); # function call
-#&println($message);
-#&test1($number, 3*$number, 2*$number, 4*$number);
-
+print ('is equal to 2', '\n', 'shgdfjshfg\n'); # function call
+&println($message);
+#$arg4 = &println($message);
+#return &test1($number, 3*$number, 2*$number, 4*$number);
+#$arg4 = &println($message) + ($arg4 * &println($message));
+#$arg4 = &println($message) + &println($message);
 
 #if $number == 1 { print ($number); print('is equal to 1'); } 
 #elsif $number == 2 { print ($number); print('is equal to 2'); } 
@@ -47,9 +54,17 @@
 #elsif $number == 5 { print ($number); print('is equal to 5'); } 
 #else { print ($number); print('is smaller than 5'); };
 
-if $number == ((4+5)*2) { $arg1 = ($arg2 + ($arg3 + $arg4)); $arg2 = $arg3; } 
-elsif $number == 2 { $arg3 = 5; $arg2 = 'is equal to 2'; } 
-elsif $number == 3 { $arg3 = 5; $arg2 = 'is equal to 2'; } 
-elsif $number > $arg1 { $arg1 = ($arg2 * ($arg3 + $arg4)); $arg2 = $arg3; } 
-elsif $number == $arg1 { $arg1 = ($arg2 + ($arg3 + $arg4)); $arg2 = $arg3;} 
-else { $arg3 = 5; $arg2 = 'is equal to 7'; };
+#if $number == 1 { $number = 6; } 
+#elsif $number == 2 { 
+#	if $number == 7 { $number = 6; } 
+#	elsif $number == 8 { 	
+#		if $number == 7 { $number = 6; } 
+#		elsif $number == 8 { $number = 6;} 
+#		else { $number = 6; };
+#	}
+#	else { $number = 6; } ;
+#} 
+#elsif $number == 3 { $number = 6; } 
+#else { $number = 6; };
+
+

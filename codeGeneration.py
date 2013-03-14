@@ -9,7 +9,18 @@ class ASMcodeGenerator:
 		self.register = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict() # cle = string, value = lien vers le string (str1, ...)
-		self.numberOfCond = 0
+		self.listStringLen = dict() # cle = string, value = lien vers la longueur du string (len1, ...)
+		
+		# Pour gerer les conditions imbriquees, on utilise ces cinq parametres afin
+		# de retenir dans quel condition on est ce qui permet de gerer les JUMP 
+		# pour les end
+		self.currentCondBlock = 0 
+		self.maxCondBlock = 0
+		self.initCondBlock = 0
+		# pour les else
+		#self.numberOfCond = 0
+		self.listOfCond = list()
+		self.listOfCond.append(0)
 	
 		
 	def generate_code(self):
@@ -27,37 +38,54 @@ class ASMcodeGenerator:
 		self.header = self.header + "	.eabi_attribute 26 , 2\n"
 		self.header = self.header + "	.eabi_attribute 30 , 6\n"
 		self.header = self.header + "	.eabi_attribute 18 , 4\n \n"
-		self.header = self.header + "	.text\n \n"
+		self.header = self.header + "	.data\n \n"
 		
 
 		
 
 		#self.instruct_list()
 		for codeNode in self.tree.children:
-			if codeNode.value.value =="Funct-List":
+			if codeNode.value.name =="Funct-List":
+				self.code = self.code + "	.text\n \n"
 				self.funct_list(codeNode)
 				
 			elif codeNode.value.name =="Instr-List":
-				self.code = self.code + "	.global main\n"
-				self.code = self.code + "	.type main, %function\n\n"
-				self.code = self.code + "main :\n"
+				
+				self.code = self.code + "	.global _start\n"
+				#self.code = self.code + "	.type main, %function\n\n"
+				self.code = self.code + "_start :\n"
 				self.instruct_list(codeNode)
 			else:
 				raise "bug main"
 		
+		self.code = self.code + "	/* syscall exit*/ \n"
+		self.code = self.code + "	MOV     R0, #0\n"
+		self.code = self.code + "	MOV     R7, #1\n"
+		self.code = self.code + "	SWI     #0\n"
 		
-
-		self.code = self.code + "\n"
-		self.code = self.code + "	BX LR\n"
-		self.code = self.code + ".end\n"
-		
-		
-
 
 		print "fin generation du code"
 		
 		
-		return self.header + "\n \n" + self.funct + "\n \n" + self.code	
+		return self.header + "\n \n" + self.funct + "\n \n" + self.code
+		
+		
+	def funct_list(self, codeNode):
+		for child in codeNode.children:
+			assert child.value.name == "Funct", "Fonction definie au mauvais endroit"
+			self.code = self.code + ".global "+ child.value.value+"\n"
+			self.code = self.code + ".type "+ child.value.value+", %function\n"
+			self.code = self.code + ""+ child.value.value+":\n"
+			
+			for child2 in child.children:
+				if child2.value.name == "arg":
+					print "voir comment gere les arguments"
+				else: # instructions
+					assert child2.value.name == "Instr-List", "instruct-list au mauvais endroit"
+					self.instruct_list(child2)
+			
+			self.code = self.code + "	BX	LR\n \n"
+					
 	
 	def instruct_list(self, codeNode):
 		print "instruct-list"
@@ -69,34 +97,67 @@ class ASMcodeGenerator:
 				self.assign(child)
 			elif child.value.name =="return":
 				self.retur(child)
+			elif child.value.name =="Fct-Call":
+				self.funct_call(child)
 			elif child.value.name !="Instr" and child.value.value !="END":
 				raise "bug instruct-list"
 			self.code = self.code +"\n"
 			
 	
-	def funct_list(self, codeNode):
-		print "funct-list"
+	def funct_call(self, codeNode):
+		print "funct-list ==================================================================> manque fonction de l user"
+		if codeNode.value.value == "PERL-PRIN":
+			for stringNode in codeNode.children:
+				if stringNode.value.name == "STRING":
+					self.registerString(stringNode.value.value)
+					self.code = self.code + "	/* syscall write	*/ \n"
+					self.code = self.code + "	MOV 	R0, #1\n"
+					self.code = self.code + "	LDR 	R1, ="+self.listString[stringNode.value.value]+"\n"
+					self.code = self.code + "	LDR 	R2, ="+self.listStringLen[stringNode.value.value]+"\n"
+					self.code = self.code + "	MOV 	R7, #4\n"
+					self.code = self.code + "	SWI 	#0\n"
+				else:
+					raise "perl-print ne prend que des strings"
+			
+		else: # fonctions definies par l utilisateur
+			print "funct de l'user"
+			self.code = self.code + "	BL	"+codeNode.value.value+"\n"
+		
+		
+		
+		
+		
+		
 	
 	def cond(self, codeNode):
 		print "cond =============================================================> OK (manque appel de fonction)"	
 		if codeNode.children[0].value.name == "OPERATOR": # On a une expression
 			self.expression(codeNode.children[0])
-			self.code = self.code + " else"+str(self.numberOfCond)+"\n"
+			self.code = self.code + " else"+str(self.currentCondBlock)+str(self.listOfCond[self.currentCondBlock])+"\n"
 					
 		if codeNode.children[0].value.name == "Instr-List": # On a un instruc-list
 			self.instruct_list(codeNode.children[0])
 
 		elif codeNode.children[1].value.name == "Instr-List": # On a un instruc-list
+			self.currentCondBlock = self.currentCondBlock +1
+			self.listOfCond.append(0) # Moche faudrait voir ou le mettre, la cree des list plus grande que ce dont on a besoin
 			self.instruct_list(codeNode.children[1])
-
+			self.currentCondBlock = self.currentCondBlock -1
 		
 		if len(codeNode.children) > 2 and codeNode.children[2].value.name == "Cond": # On a un else ou elsif
-			self.code = self.code + "	B end\n"
-			self.code = self.code + "else"+str(self.numberOfCond)+": "
-			self.numberOfCond = self.numberOfCond + 1
+			self.code = self.code + "	B end"+str(self.currentCondBlock)+"\n"
+			self.code = self.code + "else"+str(self.currentCondBlock)+str(self.listOfCond[self.currentCondBlock])+": \n"
+			#self.numberOfCond = self.numberOfCond + 1
+			self.listOfCond[self.currentCondBlock] = self.listOfCond[self.currentCondBlock] +1
 			self.cond(codeNode.children[2])
 		else:
-			self.code = self.code + "end:\n"
+			self.code = self.code + "end"+str(self.currentCondBlock)+":\n"
+			if self.currentCondBlock > self.maxCondBlock:
+				self.maxCondBlock = self.currentCondBlock
+			elif self.currentCondBlock == self.initCondBlock:
+				self.maxCondBlock = self.maxCondBlock +1
+				self.currentCondBlock = self.maxCondBlock
+				self.initCondBlock = self.maxCondBlock
 		
 		
 			
@@ -110,7 +171,7 @@ class ASMcodeGenerator:
 		
 	
 	def assign(self, codeNode):
-		print "assign =============================================================> OK (manque appel de fonction)"
+		print "assign =============================================================> OK (manque appel de fonction- a tester)"
 		##print codeNode
 		var = self.setRegisterOfVariable(codeNode.value.value)
 		for child in codeNode.children:
@@ -124,19 +185,24 @@ class ASMcodeGenerator:
 					
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
-				if child.value.value not in self.listString.keys():
-					self.listString[child.value.value] =  "str" + str(len(self.listString))
-					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				self.registerString(self, child.value.value)
+				#if child.value.value not in self.listString.keys():
+				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
+				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 
 				# On gere ensuite l assignation
-				self.code = self.code + "	MOV 	R"+str(var)+", "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R"+str(var)+", "+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
 				self.code = self.code + "	MOV 	R"+str(var)+", #"+child.value.value+"\n"
 				
 			elif child.value.name == "VARIABLE": # On a une variable
 				self.code = self.code + "	MOV 	R"+str(var)+", R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
-
+				
+			elif child.value.name == "Fct-Call": # On a un appel de fonction
+				self.funct_call(child)
+				self.code = self.code + "	MOV 	R"+str(var)+", R0\n"
 				
 			else:
 				raise "bug assignation"
@@ -157,23 +223,29 @@ class ASMcodeGenerator:
 					
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
-				if child.value.value not in self.listString.keys():
-					self.listString[child.value.value] =  "str" + str(len(self.listString))
-					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				self.registerString(self, child.value.value)
+				#if child.value.value not in self.listString.keys():
+				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
+				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 
 				# On gere ensuite l assignation
-				self.code = self.code + "	MOV 	R0, "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R0, "+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
 				self.code = self.code + "	MOV 	R0, #"+child.value.value+"\n"
 				
 			elif child.value.name == "VARIABLE": # On a une variable
 				self.code = self.code + "	MOV 	R0, R"+str(self.getRegisterOfVariable(child.value.value))+"\n"
+				
+			elif child.value.name == "Fct-Call": # On a un appel de fonction
+				self.funct_call(child)
+				# le resltat est deja ans R0
 
 				
 			else:
 				raise "bug return"
-			
+			self.code = self.code + "	MOV		PC, LR\n"
 
 	
 	def expression(self, codeNode):
@@ -209,16 +281,25 @@ class ASMcodeGenerator:
 			
 			elif child.value.name == "STRING":
 				# Les string doivent etre declare avant le code, donc ajoute au header
-				if child.value.value not in self.listString.keys():
-					self.listString[child.value.value] =  "str" + str(len(self.listString))
-					self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				self.registerString(self, child.value.value)
+				#if child.value.value not in self.listString.keys():
+				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
+				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
+				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
+				
+				
 				
 				# ensuite on s occupe des calculs
 				Reg.append(self.getFreeRegister())
-				self.code = self.code + "	MOV 	R"+ str(Reg[cmpt])+", "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R"+ str(Reg[cmpt])+", "+self.listString[child.value.value]+"\n"
 					
 			elif child.value.name == "OPERATOR":
 				Reg.append(self.expression(child))
+				
+			elif child.value.name == "Fct-Call": # On a un appel de fonction
+				self.funct_call(child)
+				Reg.append(self.getFreeRegister())
+				self.code = self.code + "	MOV 	R"+ str(Reg[cmpt])+", R0\n"
 			
 			cmpt = cmpt+1
 		
@@ -276,7 +357,12 @@ class ASMcodeGenerator:
 			return reg
 	
 	
-	
+	def registerString(self, nameString):
+		if nameString not in self.listString.keys():
+			self.listString[nameString] =  "str" + str(len(self.listString))
+			self.listStringLen[nameString] = "len" + str(len(self.listString)-1)
+			self.header = self.header + self.listString[nameString]+ ":	.string \""+nameString+"\"\n"
+			self.header = self.header + self.listStringLen[nameString]+ " = . - "+self.listString[nameString]+"\n"
 	
 	
 	
