@@ -9,15 +9,15 @@ class ASMcodeGenerator:
 		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict() # cle = string, value = lien vers le string (str1, ...)
 		self.listStringLen = dict() # cle = string, value = lien vers la longueur du string (len1, ...)
+		self.saveListVariable = list() # utilise quand doit sauver le contexte lors du passage dans une fonction
 		
-		# Pour gerer les conditions imbriquees, on utilise ces cinq parametres afin
+		# Pour gerer les conditions imbriquees, on utilise ces quatres parametres afin
 		# de retenir dans quel condition on est ce qui permet de gerer les JUMP 
 		# pour les end
 		self.currentCondBlock = 0 
 		self.maxCondBlock = 0
 		self.initCondBlock = 0
 		# pour les else
-		#self.numberOfCond = 0
 		self.listOfCond = list()
 		self.listOfCond.append(0)
 	
@@ -75,15 +75,38 @@ class ASMcodeGenerator:
 			self.code = self.code + ".global "+ child.value.value+"\n"
 			self.code = self.code + ".type "+ child.value.value+", %function\n"
 			self.code = self.code + ""+ child.value.value+":\n"
+			self.code = self.code + "	PUSH	{R4-R11,R14}\n"
+			self.saveListVariable.append(self.listVariable)
+			#print "listVariable = "
+			#print self.listVariable
+			self.listVariable = dict()
+			#print "listVariable new = "
+			#print self.listVariable
 			
+			cmpt = 0
 			for child2 in child.children:
 				if child2.value.name == "arg":
-					print "voir comment gere les arguments"
+					#print "voir comment gere les arguments"
+					if cmpt > 3:
+						raise "maximum quatre parametre" # POUR LE MOMENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					
+					var = self.setRegisterOfVariable(child2.value.value)	
+					self.code = self.code + "	MOV 	R"+str(var)+", R"+str(cmpt)+"\n"
+					cmpt = cmpt + 1
 					
 				else: # instructions
 					assert child2.value.name == "Instr-List", "instruct-list au mauvais endroit"
+					#print "listVariable new 2= "
+					#print self.listVariable
 					self.instruct_list(child2)
 			
+			
+			#print "listVariable new 3= "
+			#print self.listVariable
+			self.listVariable = self.saveListVariable.pop()
+			#print "listVariable 2 = "
+			#print self.listVariable
+			self.code = self.code + "	POP	{R4-R11,R14}\n"
 			self.code = self.code + "	BX	LR\n \n"
 					
 	
@@ -124,7 +147,6 @@ class ASMcodeGenerator:
 			cmpt = 0
 			for stringNode in codeNode.children:
 				if stringNode.value.name == "VARIABLE":
-					self.registerString(stringNode.value.value)
 					self.code = self.code + "	MOV 	R"+str(cmpt)+", R"+str(self.getRegisterOfVariable(stringNode.value.value))+"\n"
 					cmpt = cmpt +1
 				else:
@@ -253,7 +275,7 @@ class ASMcodeGenerator:
 				
 			else:
 				raise "bug return"
-			self.code = self.code + "	MOV		PC, LR\n"
+			#self.code = self.code + "	MOV		PC, LR\n"
 
 	
 	def expression(self, codeNode):
@@ -316,7 +338,7 @@ class ASMcodeGenerator:
 			Reg.append( self.getFreeRegister())
 			self.code = self.code + "	" + op + "	R"+str(Reg[2])+ ", R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
 		else:	# Operateur de comparaison
-			self.code = self.code + "	CMP" + "		R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
+			self.code = self.code + "	CMP" + "	R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
 			self.code = self.code + "		" + op
 		
 		

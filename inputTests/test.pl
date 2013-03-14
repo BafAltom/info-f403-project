@@ -2,19 +2,21 @@
 #';
 
 # function declaration
-sub println ($str) {
+sub println ($message) {
+	
 	
 	print ('funct1');
+	&test1($message);
 	return 4;
 	
 }
-sub test1 (){#$arg1, $arg2, $arg3, $arg4) {
+sub test1 ($arg1, $arg2, $arg3, $arg4) {
 	$arg1 = 2;
 	$arg2 = 9;
 	#$argS1 = 'zuyefz';
 	#$argS2 = 'zuyefetetzrtzz';
 	$arg3 = 15;
-	$arg4 = $arg3;
+	$arg5 = $arg3;
 	#$argS3 = 'zuyefz';
 	#$arg1 = $arg1 + 1;
 	#$arg2 = $arg2 + 'sdhfg';
@@ -42,7 +44,7 @@ sub test1 (){#$arg1, $arg2, $arg3, $arg4) {
 $message = 5;
 print ('is equal to 2', '\n', 'shgdfjshfg\n'); # function call
 &println($message, $message, $message);
-&printl($message);
+
 #$arg4 = &println($message);
 #return &test1($number, 3*$number, 2*$number, 4*$number);
 #$arg4 = &println($message) + ($arg4 * &println($message));
