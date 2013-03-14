@@ -4,7 +4,6 @@ class ASMcodeGenerator:
 	def __init__(self, abstractTree):
 		self.code = "" # Contiendra la fonction main
 		self.header = "" # contiendra le header avec les param ASM et les variables qu'on doit definir avant (string, ...)
-		self.funct = "" # Contiendra les fonctions
 		self.tree = abstractTree
 		self.register = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
@@ -67,7 +66,7 @@ class ASMcodeGenerator:
 		print "fin generation du code"
 		
 		
-		return self.header + "\n \n" + self.funct + "\n \n" + self.code
+		return self.header + "\n \n"+ "\n \n" + self.code
 		
 		
 	def funct_list(self, codeNode):
@@ -80,6 +79,7 @@ class ASMcodeGenerator:
 			for child2 in child.children:
 				if child2.value.name == "arg":
 					print "voir comment gere les arguments"
+					
 				else: # instructions
 					assert child2.value.name == "Instr-List", "instruct-list au mauvais endroit"
 					self.instruct_list(child2)
@@ -105,7 +105,7 @@ class ASMcodeGenerator:
 			
 	
 	def funct_call(self, codeNode):
-		print "funct-list ==================================================================> manque fonction de l user"
+		print "funct-list ==================================================================> ok"
 		if codeNode.value.value == "PERL-PRIN":
 			for stringNode in codeNode.children:
 				if stringNode.value.name == "STRING":
@@ -121,6 +121,14 @@ class ASMcodeGenerator:
 			
 		else: # fonctions definies par l utilisateur
 			print "funct de l'user"
+			cmpt = 0
+			for stringNode in codeNode.children:
+				if stringNode.value.name == "VARIABLE":
+					self.registerString(stringNode.value.value)
+					self.code = self.code + "	MOV 	R"+str(cmpt)+", R"+str(self.getRegisterOfVariable(stringNode.value.value))+"\n"
+					cmpt = cmpt +1
+				else:
+					raise "les fonctions ne prennent que des variables"
 			self.code = self.code + "	BL	"+codeNode.value.value+"\n"
 		
 		
@@ -263,9 +271,9 @@ class ASMcodeGenerator:
 		elif codeNode.value.value == "DIV":
 			op = "???"
 		elif codeNode.value.value == "GT":
-			op = "BLE"
+			op = "BLE"	# On inverse, donc on jump si <=
 		elif codeNode.value.value == "EQUIV":
-			op = "BEQ"
+			op = "BNE"	# On inverse, on jump si les deux valeurs sont differentes
 	
 		# On calcule les deux parametres du calcul
 		cmpt =0
@@ -308,8 +316,8 @@ class ASMcodeGenerator:
 			Reg.append( self.getFreeRegister())
 			self.code = self.code + "	" + op + "	R"+str(Reg[2])+ ", R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
 		else:	# Operateur de comparaison
-			self.code = self.code + "	CMP" + "	R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
-			self.code = self.code + "	" + op
+			self.code = self.code + "	CMP" + "		R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
+			self.code = self.code + "		" + op
 		
 		
 		# Si les deux registres utilise dans le calculs ne sont pas ceux d une variable on les effaces

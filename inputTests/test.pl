@@ -2,7 +2,7 @@
 #';
 
 # function declaration
-sub println () {#$str) {
+sub println ($str) {
 	
 	print ('funct1');
 	return 4;
@@ -39,9 +39,10 @@ sub test1 (){#$arg1, $arg2, $arg3, $arg4) {
 # 	print("Good")
 # }
 # function call
-
+$message = 5;
 print ('is equal to 2', '\n', 'shgdfjshfg\n'); # function call
-&println($message);
+&println($message, $message, $message);
+&printl($message);
 #$arg4 = &println($message);
 #return &test1($number, 3*$number, 2*$number, 4*$number);
 #$arg4 = &println($message) + ($arg4 * &println($message));
