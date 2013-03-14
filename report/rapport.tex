@@ -24,10 +24,10 @@ showstringspaces=false,
 tabsize=2,
 breaklines=true
 }
-\usepackage{titlesec}
-\titleformat{\section}[frame]{\normalfont\Huge\bfseries}{\thesection}{0.5em}{}
-\titleformat{\subsection}[block]{\normalfont\LARGE\bfseries}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}[block]{\normalfont\large\bfseries}{\thesubsubsection}{1em}{}
+%\usepackage{titlesec}
+%\titleformat{\section}[frame]{\normalfont\Huge\bfseries}{\thesection}{0.5em}{}
+%\titleformat{\subsection}[block]{\normalfont\LARGE\bfseries}{\thesubsection}{1em}{}
+%\titleformat{\subsubsection}[block]{\normalfont\large\bfseries}{\thesubsubsection}{1em}{}
 
 
 % Title Page
@@ -37,6 +37,13 @@ breaklines=true
 \begin{document}
 \maketitle
 
+Le but du projet était de construire un compilateur d'une version simplifiée de Perl en ASM/ARM devant tourner dans une architecture Android.\\
+
+La première partie de ce rapport se concentrera sur l'analyse du language, c'est-à-dire la définition des tokens et de la grammaire LL(1) correspondante, ainsi que la table d'action et les contraintes que nous avons imposé lors de la transformation en LL(1).\\
+
+Ensuite, nous décrirons notre parser qui transforme un fichier .perl en un AST.\\
+
+Finalement, nous expliquerons la génération du code ASM/ARM.
 
 \pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,7 +54,8 @@ breaklines=true
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Lexèmes}
+\section{Language}
+\subsection{Lexèmes}
 
 Définition des tokens~\\
 
@@ -111,15 +119,17 @@ PERL-SUBS			& substr  \\ \hline
 PERL-PRIN			& print\\ \hline
 COMM				& \#.STRING \\ \hline
 VARIABLE			& \$.STRING \\ \hline
-					
 
 
 \end{tabular}
 \end{tabular}
 ~\\
 
-coma peut définir l'opérateur coma ou juste un coma entre deux param, mais même lexical unit, c'est le parser qui se charge du reste\\
-COMM ne sera plus utilisé par la suite, on les supprime avant de faire l'analyse lexicale
+Remarques :
+\begin{itemize}
+\item Le lexème COMA peut définir l'opérateur virgule ou juste une virgule entre deux paramètres. Le lexème est le même mais le parser l'interpretera différemment.\\
+\item Les lexèmes de type COMM (commentaire) sont supprimés avant de faire l'analyse lexicale
+\end{itemize}
 
 
 \pagebreak
@@ -130,7 +140,7 @@ COMM ne sera plus utilisé par la suite, on les supprime avant de faire l'analys
 %%
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Automates}
+\subsection{Automates}
 
 Définition des automates finis
 ~\\
@@ -143,7 +153,7 @@ Définition des automates finis
 			\label{automate1}
   \end{figure}	
   
-	La plupart des noeuds pointent vers le token ID, trop lourd a représenter, donc met une petite fleche bleu à la place.  
+  	Dans la figure \ref{automate2}, Les flèches bleues représentent les transitions vers l'état ID.
   
   \begin{figure}[H] \hspace*{-2cm} 
     \centering
@@ -151,13 +161,6 @@ Définition des automates finis
 			\caption{automate "alphabétique"}
 			\label{automate2}
   \end{figure}	
-
-
-
-
-
-
-
 
 
 \pagebreak
@@ -168,11 +171,11 @@ Définition des automates finis
 %%
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Grammaire}
+\subsection{Grammaire}
 
-	\subsection{Grammaire de base}
+	\subsubsection{Grammaire initiale}
 	
-	Nous utilisons pour définir la grammaire la version simplifiée de l'assistant : \\
+	Pour rappel, voici la grammaire donnée initialement :\\
 	
 	
 \hspace{-3.0cm}\begin{tabular}{rl}
@@ -185,7 +188,6 @@ $<$FUNCT-LIST$>$	& $\rightarrow$ $<$FUNCT$>$ \\
 					& $\rightarrow$ $<$FUNCT-LIST$>$ $<$FUNCT$>$\\
 					
 $<$FUNCT$>$			& $\rightarrow$ funct-def id open-par $<$FUNCT-ARG$>$ close-par open-brac $<$INSTRUCT-LIST$>$ close-brac \\
-
 
 					
 $<$FUNCT-ARG$>$		& $\rightarrow$ open-par $<$ARG-LIST$>$ close-par\\
@@ -233,31 +235,12 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 					
 \end{tabular}
 
+\subsubsection{Suppression des symboles inutiles}
 
+	On peut retirer les symboles non-productifs et les symboles inaccessibles. Ici tous les symboles sont utiles dont on ne peut en retirer aucun.
 
-
-
-
-
-
-
-
-
-\subsection{Suppression des symboles inutiles}
-	
-	on vire les non-productifs et inaccessibles.\\
-	Y en a pas donc ca va vite.
-	
-
-
-
-
-
-
-	
 \subsection{Gestion des priorités et associativité}
-	Cela ne concerne que la règle EXP, on la transforme donc en : \\
-	
+	On veut retirer les ambiguités liées aux priorités et à l'associativité. Cela ne concerne que la règle EXP, on la transforme donc en respectant les règles de priorités et d'associativités habituelles : \\
 
 	\begin{center}\begin{tabular}{rl}
 		$<$EXP$>$			& $\rightarrow$ $<$EXP$>$ equiv $<$EXP-2$>$ \\
@@ -272,20 +255,6 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 							& $\rightarrow$ $<$EXP-3$>$ div $<$SIMPLE-EXP$>$\\ 
 							& $\rightarrow$ $<$SIMPLE-EXP$>$ \\					
 	\end{tabular}\end{center}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 \subsection{left factoring}
 	Cela ne concerne que EXP, EXP-2, EXP-3 et PROGRAM : \\
@@ -315,14 +284,8 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 							& $\rightarrow$ epsilon \\				
 	\end{tabular}\end{center}
 
-
-
-
-
-
-
 \subsection{Left recursion}
-	concerne FUNCT-LIST, ARG-LIST, INSTRUCT-LIST, FUNCT-CALL-ARG : \\
+	Les grammaires LL(k) ne peuvent contenir de règles du type $A \rightarrow A \beta$. Cela concerne FUNCT-LIST, ARG-LIST, INSTRUCT-LIST, FUNCT-CALL-ARG : \\
 
 	\begin{center}\begin{tabular}{rl}				
 					
@@ -352,9 +315,6 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 								& $\rightarrow$ epsilon \\
 	\end{tabular}\end{center}
 
-
-
-
 \subsection{Suppresion des productions unitaires}
 	 règle FUNCT-ARG ($<$FUNCT-ARG$>$ $\rightarrow$ open-par $<$ARG-LIST$>$ close-par) est dans ce cas\\
 	On la remplace donc directement par ARG-LIST dans funct.\\
@@ -362,15 +322,6 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 	FUNCT devient donc : ($<$FUNCT$>$	 $\rightarrow$ funct-def id $<$ARG-LIST$>$ open-brac $<$INSTRUCT-LIST$>$ close-brac) \\
 	et arg-list devient : ($<$ARG-LIST$>$  $\rightarrow$ open-ar $<$ARG-LIST-BEG$>$ $<$ARG-LIST-END$>$ close-par)\\
 	supprime donc une règle pas intermédiaire peu utile
-
-
-
-
-
-
-
-
-
 
 
 \subsection{Grammaire finale}
@@ -428,15 +379,6 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 \end{tabular}
 
 
-
-
-
-
-
-
-
-
-
 \pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
@@ -450,22 +392,6 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 
 	reconnait plus de token que ceux supporté par la grammaire.\\
 	because passé de grammaire complète à grammaire simplifié
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 \pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -485,826 +411,5 @@ $<$EXP$>$			& $\rightarrow$ $<$SIMPLE-EXP$>$   \\
 	
 	
 	\subsection{First and follow}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\pagebreak
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
-%%
-%%	Poubelle
-%%
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Poubelle}
-
-\subsection{Grammaire complète : bug}
-
-On se base sur la BNF donné par l'assistant et on l'adapte à notre version de perl
-
-\hspace{-4.5cm}\begin{tabular}{rl}
-PROGRAM				& $\rightarrow$ PROGRAM FUNCT-LIST\\
-					& $\rightarrow$ PROGRAM INSTRUCT\\
-					& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ INSTRUCT\\
-					& $\rightarrow$ EPSILON\\
-					
-					
-FUNCT-LIST			& $\rightarrow$ FUNCT \\
-					& $\rightarrow$ FUNCT FUNCT-LIST\\
-					& $\rightarrow$ EPSILON\\
-					
-FUNCT				& $\rightarrow$ FUNCT-DEF ID OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-DEF ID OPEN-PAR CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-DEF ID OPEN-PAR PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-
-FUNCT-CALL			& $\rightarrow$ USER-FUNCT-CALL \\
-					& $\rightarrow$ PERL-FUNCT-CALL \\
-
-USER-FUNCT-CALL		& $\rightarrow$ ID OPEN-PAR CLOSE-PAR\\ 
-					& $\rightarrow$ ID OPEN-PAR PARAM CLOSE-PAR\\ 
-					& $\rightarrow$ ID PARAM\\ 
-					& $\rightarrow$ ID\\ 
-
-				
-PERL-FUNCT-CALL		& $\rightarrow$ PERL-DEF EXP \\
-					& $\rightarrow$ PERL-INT EXP \\
-					& $\rightarrow$ PERL-LENG EXP \\ 
-					& $\rightarrow$ PERL-SCAL EXP \\
-					& $\rightarrow$ PERL-SUBS EXP COMA INT COMA INT \\
-					& $\rightarrow$ PERL-SUBS EXP COMA INT  \\
-					& $\rightarrow$ PERL-PRIN LIST \\ 
-					
-LIST				& $\rightarrow$ STRING \\
-					& $\rightarrow$ STRING LIST\\
-					& $\rightarrow$ EPSILON\\
-				
-
-					
-PARAM				& $\rightarrow$ VAR \\
-					& $\rightarrow$ VAR PARAM-END\\
-					& $\rightarrow$ EPSILON \\
-PARAM-END			& $\rightarrow$ COMA VAR \\ 
-					& $\rightarrow$ COMA VAR PARAM-END\\ 
-					& $\rightarrow$ EPSILON \\
-
-RETURN				& $\rightarrow$ RET EXP SEMICOLON\\
-					& $\rightarrow$ RET EXP-COND SEMICOLON\\
-					& $\rightarrow$ RET VAR SEMICOLON\\
-					& $\rightarrow$ EPSILON \\
-					
-
-
-
-					
-					
-\end{tabular}
-
-~\\
-
-\hspace{-4.5cm}\begin{tabular}{rl}
-
-
-INSTRUCT			& $\rightarrow$ COND SEMICOLON INSTRUCT\\
-					& $\rightarrow$ EXP SEMICOLON INSTRUCT\\
-					& $\rightarrow$ FUNCT-CALL SEMICOLON INSTRUCT\\
-					& $\rightarrow$ ASSIGNATION SEMICOLON INSTRUCT\\
-					& $\rightarrow$ COND SEMICOLON \\
-					& $\rightarrow$ EXP SEMICOLON \\
-					& $\rightarrow$ FUNCT-CALL SEMICOLON \\
-					& $\rightarrow$ ASSIGNATION SEMICOLON \\
-					& $\rightarrow$ EPSILON \\
-					
-
-ASSIGNATION			& $\rightarrow$ VAR EQUAL VALUE \\
-					& $\rightarrow$ VAR EQUAL EXP \\
-					
-COND				& $\rightarrow$ OPEN-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ NEG-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ EXP OPEN-COND EXP-COND \\
-					& $\rightarrow$ EXP NEG-COND EXP-COND \\
-
-
-COND-END			& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC \\
-					& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END \\
-					& $\rightarrow$ CLOSE-COND OPEN-BRAC INSTRUCT CLOSE-BRAC\\
-					& $\rightarrow$ EPSILON \\					
-
-EXP					& $\rightarrow$ VAR   \\
-					& $\rightarrow$ EXP OPERATOR EXP \\ 
-					& $\rightarrow$ EXP-COMP \\
-					& $\rightarrow$ NOT EXP \\
-					& $\rightarrow$ FAC EXP \\
-					& $\rightarrow$ ADD EXP \\
-					& $\rightarrow$ MINUS EXP \\
-					
-EXP-COMP			& $\rightarrow$ EXP OPERATOR-COMP EXP \\
-
-OPERATOR			& $\rightarrow$ MUL \\ 
-					& $\rightarrow$ DIV \\ 
-					& $\rightarrow$ MINUS \\ 
-					& $\rightarrow$ CONC \\ 
-					& $\rightarrow$ ADD	\\ 
-					& $\rightarrow$ COMA\\ 
-					& $\rightarrow$ DOT	\\ 
-OPERATOR-COMP		& $\rightarrow$ LT\\
-					& $\rightarrow$ GT	\\
-					& $\rightarrow$ LE	\\
-					& $\rightarrow$ GE	\\
-					& $\rightarrow$ EQUIV	\\
-					& $\rightarrow$ DIF	\\
-					& $\rightarrow$ AND-LOGIC	\\
-					& $\rightarrow$ OR		\\
-					& $\rightarrow$ LT-S\\
-					& $\rightarrow$ GT-S\\
-					& $\rightarrow$ LE-S	\\
-					& $\rightarrow$ GE-S	\\
-					& $\rightarrow$ COMA-LOGIC	\\
-					& $\rightarrow$ EQ-S	\\
-					& $\rightarrow$ NE-S	\\
-
-VALUE				& $\rightarrow$ INT \\
-					& $\rightarrow$ FLOAT \\
-					& $\rightarrow$ BOOL \\
-					& $\rightarrow$ STRING \\
-					
-VAR					& $\rightarrow$ VALUE \\
-					& $\rightarrow$ VARIABLE \\
-					& $\rightarrow$ MINUS VAR\\
-					& $\rightarrow$ ADD VAR \\
-					& $\rightarrow$ OPEN-PAR EXP CLOSE-PAR \\
-
-\end{tabular}
-
-~\\
-
-\subsection{Gestion des priorités}
-
-On doit adapter la grammaire pour respecter les priorité et les associativité gauche/droite.\\
-Cela ne modifie que les règles EXP, EXP-COND, OPERATOR et OPERATOR-COND qui deviennent : \\
-~\\
-
-
-
-\begin{tabular}{rl}
-
-
-$<$EXP$>$			& $\rightarrow$ $<$EXP$>$ LT $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LT-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GT $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GT-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LE $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LE-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GE $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GE-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ EQUIV $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ EQ-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ NE-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ DIF $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ DOT $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ COMA $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
-					& $\rightarrow$ NOT $<$EXP$>$ \\
-					& $\rightarrow$ FAC $<$EXP$>$ \\
-					& $\rightarrow$ $<$EXP2$>$ \\
-										
-					
-$<$EXP2$>$			& $\rightarrow$ $<$EXP$>$ ADD $<$EXP3$>$\\
-					& $\rightarrow$ $<$EXP$>$ MINUS $<$EXP3$>$\\
-					& $\rightarrow$ $<$EXP$>$ OR $<$EXP3$>$\\
-					& $\rightarrow$ $<$EXP3$>$\\
-					
-$<$EXP3$>$			& $\rightarrow$ $<$EXP$>$ MUL $<$VAR$>$\\
-					& $\rightarrow$ $<$EXP$>$ DIV $<$VAR$>$\\
-					& $\rightarrow$ $<$EXP$>$ AND $<$VAR$>$\\
-					& $\rightarrow$ $<$VAR$>$\\
-\end{tabular}
-
-
-
-
-
-\subsection{Suppression des symboles inutiles}
-On doit virer non-productifs et inaccessibles.\\
-Ici ok, rien à faire
-
-
-
-
-
-
-
-\subsection{left-factoring}
-On vire ce qui commence pareillement~\\
-
-On obtient la gram suivante : 
-
-\hspace{-3.5cm}\begin{tabular}{rl}
-PROGRAM				& $\rightarrow$ PROGRAM PROG-END \\
-					& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ INSTRUCT\\
-					& $\rightarrow$ EPSILON\\
-PROG-END			& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ INSTRUCT\\
-					
-FUNCT-LIST			& $\rightarrow$ FUNCT FUNCT-LIST-END\\
-					& $\rightarrow$ EPSILON\\
-					
-FUNCT-LIST-END		& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ EPSILON\\
-					
-FUNCT				& $\rightarrow$ FUNCT-DEF ID FUNCT-END \\
-
-FUNCT-END			& $\rightarrow$ OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ OPEN-PAR FUNCT-END2 \\
-
-FUNCT-END2			& $\rightarrow$ CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-
-FUNCT-CALL			& $\rightarrow$ USER-FUNCT-CALL \\
-					& $\rightarrow$ PERL-FUNCT-CALL \\
-
-USER-FUNCT-CALL		& $\rightarrow$ ID USER-FUNCT-CALL-END\\ 
-
-USER-FUNCT-CALL-END	& $\rightarrow$ OPEN-PAR USER-FUNCT-CALL-END2\\ 
-					& $\rightarrow$ PARAM\\ 
-					& $\rightarrow$ EPSILON\\
-					
-USER-FUNCT-CALL-END2& $\rightarrow$ CLOSE-PAR\\ 
-					& $\rightarrow$ PARAM CLOSE-PAR\\ 
-
-				
-PERL-FUNCT-CALL		& $\rightarrow$ PERL-DEF EXP \\
-					& $\rightarrow$ PERL-INT EXP \\
-					& $\rightarrow$ PERL-LENG EXP \\ 
-					& $\rightarrow$ PERL-SCAL EXP \\
-					& $\rightarrow$ PERL-SUBS PERL-SUBS-END \\
-					& $\rightarrow$ PERL-PRIN LIST \\ 
-					
-PERL-SUBS-END		& $\rightarrow$ EXP COMA INT COMA INT \\
-					& $\rightarrow$ EXP COMA INT  \\
-					
-LIST				& $\rightarrow$ STRING LIST-END\\
-					
-LIST-END			& $\rightarrow$ LIST\\
-					& $\rightarrow$ EPSILON\\
-				
-
-					
-PARAM				& $\rightarrow$ PARAM2\\
-					& $\rightarrow$ EPSILON \\
-
-PARAM2				& $\rightarrow$ PARAM-END\\
-					& $\rightarrow$ EPSILON \\
-					
-					
-PARAM-END			& $\rightarrow$ COMA VAR PARAM-END2\\ 
-					& $\rightarrow$ EPSILON \\
-					
-PARAM-END2			& $\rightarrow$ PARAM-END\\ 
-					& $\rightarrow$ EPSILON \\
-
-RETURN				& $\rightarrow$ RET RETURN-END\\
-					& $\rightarrow$ EPSILON \\
-
-RETURN-END			& $\rightarrow$ EXP SEMICOLON\\
-					& $\rightarrow$ EXP-COND SEMICOLON\\
-					& $\rightarrow$ VAR SEMICOLON\\
-
-					
-					
-					
-
-
-
-					
-					
-\end{tabular}
-
-~\\
-
-\hspace{-3.5cm}\begin{tabular}{rl}
-
-
-INSTRUCT			& $\rightarrow$ COND INSTRUCT-END \\					
-					& $\rightarrow$ EXP INSTRUCT-END \\					
-					& $\rightarrow$ FUNCT-CALL INSTRUCT-END \\					
-					& $\rightarrow$ ASSIGNATION INSTRUCT-END \\
-					& $\rightarrow$ EPSILON \\
-
-INSTRUCT-END		& $\rightarrow$ SEMICOLON INSTRUCT-END2\\
-
-INSTRUCT-END2		& $\rightarrow$ INSTRUCT\\
-					& $\rightarrow$ EPSILON \\
-					
-
-ASSIGNATION			& $\rightarrow$ VAR EQUAL ASSIGNATION-END \\
-
-ASSIGNATION-END		& $\rightarrow$ VALUE \\
-					& $\rightarrow$ EXP \\
-					
-COND				& $\rightarrow$ OPEN-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ NEG-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ EXP COND-END2 \\
-
-COND-END2			& $\rightarrow$ OPEN-COND EXP-COND \\
-					& $\rightarrow$ NEG-COND EXP-COND \\
-
-
-COND-END			& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END3 \\
-					& $\rightarrow$ CLOSE-COND OPEN-BRAC INSTRUCT CLOSE-BRAC\\
-					& $\rightarrow$ EPSILON \\	
-					
-COND-END3			& $\rightarrow$ COND-END \\
-					& $\rightarrow$ EPSILON \\					
-
-$<$EXP$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP-END$>$\\
-					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
-					& $\rightarrow$ NOT $<$EXP$>$ \\
-					& $\rightarrow$ FAC $<$EXP$>$ \\
-					& $\rightarrow$ $<$EXP2$>$ \\
-					
-					
-$<$EXP-END$>$		& $\rightarrow$ LT $<$EXP2$>$\\
-					& $\rightarrow$ LT-S $<$EXP2$>$\\
-					& $\rightarrow$ GT $<$EXP2$>$\\
-					& $\rightarrow$ GT-S $<$EXP2$>$\\
-					& $\rightarrow$ LE $<$EXP2$>$\\
-					& $\rightarrow$ LE-S $<$EXP2$>$\\
-					& $\rightarrow$ GE $<$EXP2$>$\\
-					& $\rightarrow$ GE-S $<$EXP2$>$\\
-					& $\rightarrow$ EQUIV $<$EXP2$>$\\
-					& $\rightarrow$ EQ-S $<$EXP2$>$\\
-					& $\rightarrow$ NE-S $<$EXP2$>$\\
-					& $\rightarrow$ DIF $<$EXP2$>$\\
-					& $\rightarrow$ DOT $<$EXP2$>$\\
-					& $\rightarrow$ COMA $<$EXP2$>$\\
-										
-					
-$<$EXP2$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP2-END$>$\\
-					& $\rightarrow$ $<$EXP3$>$\\
-					
-$<$EXP2-END$>$		& $\rightarrow$  ADD $<$EXP3$>$\\
-					& $\rightarrow$  MINUS $<$EXP3$>$\\
-					& $\rightarrow$  OR $<$EXP3$>$\\					
-
-					
-$<$EXP3$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP3-END$>$\\
-					& $\rightarrow$ $<$VAR$>$\\
-					
-$<$EXP3-END$>$		& $\rightarrow$ MUL $<$VAR$>$\\
-					& $\rightarrow$ DIV $<$VAR$>$\\
-					& $\rightarrow$ AND $<$VAR$>$\\
-
-VALUE				& $\rightarrow$ INT \\
-					& $\rightarrow$ FLOAT \\
-					& $\rightarrow$ BOOL \\
-					& $\rightarrow$ STRING \\
-					
-VAR					& $\rightarrow$ VALUE \\
-					& $\rightarrow$ VARIABLE \\
-					& $\rightarrow$ MINUS VAR\\
-					& $\rightarrow$ ADD VAR \\
-					& $\rightarrow$ OPEN-PAR EXP CLOSE-PAR \\
-
-\end{tabular}
-
-
-
-
-
-
-
-\subsection{récursion gauche}
-
-On doit juste changer les règles PROGRAM et EXP qui deviennent:\\
-~\\
-
-
-\begin{tabular}{rl}
-PROGRAM				& $\rightarrow$ PROG PROG-TAIL \\
-PROG				& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ INSTRUCT\\
-					& $\rightarrow$ EPSILON\\
-PROG-TAIL			& $\rightarrow$ PROG-END PROG-TAIL\\
-					& $\rightarrow$ EPSILON\\
-
-$<$EXP$>$			& $\rightarrow$ $<$E$>$ $<$EXP-TAIL$>$\\
-E					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
-					& $\rightarrow$ NOT $<$EXP$>$ \\
-					& $\rightarrow$ FAC $<$EXP$>$ \\
-					& $\rightarrow$ $<$EXP2$>$ \\
-
-EXP-TAIL			& $\rightarrow$ EXP-END EXP-TAIL \\
-					& $\rightarrow$ EPSILON \\
-					
-\end{tabular}
-
-\pagebreak
-\subsection{Grammaire finale}
-
-
-~\\
-
-\hspace{-3.5cm}\begin{tabular}{rl}
-PROGRAM				& $\rightarrow$ PROG PROG-TAIL \\
-PROG				& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ INSTRUCT\\
-					& $\rightarrow$ EPSILON\\
-PROG-TAIL			& $\rightarrow$ PROG-END PROG-TAIL\\
-					& $\rightarrow$ EPSILON\\
-					
-PROG-END			& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ INSTRUCT\\
-					
-FUNCT-LIST			& $\rightarrow$ FUNCT FUNCT-LIST-END\\
-					& $\rightarrow$ EPSILON\\
-					
-FUNCT-LIST-END		& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ EPSILON\\
-					
-FUNCT				& $\rightarrow$ FUNCT-DEF ID FUNCT-END \\
-
-FUNCT-END			& $\rightarrow$ OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ OPEN-PAR FUNCT-END2 \\
-
-FUNCT-END2			& $\rightarrow$ CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-
-FUNCT-CALL			& $\rightarrow$ USER-FUNCT-CALL \\
-					& $\rightarrow$ PERL-FUNCT-CALL \\
-
-USER-FUNCT-CALL		& $\rightarrow$ ID USER-FUNCT-CALL-END\\ 
-
-USER-FUNCT-CALL-END	& $\rightarrow$ OPEN-PAR USER-FUNCT-CALL-END2\\ 
-					& $\rightarrow$ PARAM\\ 
-					& $\rightarrow$ EPSILON\\
-					
-USER-FUNCT-CALL-END2& $\rightarrow$ CLOSE-PAR\\ 
-					& $\rightarrow$ PARAM CLOSE-PAR\\ 
-
-				
-PERL-FUNCT-CALL		& $\rightarrow$ PERL-DEF EXP \\
-					& $\rightarrow$ PERL-INT EXP \\
-					& $\rightarrow$ PERL-LENG EXP \\ 
-					& $\rightarrow$ PERL-SCAL EXP \\
-					& $\rightarrow$ PERL-SUBS PERL-SUBS-END \\
-					& $\rightarrow$ PERL-PRIN LIST \\ 
-					
-PERL-SUBS-END		& $\rightarrow$ EXP COMA INT COMA INT \\
-					& $\rightarrow$ EXP COMA INT  \\
-					
-LIST				& $\rightarrow$ STRING LIST-END\\
-					
-LIST-END			& $\rightarrow$ LIST\\
-					& $\rightarrow$ EPSILON\\
-				
-
-					
-PARAM				& $\rightarrow$ PARAM2\\
-					& $\rightarrow$ EPSILON \\
-
-PARAM2				& $\rightarrow$ PARAM-END\\
-					& $\rightarrow$ EPSILON \\
-					
-					
-PARAM-END			& $\rightarrow$ COMA VAR PARAM-END2\\ 
-					& $\rightarrow$ EPSILON \\
-					
-PARAM-END2			& $\rightarrow$ PARAM-END\\ 
-					& $\rightarrow$ EPSILON \\
-
-RETURN				& $\rightarrow$ RET RETURN-END\\
-					& $\rightarrow$ EPSILON \\
-
-RETURN-END			& $\rightarrow$ EXP SEMICOLON\\
-					& $\rightarrow$ EXP-COND SEMICOLON\\
-					& $\rightarrow$ VAR SEMICOLON\\
-					
-\end{tabular}
-
-
-\hspace{-3.5cm}\begin{tabular}{rl}
-INSTRUCT			& $\rightarrow$ COND INSTRUCT-END \\					
-					& $\rightarrow$ EXP INSTRUCT-END \\					
-					& $\rightarrow$ FUNCT-CALL INSTRUCT-END \\					
-					& $\rightarrow$ ASSIGNATION INSTRUCT-END \\
-					& $\rightarrow$ EPSILON \\
-
-INSTRUCT-END		& $\rightarrow$ SEMICOLON INSTRUCT-END2\\
-
-INSTRUCT-END2		& $\rightarrow$ INSTRUCT\\
-					& $\rightarrow$ EPSILON \\
-					
-
-ASSIGNATION			& $\rightarrow$ VAR EQUAL ASSIGNATION-END \\
-
-ASSIGNATION-END		& $\rightarrow$ VALUE \\
-					& $\rightarrow$ EXP \\
-					
-COND				& $\rightarrow$ OPEN-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ NEG-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ EXP COND-END2 \\
-
-COND-END2			& $\rightarrow$ OPEN-COND EXP-COND \\
-					& $\rightarrow$ NEG-COND EXP-COND \\
-
-
-COND-END			& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END3 \\
-					& $\rightarrow$ CLOSE-COND OPEN-BRAC INSTRUCT CLOSE-BRAC\\
-					& $\rightarrow$ EPSILON \\	
-					
-COND-END3			& $\rightarrow$ COND-END \\
-					& $\rightarrow$ EPSILON \\					
-
-$<$EXP$>$			& $\rightarrow$ $<$E$>$ $<$EXP-TAIL$>$\\
-E					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
-					& $\rightarrow$ NOT $<$EXP$>$ \\
-					& $\rightarrow$ FAC $<$EXP$>$ \\
-					& $\rightarrow$ $<$EXP2$>$ \\
-
-EXP-TAIL			& $\rightarrow$ EXP-END EXP-TAIL \\
-					& $\rightarrow$ EPSILON \\
-					
-					
-$<$EXP-END$>$		& $\rightarrow$ LT $<$EXP2$>$\\
-					& $\rightarrow$ LT-S $<$EXP2$>$\\
-					& $\rightarrow$ GT $<$EXP2$>$\\
-					& $\rightarrow$ GT-S $<$EXP2$>$\\
-					& $\rightarrow$ LE $<$EXP2$>$\\
-					& $\rightarrow$ LE-S $<$EXP2$>$\\
-					& $\rightarrow$ GE $<$EXP2$>$\\
-					& $\rightarrow$ GE-S $<$EXP2$>$\\
-					& $\rightarrow$ EQUIV $<$EXP2$>$\\
-					& $\rightarrow$ EQ-S $<$EXP2$>$\\
-					& $\rightarrow$ NE-S $<$EXP2$>$\\
-					& $\rightarrow$ DIF $<$EXP2$>$\\
-					& $\rightarrow$ DOT $<$EXP2$>$\\
-					& $\rightarrow$ COMA $<$EXP2$>$\\
-										
-					
-$<$EXP2$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP2-END$>$\\
-					& $\rightarrow$ $<$EXP3$>$\\
-					
-$<$EXP2-END$>$		& $\rightarrow$  ADD $<$EXP3$>$\\
-					& $\rightarrow$  MINUS $<$EXP3$>$\\
-					& $\rightarrow$  OR $<$EXP3$>$\\					
-
-					
-$<$EXP3$>$			& $\rightarrow$ $<$EXP$>$ $<$EXP3-END$>$\\
-					& $\rightarrow$ $<$VAR$>$\\
-					
-$<$EXP3-END$>$		& $\rightarrow$ MUL $<$VAR$>$\\
-					& $\rightarrow$ DIV $<$VAR$>$\\
-					& $\rightarrow$ AND $<$VAR$>$\\
-
-VALUE				& $\rightarrow$ INT \\
-					& $\rightarrow$ FLOAT \\
-					& $\rightarrow$ BOOL \\
-					& $\rightarrow$ STRING \\
-					
-VAR					& $\rightarrow$ VALUE \\
-					& $\rightarrow$ VARIABLE \\
-					& $\rightarrow$ MINUS VAR\\
-					& $\rightarrow$ ADD VAR \\
-					& $\rightarrow$ OPEN-PAR EXP CLOSE-PAR \\
-
-\end{tabular}
-~\\
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-~\\
-\pagebreak
-\hspace{-4.5cm}\begin{tabular}{|c|l|}
-\hline
-EXPRESSION (?)		& VARIABLE OPERATOR VARIABLE   \\
-					& EXPRESSION OPERATOR VARIABLE \\ \hline
-EXPRESSION-COND (?)	& VARIABLE OPERATOR-COMP VARIABLE   \\
-					& EXPRESSION OPERATOR-COMP VARIABLE \\ \hline
-ASSIGNATION			& VARIABLE EQUAL VALUE \\ \hline
-CONDITION (?)		& ((OPEN-COND+NEG-COND)EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC\\
-					& (ADD-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC)* \\
-					& (CLOSE-COND EXPRESSION-COND OPEN-BRAC INSTRUCTIONS* CLOSE-BRAC))\\
-					& + EXPRESSION (OPEN-COND + NEG-COND) EXPRESSION-COND \\ \hline
-INSTRUCTIONS		& ((CONDITION SEMICOLON)* + (EXPRESSION SEMICOLON)* + (FUNCTION-CALL \\ 
-					& SEMICOLON)* + (ASSIGNATION SEMICOLON)*)* \\ \hline
-PARAM				& DOLLAR VARIABLE (COMA DOLLAR VARIABLE)* \\ \hline
-USER-FUNCT-CALL		& AND FUNCTION-NAME (OPEN-PAR CLOSE-PAR + OPEN-PAR PARAM CLOSE-PAR  \\
-					& + PARAM) SEMICOLON \\ \hline
-PERL-FUNCT-CALL		& defined EXPRESSION + int EXPRESSION + length EXPRESSION \\ 
-					& scalar EXPRESSION + substr EXPRESSION COMA INT COMA INT \\
-					& scalar EXPRESSION + substr EXPRESSION COMA INT  \\
-					& + print (?liste de string) \\ \hline
-FUNCTION-CALL		& USER-FUNCT-CALL + PERL-FUNCT-CALL \\ \hline
-FUNCTION			& FUNCTION-ID FUNCTION-NAME (OPEN-PAR CLOSE PAR + OPEN-PAR PARAM CLOSE-PAR) \\
-					& OPEN-BRAC INSTRUCTIONS (RETURN EXPRESSION + RETURN EXPRESSION-COND \\
-					& + RETURN VARIABLE) SEMICOLON CLOSE-BRAC \\ \hline
-FUNCTION-LIST		& FUNCTION* \\ \hline
-PROGRAM				& (FUNCTION-LIST + INSTRUCTIONS)*\\ \hline
-
-					
-					
-\end{tabular}
-
-
-
-~\\
-
-Grammaire après gestion des priorité et associativité :
-
-\hspace{-4.5cm}\begin{tabular}{rl}
-PROGRAM				& $\rightarrow$ PROGRAM FUNCT-LIST\\
-					& $\rightarrow$ PROGRAM INSTRUCT\\
-					& $\rightarrow$ FUNCT-LIST\\
-					& $\rightarrow$ INSTRUCT\\
-					& $\rightarrow$ EPSILON\\
-					
-					
-FUNCT-LIST			& $\rightarrow$ FUNCT \\
-					& $\rightarrow$ FUNCT FUNCT-LIST\\
-					& $\rightarrow$ EPSILON\\
-					
-FUNCT				& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR CLOSE PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-					& $\rightarrow$ FUNCT-ID FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR OPEN-BRAC INSTRUCT RETURN CLOSE-BRAC \\
-
-FUNCT-CALL			& $\rightarrow$ USER-FUNCT-CALL \\
-					& $\rightarrow$ PERL-FUNCT-CALL \\
-
-USER-FUNCT-CALL		& $\rightarrow$ FUNCT-NAME OPEN-PAR CLOSE-PAR\\ 
-					& $\rightarrow$ FUNCT-NAME OPEN-PAR PARAM CLOSE-PAR\\ 
-					& $\rightarrow$ FUNCT-NAME PARAM\\ 
-					& $\rightarrow$ FUNCT-NAME\\ 
-
-				
-PERL-FUNCT-CALL		& $\rightarrow$ PERL-DEF EXP \\
-					& $\rightarrow$ PERL-INT EXP \\
-					& $\rightarrow$ PERL-LENG EXP \\ 
-					& $\rightarrow$ PERL-SCAL EXP \\
-					& $\rightarrow$ PERL-SUBS EXP COMA INT COMA INT \\
-					& $\rightarrow$ PERL-SUBS EXP COMA INT  \\
-					& $\rightarrow$ PERL-PRIN LIST \\ 
-					
-LIST				& $\rightarrow$ STRING \\
-					& $\rightarrow$ STRING LIST\\
-					& $\rightarrow$ EPSILON\\
-				
-
-					
-PARAM				& $\rightarrow$ VAR \\
-					& $\rightarrow$ VAR PARAM-END\\
-					& $\rightarrow$ EPSILON \\
-PARAM-END			& $\rightarrow$ COMA VAR \\ 
-					& $\rightarrow$ COMA VAR PARAM-END\\ 
-					& $\rightarrow$ EPSILON \\
-
-RETURN				& $\rightarrow$ RET EXP SEMICOLON\\
-					& $\rightarrow$ RET EXP-COND SEMICOLON\\
-					& $\rightarrow$ RET VAR SEMICOLON\\
-					& $\rightarrow$ EPSILON \\
-					
-
-
-
-					
-					
-\end{tabular}
-
-~\\
-
-\hspace{-4.5cm}\begin{tabular}{rl}
-
-
-INSTRUCT			& $\rightarrow$ COND SEMICOLON INSTRUCT\\
-					& $\rightarrow$ EXP SEMICOLON INSTRUCT\\
-					& $\rightarrow$ FUNCT-CALL SEMICOLON INSTRUCT\\
-					& $\rightarrow$ ASSIGNATION SEMICOLON INSTRUCT\\
-					& $\rightarrow$ COND SEMICOLON \\
-					& $\rightarrow$ EXP SEMICOLON \\
-					& $\rightarrow$ FUNCT-CALL SEMICOLON \\
-					& $\rightarrow$ ASSIGNATION SEMICOLON \\
-					& $\rightarrow$ EPSILON \\
-					
-
-ASSIGNATION			& $\rightarrow$ VAR EQUAL VALUE \\
-					& $\rightarrow$ VAR EQUAL EXP \\
-					
-COND				& $\rightarrow$ OPEN-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ NEG-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END\\
-					& $\rightarrow$ EXP OPEN-COND EXP-COND \\
-					& $\rightarrow$ EXP NEG-COND EXP-COND \\
-
-
-COND-END			& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC \\
-					& $\rightarrow$ ADD-COND EXP-COND OPEN-BRAC INSTRUCT CLOSE-BRAC COND-END \\
-					& $\rightarrow$ CLOSE-COND OPEN-BRAC INSTRUCT CLOSE-BRAC\\
-					& $\rightarrow$ EPSILON \\					
-
-$<$EXP$>$			& $\rightarrow$ $<$EXP$>$ LT $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LT-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GT $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GT-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LE $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ LE-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GE $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ GE-S $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ EQUIV $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP$>$ DIF $<$EXP2$>$\\
-					& $\rightarrow$ $<$EXP2$>$ EQUAL $<$EXP$>$\\
-					& $\rightarrow$ NOT $<$EXP$>$ \\
-					& $\rightarrow$ FAC $<$EXP$>$ \\
-					& $\rightarrow$ $<$EXP2$>$ \\
-										
-					
-$<$EXP2$>$			& $\rightarrow$ $<$EXP$>$ ADD $<$EXP3$>$\\
-					& $\rightarrow$ $<$EXP$>$ MINUS $<$EXP3$>$\\
-					& $\rightarrow$ $<$EXP$>$ OR $<$EXP3$>$\\
-					& $\rightarrow$ $<$EXP3$>$\\
-					
-$<$EXP3$>$			& $\rightarrow$ $<$EXP$>$ MUL $<$VAR$>$\\
-					& $\rightarrow$ $<$EXP$>$ DIV $<$VAR$>$\\
-					& $\rightarrow$ $<$EXP$>$ AND $<$VAR$>$\\
-					& $\rightarrow$ $<$VAR$>$\\
-
-VALUE				& $\rightarrow$ INT \\
-					& $\rightarrow$ FLOAT \\
-					& $\rightarrow$ BOOL \\
-					& $\rightarrow$ STRING \\
-					
-VAR					& $\rightarrow$ VALUE \\
-					& $\rightarrow$ MINUS VAR\\
-					& $\rightarrow$ ADD VAR \\
-					& $\rightarrow$ OPEN-PAR EXP CLOSE-PAR \\
-
-\end{tabular}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 \end{document}          
