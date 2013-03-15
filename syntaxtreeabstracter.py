@@ -1,12 +1,13 @@
 from scanner import scanner
 from scanner import token
 import parser
+from parseTreeNode import parseTreeNode
 
 class SyntaxTreeAbstracter:
 	def __init__(self, completeParseTree):
 		self.inputTree = completeParseTree
 		self.currentInputNode = completeParseTree
-		self.ast = parser.parseTreeNode(token.token("AST-ROOT"))
+		self.ast = parseTreeNode(token.token("AST-ROOT"))
 		self.currentAbstractNode = self.ast
 
 	def abstract(self):
@@ -17,7 +18,7 @@ class SyntaxTreeAbstracter:
 		# for loop : because the input tree can contain 1 or 0 "funct-list"
 		for fctListInputNode in self.currentInputNode.findToken("FUNCT-LIST", maxDepth=2):
 			thereWasAFctList = True
-			fctListAbstractNode = parser.parseTreeNode(token.token("Funct-List"))
+			fctListAbstractNode = parseTreeNode(token.token("Funct-List"))
 			for fctNode in fctListInputNode.findToken("FUNCT"):
 				fctListAbstractNode.giveNodeChild(self.abstractFct(fctNode))
 			self.currentAbstractNode.giveNodeChild(fctListAbstractNode)
@@ -33,7 +34,7 @@ class SyntaxTreeAbstracter:
 			idNode = inputFctNode.findToken("ID", maxDepth=1).next()
 		except StopIteration:
 			raise Exception("Symbol 'ID' was not found in function Node : \n" + str(inputFctNode))
-		abstractFctNode = parser.parseTreeNode(token.token("Funct", value=idNode.value.value))
+		abstractFctNode = parseTreeNode(token.token("Funct", value=idNode.value.value))
 
 		try:
 			argRoot = inputFctNode.findToken("ARG-LIST", maxDepth=1).next()
@@ -51,7 +52,7 @@ class SyntaxTreeAbstracter:
 		return abstractFctNode
 
 	def abstractInstrList(self, inputInstrListNode):
-		abstractInstrListNode = parser.parseTreeNode(token.token("Instr-List"))
+		abstractInstrListNode = parseTreeNode(token.token("Instr-List"))
 		nextInstrNode = inputInstrListNode
 		while (nextInstrNode is not None):
 			newNode, nextInstrNode = self.abstractInstr(nextInstrNode)
@@ -60,7 +61,7 @@ class SyntaxTreeAbstracter:
 
 	def abstractInstr(self, inputInstrListNode):
 		assert inputInstrListNode.value.name == "INSTRUCT-LIST"
-		abstractInstrNode = parser.parseTreeNode(token.token("Instr", value="END"))  # will be deleted if a real instruction is found
+		abstractInstrNode = parseTreeNode(token.token("Instr", value="END"))  # will be deleted if a real instruction is found
 		nextInstruction = None  # ditto
 		for inputInstrNode in inputInstrListNode.findToken("INSTRUCT", maxDepth=1):
 			instrTypeNode = inputInstrNode.children[0]
@@ -89,7 +90,7 @@ class SyntaxTreeAbstracter:
 		name = nameNode.value.name
 		if (name == "FUNCT-NAME"):  # user-defined fct
 			name = nameNode.value.value
-		abstractFctCallNode = parser.parseTreeNode(token.token("Fct-Call", value=name))
+		abstractFctCallNode = parseTreeNode(token.token("Fct-Call", value=name))
 		# children are the arguments
 		for argRoot in fctCallNode.findToken("FUNCT-CALL-ARG", maxDepth=2):
 			for firstArgNode in argRoot.findToken("FUNCT-CALL-ARG-BEG"):
@@ -107,7 +108,7 @@ class SyntaxTreeAbstracter:
 		assert instrNode.children[0].value.name == "RET"
 		expNode = instrNode.children[1]
 		assert expNode.value.name == "EXP", "2nd children is not EXP : " + str(instrNode)
-		abstractReturnNode = parser.parseTreeNode(token.token("return"))
+		abstractReturnNode = parseTreeNode(token.token("return"))
 		abstractReturnNode.giveNodeChild(self.abstractExp(expNode))
 		return abstractReturnNode
 
@@ -118,7 +119,7 @@ class SyntaxTreeAbstracter:
 		else:
 			assert condNode.value.name == "COND-END"
 
-		abstractCondNode = parser.parseTreeNode(token.token("Cond"))
+		abstractCondNode = parseTreeNode(token.token("Cond"))
 		assert len(condNode.children) > 3
 
 		if not condNode.children[0].value.name == "CLOSE-COND":  # this cond is a final 'end'
@@ -150,7 +151,7 @@ class SyntaxTreeAbstracter:
 		assert varNode.value.name == "VARIABLE"
 		assert instrNode.children[1].value.name == "EQUAL"
 		assert expNode.value.name == "EXP"
-		abstractAssignNode = parser.parseTreeNode(token.token("Assign", value=varNode.value.value))
+		abstractAssignNode = parseTreeNode(token.token("Assign", value=varNode.value.value))
 		abstractAssignNode.giveNodeChild(self.abstractExp(expNode))
 		return abstractAssignNode
 
@@ -167,7 +168,7 @@ class SyntaxTreeAbstracter:
 			assert expTailNextLNode.value.name == nextLevelName
 			expType = expTailNode.children[0].value.name
 			assert expType in operators, str(expType + " is not in the list of accepted operators : " + str(operators))
-			abstractExpNode = parser.parseTreeNode(token.token("OPERATOR", value=expType))
+			abstractExpNode = parseTreeNode(token.token("OPERATOR", value=expType))
 			abstractExpNode.giveNodeChild(nextLevelFct(expNextLNode))
 			abstractExpNode.giveNodeChild(nextLevelFct(expTailNextLNode))
 			return abstractExpNode
@@ -187,7 +188,7 @@ class SyntaxTreeAbstracter:
 		simpleExpTypeNode = simpleExpNode.children[0]
 		simpleExpType = simpleExpTypeNode.value.name
 		if (simpleExpType == "INT" or simpleExpType == "STRING" or simpleExpType == "VARIABLE"):
-			return parser.parseTreeNode(token.token(simpleExpType, value=simpleExpTypeNode.value.value))
+			return parseTreeNode(token.token(simpleExpType, value=simpleExpTypeNode.value.value))
 		elif (simpleExpType == "FUNCT-CALL"):
 			return self.abstractFctCall(simpleExpTypeNode)
 		elif (simpleExpType == "OPEN-PAR"):
