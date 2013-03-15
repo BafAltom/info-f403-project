@@ -4,21 +4,21 @@ class ASMcodeGenerator:
 	def __init__(self, abstractTree):
 		self.code = "" # Contiendra la fonction main
 		self.header = "" # contiendra le header avec les param ASM et les variables qu'on doit definir avant (string, ...)
-		self.funct = "" # Contiendra les fonctions
 		self.tree = abstractTree
-		self.register = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		self.listRegister = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict() # cle = string, value = lien vers le string (str1, ...)
 		self.listStringLen = dict() # cle = string, value = lien vers la longueur du string (len1, ...)
+		self.saveListVariable = list() # utilise quand doit sauver le contexte lors du passage dans une fonction
+		self.saveListRegister = list()	# idem
 		
-		# Pour gerer les conditions imbriquees, on utilise ces cinq parametres afin
+		# Pour gerer les conditions imbriquees, on utilise ces quatres parametres afin
 		# de retenir dans quel condition on est ce qui permet de gerer les JUMP 
 		# pour les end
 		self.currentCondBlock = 0 
 		self.maxCondBlock = 0
 		self.initCondBlock = 0
 		# pour les else
-		#self.numberOfCond = 0
 		self.listOfCond = list()
 		self.listOfCond.append(0)
 	
@@ -67,7 +67,7 @@ class ASMcodeGenerator:
 		print "fin generation du code"
 		
 		
-		return self.header + "\n \n" + self.funct + "\n \n" + self.code
+		return self.header + "\n \n"+ "\n \n" + self.code
 		
 		
 	def funct_list(self, codeNode):
@@ -76,14 +76,50 @@ class ASMcodeGenerator:
 			self.code = self.code + ".global "+ child.value.value+"\n"
 			self.code = self.code + ".type "+ child.value.value+", %function\n"
 			self.code = self.code + ""+ child.value.value+":\n"
+			self.code = self.code + "	PUSH	{R4-R11,R14}\n"
+			self.saveListVariable.append(self.listVariable)
+			self.saveListRegister.append(self.listRegister)
+			print "listVariable pre "+ child.value.value
+			print self.listVariable
+			print "listRegister pre "+ child.value.value
+			print self.listRegister
+			self.listVariable = dict()
+			self.listRegister = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			print "listVariable new = "
+			print self.listVariable
+			print "listRegister new = "
+			print self.listRegister
 			
+			cmpt = 0
 			for child2 in child.children:
 				if child2.value.name == "arg":
-					print "voir comment gere les arguments"
+					#print "voir comment gere les arguments"
+					if cmpt > 3:
+						raise "maximum quatre parametre" # POUR LE MOMENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					
+					var = self.setRegisterOfVariable(child2.value.value)	
+					self.code = self.code + "	MOV 	R"+str(var)+", R"+str(cmpt)+"\n"
+					cmpt = cmpt + 1
+					
 				else: # instructions
 					assert child2.value.name == "Instr-List", "instruct-list au mauvais endroit"
+					#print "listVariable new 2= "
+					#print self.listVariable
 					self.instruct_list(child2)
 			
+			
+			
+			print "listVariable post "+ child.value.value
+			print self.listVariable
+			print "listReg post "+ child.value.value
+			print self.listRegister
+			self.listVariable = self.saveListVariable.pop()
+			self.listRegister = self.saveListRegister.pop()
+			print "listVariable nettoye = "
+			print self.listVariable
+			print "listregister nettoye = "
+			print self.listRegister
+			self.code = self.code + "	POP	{R4-R11,R14}\n"
 			self.code = self.code + "	BX	LR\n \n"
 					
 	
@@ -105,7 +141,7 @@ class ASMcodeGenerator:
 			
 	
 	def funct_call(self, codeNode):
-		print "funct-list ==================================================================> manque fonction de l user"
+		print "funct-list ==================================================================> ok"
 		if codeNode.value.value == "PERL-PRIN":
 			for stringNode in codeNode.children:
 				if stringNode.value.name == "STRING":
@@ -121,6 +157,13 @@ class ASMcodeGenerator:
 			
 		else: # fonctions definies par l utilisateur
 			print "funct de l'user"
+			cmpt = 0
+			for stringNode in codeNode.children:
+				if stringNode.value.name == "VARIABLE":
+					self.code = self.code + "	MOV 	R"+str(cmpt)+", R"+str(self.getRegisterOfVariable(stringNode.value.value))+"\n"
+					cmpt = cmpt +1
+				else:
+					raise "les fonctions ne prennent que des variables"
 			self.code = self.code + "	BL	"+codeNode.value.value+"\n"
 		
 		
@@ -130,7 +173,7 @@ class ASMcodeGenerator:
 		
 	
 	def cond(self, codeNode):
-		print "cond =============================================================> OK (manque appel de fonction)"	
+		print "cond =============================================================> OK"	
 		if codeNode.children[0].value.name == "OPERATOR": # On a une expression
 			self.expression(codeNode.children[0])
 			self.code = self.code + " else"+str(self.currentCondBlock)+str(self.listOfCond[self.currentCondBlock])+"\n"
@@ -171,7 +214,7 @@ class ASMcodeGenerator:
 		
 	
 	def assign(self, codeNode):
-		print "assign =============================================================> OK (manque appel de fonction- a tester)"
+		print "assign =============================================================> OK"
 		##print codeNode
 		var = self.setRegisterOfVariable(codeNode.value.value)
 		for child in codeNode.children:
@@ -181,7 +224,7 @@ class ASMcodeGenerator:
 				self.code = self.code + "	MOV 	R"+str(var)+", R"+str(result)+"\n"
 				# Si on a plus besoin du registre contenant le resultat de l assignation on l efface
 				if result not in self.listVariable.values():
-					self.register[result] = 0
+					self.listRegister[result] = 0
 					
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
@@ -210,7 +253,7 @@ class ASMcodeGenerator:
 				
 
 	def retur(self, codeNode):
-		print "return ===================================================================> OK (manque appel de fonction)"
+		print "return ===================================================================> OK"
 		
 		for child in codeNode.children:
 			
@@ -245,7 +288,7 @@ class ASMcodeGenerator:
 				
 			else:
 				raise "bug return"
-			self.code = self.code + "	MOV		PC, LR\n"
+			#self.code = self.code + "	MOV		PC, LR\n"
 
 	
 	def expression(self, codeNode):
@@ -261,11 +304,11 @@ class ASMcodeGenerator:
 		elif codeNode.value.value == "MUL":
 			op = "MUL"
 		elif codeNode.value.value == "DIV":
-			op = "???"
+			raise "La division n est pas autorisee"
 		elif codeNode.value.value == "GT":
-			op = "BLE"
+			op = "BLE"	# On inverse, donc on jump si <=
 		elif codeNode.value.value == "EQUIV":
-			op = "BEQ"
+			op = "BNE"	# On inverse, on jump si les deux valeurs sont differentes
 	
 		# On calcule les deux parametres du calcul
 		cmpt =0
@@ -303,21 +346,21 @@ class ASMcodeGenerator:
 			
 			cmpt = cmpt+1
 		
-		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
+		if op == "ADD" or op == "SUB" or op == "MUL": # Operateur "standard"
 			# On fait le calcul
 			Reg.append( self.getFreeRegister())
 			self.code = self.code + "	" + op + "	R"+str(Reg[2])+ ", R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
 		else:	# Operateur de comparaison
 			self.code = self.code + "	CMP" + "	R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
-			self.code = self.code + "	" + op
+			self.code = self.code + "		" + op
 		
 		
 		# Si les deux registres utilise dans le calculs ne sont pas ceux d une variable on les effaces
 		# On regardera pour effacer le troisieme registre du resltat dans la fonction appelante
 		if Reg[0] not in self.listVariable.values():
-			self.register[Reg[0]] = 0
+			self.listRegister[Reg[0]] = 0
 		if Reg[1] not in self.listVariable.values():
-			self.register[Reg[1]] = 0
+			self.listRegister[Reg[1]] = 0
 			
 		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
 			return Reg[2]
@@ -327,9 +370,9 @@ class ASMcodeGenerator:
 	def getFreeRegister(self):
 		cmpt = 4
 		##print self.register
-		for reg in self.register[4:32]:
+		for reg in self.listRegister[4:11]:
 			if reg == 0:
-				self.register[cmpt]=1
+				self.listRegister[cmpt]=1
 				return cmpt
 			else:
 				cmpt = cmpt+1
@@ -342,7 +385,7 @@ class ASMcodeGenerator:
 			return self.listVariable[var]
 		
 		else:
-			raise "la variable "+ var +" doit etre assignee avant de pouvoir etre utilisee"
+			raise "la variable "+ str(var) +" doit etre assignee avant de pouvoir etre utilisee"
 			
 			
 	def setRegisterOfVariable(self, var): # utilise uniquement, pr assignation
