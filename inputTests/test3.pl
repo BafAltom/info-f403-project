@@ -2,7 +2,7 @@
 
 # function declaration
 sub testCond ($number, $arg1, $arg2) {
-	
+
 	print ('funct0 : testCond\n');
 	
 	if $number == 1 { print ('premiere if : erreur'); } 
@@ -104,7 +104,7 @@ sub testExp ($arg1) {
 $arg1 = 2;
 $arg2 = 2;
 $number = 6;
-
+$arg8 = 9;
 
 
 

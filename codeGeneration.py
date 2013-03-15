@@ -304,7 +304,7 @@ class ASMcodeGenerator:
 		elif codeNode.value.value == "MUL":
 			op = "MUL"
 		elif codeNode.value.value == "DIV":
-			op = "???"
+			raise "La division n est pas autorisee"
 		elif codeNode.value.value == "GT":
 			op = "BLE"	# On inverse, donc on jump si <=
 		elif codeNode.value.value == "EQUIV":
@@ -346,7 +346,7 @@ class ASMcodeGenerator:
 			
 			cmpt = cmpt+1
 		
-		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
+		if op == "ADD" or op == "SUB" or op == "MUL": # Operateur "standard"
 			# On fait le calcul
 			Reg.append( self.getFreeRegister())
 			self.code = self.code + "	" + op + "	R"+str(Reg[2])+ ", R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
@@ -385,7 +385,7 @@ class ASMcodeGenerator:
 			return self.listVariable[var]
 		
 		else:
-			raise "la variable "+ var +" doit etre assignee avant de pouvoir etre utilisee"
+			raise "la variable "+ str(var) +" doit etre assignee avant de pouvoir etre utilisee"
 			
 			
 	def setRegisterOfVariable(self, var): # utilise uniquement, pr assignation
