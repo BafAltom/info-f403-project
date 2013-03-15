@@ -2,74 +2,67 @@ from scanner import token
 
 class ASMcodeGenerator:
 	def __init__(self, abstractTree):
-		self.code = "" # Contiendra la fonction main
-		self.header = "" # contiendra le header avec les param ASM et les variables qu'on doit definir avant (string, ...)
+		self.code = ""  # Contiendra la fonction main
+		self.header = ""  # contiendra le header avec les param ASM et les variables qu'on doit definir avant (string, ...)
 		self.tree = abstractTree
-		self.listRegister = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-		self.listVariable = dict() # cle = nom de la variable, value = numero du registre ou elle est stockee
-		self.listString = dict() # cle = string, value = lien vers le string (str1, ...)
-		self.listStringLen = dict() # cle = string, value = lien vers la longueur du string (len1, ...)
-		self.saveListVariable = list() # utilise quand doit sauver le contexte lors du passage dans une fonction
-		self.saveListRegister = list()	# idem
-		
+		self.listRegister = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		self.listVariable = dict()  # cle = nom de la variable, value = numero du registre ou elle est stockee
+		self.listString = dict()  # cle = string, value = lien vers le string (str1, ...)
+		self.listStringLen = dict()  # cle = string, value = lien vers la longueur du string (len1, ...)
+		self.saveListVariable = list()  # utilise quand doit sauver le contexte lors du passage dans une fonction
+		self.saveListRegister = list()  # idem
+
 		# Pour gerer les conditions imbriquees, on utilise ces quatres parametres afin
-		# de retenir dans quel condition on est ce qui permet de gerer les JUMP 
+		# de retenir dans quel condition on est ce qui permet de gerer les JUMP
 		# pour les end
-		self.currentCondBlock = 0 
+		self.currentCondBlock = 0
 		self.maxCondBlock = 0
 		self.initCondBlock = 0
 		# pour les else
 		self.listOfCond = list()
 		self.listOfCond.append(0)
-	
-		
+
+
 	def generate_code(self):
 		print "tree :"
 		print self.tree
 		print "generation du code"
-		
-		self.header = self.header + "	.arch armv5te\n"
-		self.header = self.header + "	.fpu softvfp\n"
-		self.header = self.header + "	.eabi_attribute 20 , 1\n"
-		self.header = self.header + "	.eabi_attribute 21 , 1\n"
-		self.header = self.header + "	.eabi_attribute 23 , 3\n"
-		self.header = self.header + "	.eabi_attribute 24 , 1\n"
-		self.header = self.header + "	.eabi_attribute 25 , 1\n"
-		self.header = self.header + "	.eabi_attribute 26 , 2\n"
-		self.header = self.header + "	.eabi_attribute 30 , 6\n"
-		self.header = self.header + "	.eabi_attribute 18 , 4\n \n"
-		self.header = self.header + "	.data\n \n"
-		
 
-		
+		self.header += "	.arch armv5te\n"
+		self.header += "	.fpu softvfp\n"
+		self.header += "	.eabi_attribute 20 , 1\n"
+		self.header += "	.eabi_attribute 21 , 1\n"
+		self.header += "	.eabi_attribute 23 , 3\n"
+		self.header += "	.eabi_attribute 24 , 1\n"
+		self.header += "	.eabi_attribute 25 , 1\n"
+		self.header += "	.eabi_attribute 26 , 2\n"
+		self.header += "	.eabi_attribute 30 , 6\n"
+		self.header += "	.eabi_attribute 18 , 4\n \n"
+		self.header += "	.data\n \n"
 
 		#self.instruct_list()
 		for codeNode in self.tree.children:
-			if codeNode.value.name =="Funct-List":
+			if codeNode.value.name == "Funct-List":
 				self.code = self.code + "	.text\n \n"
 				self.funct_list(codeNode)
-				
-			elif codeNode.value.name =="Instr-List":
-				
+			elif codeNode.value.name == "Instr-List":
 				self.code = self.code + "	.global _start\n"
 				#self.code = self.code + "	.type main, %function\n\n"
 				self.code = self.code + "_start :\n"
 				self.instruct_list(codeNode)
 			else:
 				raise "bug main"
-		
+
 		self.code = self.code + "	/* syscall exit*/ \n"
 		self.code = self.code + "	MOV     R0, #0\n"
 		self.code = self.code + "	MOV     R7, #1\n"
 		self.code = self.code + "	SWI     #0\n"
-		
+
 
 		print "fin generation du code"
-		
-		
-		return self.header + "\n \n"+ "\n \n" + self.code
-		
-		
+
+		return self.header + "\n \n" + "\n \n" + self.code
+
 	def funct_list(self, codeNode):
 		for child in codeNode.children:
 			assert child.value.name == "Funct", "Fonction definie au mauvais endroit"
@@ -84,7 +77,7 @@ class ASMcodeGenerator:
 			print "listRegister pre "+ child.value.value
 			print self.listRegister
 			self.listVariable = dict()
-			self.listRegister = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			self.listRegister = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 			print "listVariable new = "
 			print self.listVariable
 			print "listRegister new = "
