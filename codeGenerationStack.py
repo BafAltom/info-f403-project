@@ -1,4 +1,5 @@
 from scanner import token
+import random
 
 class ASMcodeGenerator:
 	def __init__(self, abstractTree):
@@ -9,8 +10,24 @@ class ASMcodeGenerator:
 		self.listVariable = dict()  # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict()  # cle = string, value = lien vers le string (str1, ...)
 		self.listStringLen = dict()  # cle = string, value = lien vers la longueur du string (len1, ...)
+		reg0 = list()
+		reg1 = list()
+		reg2 = list()
+		reg3 = list()
+		reg4 = list()
+		reg5 = list()
+		reg6 = list()
+		reg7 = list()
+		reg8 = list()
+		reg9 = list()
+		reg10 = list()
+		reg11 = list()
+		self.stack = [reg0,reg1,reg2,reg3,reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11]
+		
+		
 		self.saveListVariable = list()  # utilise quand doit sauver le contexte lors du passage dans une fonction
 		self.saveListRegister = list()  # idem
+		self.saveStack = list() # idem
 
 		# Pour gerer les conditions imbriquees, on utilise ces quatres parametres afin
 		# de retenir dans quel condition on est ce qui permet de gerer les JUMP
@@ -72,12 +89,26 @@ class ASMcodeGenerator:
 			self.code = self.code + "	PUSH	{R4-R11,R14}\n"
 			self.saveListVariable.append(self.listVariable)
 			self.saveListRegister.append(self.listRegister)
+			self.saveStack.append(self.stack)
 			print "listVariable pre "+ child.value.value
 			print self.listVariable
 			print "listRegister pre "+ child.value.value
 			print self.listRegister
 			self.listVariable = dict()
 			self.listRegister = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+			reg0 = list()
+			reg1 = list()
+			reg2 = list()
+			reg3 = list()
+			reg4 = list()
+			reg5 = list()
+			reg6 = list()
+			reg7 = list()
+			reg8 = list()
+			reg9 = list()
+			reg10 = list()
+			reg11 = list()
+			self.stack = [reg0,reg1,reg2,reg3,reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11]
 			print "listVariable new = "
 			print self.listVariable
 			print "listRegister new = "
@@ -108,6 +139,7 @@ class ASMcodeGenerator:
 			print self.listRegister
 			self.listVariable = self.saveListVariable.pop()
 			self.listRegister = self.saveListRegister.pop()
+			self.stack = self.saveStack.pop()
 			print "listVariable nettoye = "
 			print self.listVariable
 			print "listregister nettoye = "
@@ -170,6 +202,7 @@ class ASMcodeGenerator:
 		if codeNode.children[0].value.name == "OPERATOR": # On a une expression
 			self.expression(codeNode.children[0])
 			self.code = self.code + " else"+str(self.currentCondBlock)+str(self.listOfCond[self.currentCondBlock])+"\n"
+			self.cleanRegisters()
 					
 		if codeNode.children[0].value.name == "Instr-List": # On a un instruc-list
 			self.instruct_list(codeNode.children[0])
@@ -194,6 +227,7 @@ class ASMcodeGenerator:
 				self.maxCondBlock = self.maxCondBlock +1
 				self.currentCondBlock = self.maxCondBlock
 				self.initCondBlock = self.maxCondBlock
+			self.cleanRegisters()
 		
 		
 			
@@ -217,7 +251,7 @@ class ASMcodeGenerator:
 				self.code = self.code + "	MOV 	R"+str(var)+", R"+str(result)+"\n"
 				# Si on a plus besoin du registre contenant le resultat de l assignation on l efface
 				if result not in self.listVariable.values():
-					self.listRegister[result] = 0
+					self.cleanRegister(result)
 					
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
@@ -312,7 +346,10 @@ class ASMcodeGenerator:
 			
 			elif child.value.name == "INT":
 				print "int"
-				Reg.append(self.getFreeRegister())
+				if cmpt ==0:
+					Reg.append(self.getFreeRegister())
+				else:
+					Reg.append(self.getFreeRegisterOtherThan(Reg[0]))
 				self.code = self.code + "	MOV 	R"+ str(Reg[cmpt])+", #"+str(child.value.value)+"\n"
 			
 			elif child.value.name == "STRING":
@@ -341,7 +378,10 @@ class ASMcodeGenerator:
 		
 		if op == "ADD" or op == "SUB" or op == "MUL": # Operateur "standard"
 			# On fait le calcul
-			Reg.append( self.getFreeRegister())
+			if cmpt ==0:
+				Reg.append(self.getFreeRegister())
+			else:
+				Reg.append(self.getFreeRegisterOtherThanS(Reg[0], Reg[1]))
 			self.code = self.code + "	" + op + "	R"+str(Reg[2])+ ", R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
 		else:	# Operateur de comparaison
 			self.code = self.code + "	CMP" + "	R"+str(Reg[0])+ ", R"+str(Reg[1])+"\n"
@@ -350,31 +390,110 @@ class ASMcodeGenerator:
 		
 		# Si les deux registres utilise dans le calculs ne sont pas ceux d une variable on les effaces
 		# On regardera pour effacer le troisieme registre du resltat dans la fonction appelante
-		if Reg[0] not in self.listVariable.values():
-			self.listRegister[Reg[0]] = 0
-		if Reg[1] not in self.listVariable.values():
-			self.listRegister[Reg[1]] = 0
-			
-		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
+		if op == "ADD" or op == "SUB" or op == "MUL": # Operateur "standard"
+			if Reg[0] not in self.listVariable.values():
+				self.cleanRegister(Reg[0])
+			if Reg[1] not in self.listVariable.values():
+				self.cleanRegister(Reg[1])
 			return Reg[2]
+		else:
+			# Si comparateur, on ne peut les supprimer directement, ou on couperait l instruction du jump en deux
+			if Reg[0] not in self.listVariable.values():
+				Reg[0]=0
+			if Reg[1] not in self.listVariable.values():
+				Reg[1]=0
+			
 	
 	
 	
 	def getFreeRegister(self):
 		cmpt = 4
+		self.cleanRegisters()
 		##print self.register
-		for reg in self.listRegister[4:11]:
+		for reg in self.listRegister[4:12]:
 			if reg == 0:
 				self.listRegister[cmpt]=1
 				return cmpt
 			else:
 				cmpt = cmpt+1
 		
+		# si arrive ici c'est que tous les registres sont utilises
+		# On choisit un registre et on le push pour le liberer
+		cmpt = random.randint(4,11)
+		var = self.getKeyByValue(cmpt)
+		if var is not None:
+			self.stack[cmpt].append(var)
+			self.listVariable[var]=12
+			self.code = self.code + "	PUSH	{R"+str(cmpt)+"}\n"
+		
+		return cmpt
+		
+	def getFreeRegisterOtherThan(self, num):
+		cmpt = 4
+		self.cleanRegisters()
+		##print self.register
+		for reg in self.listRegister[4:12]:
+			if reg == 0 and reg != num:
+				self.listRegister[cmpt]=1
+				return cmpt
+			else:
+				cmpt = cmpt+1
+		
+		# si arrive ici c'est que tous les registres sont utilises
+		# On choisit un registre et on le push pour le liberer
+		cmpt = random.randint(4,11)
+		while cmpt == num:
+			cmpt = random.randint(4,11)
+		
+		var = self.getKeyByValue(cmpt)
+		print "on a chosit le reg num "+str(cmpt)
+		print "on obtient var =" +str(var)
+		print self.listRegister
+		print "on push dans le stack !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+		if var is not None:
+			self.stack[cmpt].append(var)
+			self.listVariable[var]=12
+			self.code = self.code + "	PUSH	{R"+str(cmpt)+"}\n"
+		return cmpt
+		
+	def getFreeRegisterOtherThanS(self, num1, num2):
+		cmpt = 4
+		self.cleanRegisters()
+		##print self.register
+		for reg in self.listRegister[4:12]:
+			if reg == 0 and reg != num1 and reg != num2:
+				self.listRegister[cmpt]=1
+				return cmpt
+			else:
+				cmpt = cmpt+1
+		
+		# si arrive ici c'est que tous les registres sont utilises
+		# On choisit un registre et on le push pour le liberer
+		cmpt = random.randint(4,11)
+		while cmpt == num1 or cmpt == num2 :
+			cmpt = random.randint(4,11)
+		
+		var = self.getKeyByValue(cmpt)
+		print "on a chosit le reg num "+str(cmpt)
+		print "on obtient var =" +str(var)
+		print self.listRegister
+		print "on push dans le stack !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+		print self.stack[cmpt]
+		print "on ajoute "+str(var)
+		if var is not None:
+			self.stack[cmpt].append(var)
+			print "on obtient"
+			print self.stack[cmpt]
+			self.listVariable[var]=12
+			self.code = self.code + "	PUSH	{R"+str(cmpt)+"}\n"
+		return cmpt
+		
 		# TO DO voir comment gerer si tous les registres sont occupes, doit alors utiliser le stack (c.f. R13)
 	
 	def getRegisterOfVariable(self, var):
 		##print self.listVariable
-		if var in self.listVariable.keys():
+		reg = self.getRegister(var)
+		if reg != 0:
 			return self.listVariable[var]
 		
 		else:
@@ -383,7 +502,8 @@ class ASMcodeGenerator:
 			
 	def setRegisterOfVariable(self, var): # utilise uniquement, pr assignation
 		##print self.listVariable
-		if var in self.listVariable.keys():
+		reg = self.getRegister(var)
+		if reg != 0:
 			return self.listVariable[var]
 		
 		else:
@@ -392,6 +512,33 @@ class ASMcodeGenerator:
 			self.listVariable[var] = reg
 			return reg
 	
+	
+	def getRegister(self, var):
+		reg = 0
+		cmpt = 0
+		self.cleanRegisters()
+		print "on cherche var "+str(var)
+		print self.stack
+		# On regarde dans les vecteurs
+		if var in self.listVariable.keys():
+			reg = self.listVariable[var]
+		
+		print "result du premier if "+str(reg)
+		# On regarde dans le stack
+		if reg == 12:
+			for regis in self.stack:
+				if cmpt >3:
+					for re in regis:	
+						if re == var:
+							print "trouve : reg "+str(cmpt)
+							reg = cmpt
+							self.popVariable(var, reg)
+				if reg == 12:
+					cmpt = cmpt + 1
+		
+		return reg
+			
+		
 	
 	def registerString(self, nameString):
 		if nameString not in self.listString.keys():
@@ -402,3 +549,69 @@ class ASMcodeGenerator:
 	
 	
 	
+	def getKeyByValue(self, regNumber):
+		print self.listVariable
+		print "on cherche "+str(regNumber)
+		for key, value in self.listVariable.items():
+			if value == regNumber:
+				print "we find "+str(key)
+				return key
+	
+	
+	def popVariable(self, var, reg):
+
+		print self.stack
+		print "on pop"
+		print "reg ="+str(reg)
+		find = False
+		while not find:
+			print "boucle"
+			# On pop pour ARM
+			oldValue = self.getKeyByValue(reg)
+			if oldValue is None:
+				newValue = self.cleanRegister(reg)
+				if newValue == var:
+					find = True
+			else:
+				dest = self.getFreeRegisterOtherThan(reg)
+				print "dest = "+str(dest)
+				self.code = self.code + "	MOV		R"+str(dest)+",	R"+str(reg)+"\n"
+				self.code = self.code + "	POP		{R"+str(reg)+"}\n"
+				
+				# On pop pour le codeGenerator
+				# la variable deplacee
+				
+				print "oldValue = "+str(oldValue)
+				self.listVariable[oldValue] = dest
+				
+				# la variable popee
+				newValue = self.stack[reg].pop()
+				print "newValue = "+str(newValue)
+				self.listVariable[newValue] = reg
+						
+
+				if newValue == var:
+					find = True
+			
+		print self.stack
+				
+	def cleanRegister(self, reg):
+		if len(self.stack[reg]) > 0:
+			self.code = self.code + "	POP		{R"+str(reg)+"}\n"
+			newValue = self.stack[reg].pop()
+			self.listVariable[newValue] = reg
+			return newValue
+		else:
+			self.listRegister[reg] = 0
+			
+	def cleanRegisters(self):
+		cmpt = 0
+		for reg in self.stack:	
+			if (self.listRegister[cmpt] == 0) and (len(reg) > 0):
+				self.code = self.code + "	POP		{R"+str(cmpt)+"}\n"
+				newValue = reg.pop()
+				self.listVariable[newValue] = cmpt
+			
+			cmpt = cmpt +1
+	
+
