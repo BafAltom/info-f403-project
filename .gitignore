@@ -3,8 +3,12 @@
 Project-1213.pdf
 
 report/*
-!report.tex
-!report.pdf
+!report/report.tex
+!report/report.pdf
+!report/rapport.tex
+!report/rapport.pdf
+!report/rapport_Fusionnnnn.tex
+!report/rapport_Fusionnnnn.pdf
 
 *.py[cod]
 

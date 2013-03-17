@@ -51,7 +51,7 @@ class ASMcodeGenerator:
 				self.code = self.code + "_start :\n"
 				self.instruct_list(codeNode)
 			else:
-				raise "bug main"
+				raise Exception("the structure of the code is incorrect")
 
 		self.code = self.code + "	/* syscall exit*/ \n"
 		self.code = self.code + "	MOV     R0, #0\n"
@@ -88,7 +88,7 @@ class ASMcodeGenerator:
 				if child2.value.name == "arg":
 					#print "voir comment gere les arguments"
 					if cmpt > 3:
-						raise "maximum quatre parametre" # POUR LE MOMENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+						raise Exception("a function take at most 4 parameters") # POUR LE MOMENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					
 					var = self.setRegisterOfVariable(child2.value.value)	
 					self.code = self.code + "	MOV 	R"+str(var)+", R"+str(cmpt)+"\n"
@@ -129,7 +129,7 @@ class ASMcodeGenerator:
 			elif child.value.name =="Fct-Call":
 				self.funct_call(child)
 			elif child.value.name !="Instr" and child.value.value !="END":
-				raise "bug instruct-list"
+				raise Exception("the structure of the instruction list is incorrect")
 			self.code = self.code +"\n"
 			
 	
@@ -146,7 +146,7 @@ class ASMcodeGenerator:
 					self.code = self.code + "	MOV 	R7, #4\n"
 					self.code = self.code + "	SWI 	#0\n"
 				else:
-					raise "perl-print ne prend que des strings"
+					raise Exception("the print function take only strings as parameters")
 			
 		else: # fonctions definies par l utilisateur
 			print "funct de l'user"
@@ -156,7 +156,7 @@ class ASMcodeGenerator:
 					self.code = self.code + "	MOV 	R"+str(cmpt)+", R"+str(self.getRegisterOfVariable(stringNode.value.value))+"\n"
 					cmpt = cmpt +1
 				else:
-					raise "les fonctions ne prennent que des variables"
+					raise Exception("the functions take only variable as parameters")
 			self.code = self.code + "	BL	"+codeNode.value.value+"\n"
 		
 		
@@ -241,7 +241,7 @@ class ASMcodeGenerator:
 				self.code = self.code + "	MOV 	R"+str(var)+", R0\n"
 				
 			else:
-				raise "bug assignation"
+				raise Exception("An error occurs during an assignation of "+str(codeNode.value.value))
 				
 				
 
@@ -280,7 +280,7 @@ class ASMcodeGenerator:
 
 				
 			else:
-				raise "bug return"
+				raise Exception("An error occurs during a return")
 			#self.code = self.code + "	MOV		PC, LR\n"
 
 	
@@ -297,7 +297,7 @@ class ASMcodeGenerator:
 		elif codeNode.value.value == "MUL":
 			op = "MUL"
 		elif codeNode.value.value == "DIV":
-			raise "La division n est pas autorisee"
+			raise Exception("The division is not allowed")
 		elif codeNode.value.value == "GT":
 			op = "BLE"	# On inverse, donc on jump si <=
 		elif codeNode.value.value == "EQUIV":
@@ -378,8 +378,7 @@ class ASMcodeGenerator:
 			return self.listVariable[var]
 		
 		else:
-			raise "la variable "+ str(var) +" doit etre assignee avant de pouvoir etre utilisee"
-			
+			raise Exception("the variable " +str(var)+" must be created before you can use it")
 			
 	def setRegisterOfVariable(self, var): # utilise uniquement, pr assignation
 		##print self.listVariable

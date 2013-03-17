@@ -1,6 +1,7 @@
 from scanner import token
 from parseTreeNode import parseTreeNode
 
+
 class LL1Parser:
 	def __init__(self, grammar, verbose=False):
 		self.grammar = grammar
@@ -111,3 +112,33 @@ class ParseError(Exception):
 
 	def __str__(self):
 		return "ParseError : " + repr(self.errorType) + " " + repr(self.symbol)
+		
+		
+		
+		
+if __name__ == '__main__':
+	from grammars_examples import g6
+	from scanner import scanner
+	import re
+	import sys
+	import getopt
+
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "i:", ["help", "input="])
+	except getopt.GetoptError as err:
+		print(err) 
+		sys.exit(2)
+ 
+	perlFile = None
+	for o, a in opts:
+		if o in ("-i", "--input"):
+			perlFile = a
+		else:
+			print("Option {} unknow".format(o))
+			sys.exit(2)
+	
+	ll1_parser = LL1Parser(g6, verbose=False)
+	perl_scanner = scanner.PerlScanner()
+	inputTokens = perl_scanner.scans(perlFile)
+	ll1_parser.parse(inputTokens)
+	print ll1_parser.parseTree

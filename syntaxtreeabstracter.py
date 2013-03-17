@@ -3,6 +3,7 @@ from scanner import token
 import parser
 from parseTreeNode import parseTreeNode
 
+
 class SyntaxTreeAbstracter:
 	def __init__(self, completeParseTree):
 		self.inputTree = completeParseTree
@@ -198,11 +199,27 @@ class SyntaxTreeAbstracter:
 
 if __name__ == '__main__':
 	from grammars_examples import g6
+	import re
+	import sys
+	import getopt
+	
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "i:", ["help", "input="])
+	except getopt.GetoptError as err:
+		print(err) 
+		sys.exit(2)
+ 
+	perlFile = None
+	for o, a in opts:
+		if o in ("-i", "--input"):
+			perlFile = a
+		else:
+			print("Option {} unknow".format(o))
+			sys.exit(2)
+	
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
-
 	perl_scanner = scanner.PerlScanner()
-	inputTokens = perl_scanner.scans("inputTests/test.pl")
-	#print inputTokens
+	inputTokens = perl_scanner.scans(perlFile)
 	ll1_parser.parse(inputTokens)
 	parseTree = ll1_parser.parseTree
 	sta = SyntaxTreeAbstracter(parseTree)
