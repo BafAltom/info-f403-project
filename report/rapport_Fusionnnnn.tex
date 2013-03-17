@@ -83,8 +83,7 @@ La première partie de ce rapport se concentrera sur l'analyse du langage, c'est
 
 La première étape de ce projet consiste à récupérer et analyser tous les tokens du langage, c'est à dire tous les "composants" possibles.\\
 Pour cette partie nous nous sommes basés sur la grammaire complète donnée au début du projet.\\
-Le scanner utilise aussi cette grammaire, mais les étapes suivantes ne se basent plus que sur la grammaire simplifiée, ainsi certains tokens ne sont pas supportés par notre compilateur.\\
-Seul ceux cités dans la grammaire le sont.\\
+Le scanner utilise aussi cette grammaire, mais les étapes suivantes ne se basent plus que sur la grammaire simplifiée, ainsi certains tokens ne sont pas supportés par notre compilateur : seul ceux cités dans la grammaire le sont.\\
 \begin{tabular}{cc}
 
 \begin{tabular}{|c|l|}
@@ -155,13 +154,13 @@ VARIABLE			& \$.STRING \\ \hline
 
 	
 Nous nous sommes basés sur la grammaire simplifiée afin de faciliter certaines étapes du projet.\\
-La grammaire complète du début du projet présentant certaines difficultés intrinsèques (??)\\
+La grammaire complète du début du projet présentant certaines difficultés intrinsèques, (??)\\
 nous avons ajoutés la grammaire initiale en annexe, ainsi ne sont reprise ci-dessous que les règles après modifications.\\
-Mais un numéro de ligne indique à chaque fois qu'elle ligne a été modifiée.\\
+Mais un numéro de ligne indique à chaque fois quelle ligne a été modifiée.\\
 ~\\
-Pour rendre cette grammaire LL(1), nous avons suivit plusieurs étapes : 
+Pour rendre cette grammaire LL(1), nous avons suivi plusieurs étapes : 
 \subsubsection{Suppression des symboles inutiles}
-	
+
 	On doit commencer par retirer tous les symboles non-productifs et tous les symboles inaccessibles.\\
 	Ici tous les symboles sont utiles, on ne modifie donc pas la grammaire
 
@@ -245,8 +244,8 @@ Pour rendre cette grammaire LL(1), nous avons suivit plusieurs étapes :
 	\end{tabular}\end{center}
 
 \subsubsection{Suppression des productions unitaires}
-	La règle FUNCT-ARG (7) est dans ce cas, ça suppression n'est pas obligatoire, mais elle n'apporte rien à la grammaire et nous préférons donc la retirer.\\
-	On la "fusionne" donc avec ARG-LIST.\\
+	La règle FUNCT-ARG (7) est dans ce cas, sa suppression n'est pas obligatoire, mais elle n'apporte rien à la grammaire et nous préférons donc la retirer.\\
+	On la fusionne donc avec ARG-LIST.\\
 
 \subsubsection{Modifications}
 	La grammaire ainsi produite est donc LL(1).
@@ -541,14 +540,13 @@ INSTRUCT-LIST		& 	& 14& 14&  \\ \hline
   	\end{figure}	
 	
 	\subsubsection{Implémentation}
-	Nous définissons une méthode \verb?scans? (de la classe \verb?PerlScanner?) qui reçoit le fichier Perl en paramètres.\\
-	Elle le charge alors en mémoire puis appelle la fonction \verb?getNextToken? \\
+	Nous définissons une méthode \verb?scans? (de la classe \verb?PerlScanner?) qui reçoit le fichier Perl en paramètre. Celui-ci est alors chargé en mémoire et on appelle la fonction \verb?getNextToken?\\
 	Celle-ci reçoit un string en paramètre, puis utilise les regex définies dans les DFA pour reconnaître le premier token du string.\\
 	Elle renvoi alors le token (une instance de la classe \verb?Token?) et le string duquel elle a retiré le token.\\
 	~\\
 	le scanner appelle donc \verb?getNextToken? jusqu'à ce que les strings représentant le document soient vide.\\
 	~\\
-	Le scanner étant créé en python, il est très facile de gérer les regex, en utilisant du code comme celui-ci :
+	Le scanner étant créé en Python, il est très facile de gérer les regex, en utilisant du code comme celui-ci :
 \begin{figure}[H]
 \fontfamily{pcr}
 \begin{lstlisting}
@@ -564,10 +562,6 @@ if line[0] == "g":
 \caption{Extrait de la méthode getNextToken()}
 \label{lst:getNextToken}
 \end{figure}
-	
-	
-	
-	
 
 \subsection{Le parser}
 
@@ -630,7 +624,7 @@ def abstractSimpleExp(self, simpleExpNode):
 	Nous mettons dans \verb?header? les données ASM nécessaire au lancement du programme et nous y définissons en global tous les strings rencontrés au cours du parcours de l'AST (la partie \verb?.data? donc).\\
 	\verb?code? contiendra donc toutes les instructions assembleurs, d'abord les éventuelles fonctions puis le code du main (la partie \verb?.text?).\\
 	~\\
-	Le code en lui même est assez simple et suis celui de l'exemple ci-dessous. La vrai difficulté de cette partie était de trouver comment traduire en assembleur les différentes instructions, ce langage étant par nature limité. Nous avons de plus décidé de ne pas importer de fonctions C dans notre code afin de ne pas risquer de problème de librairies manquantes et surtout de conserver uniquement du code assembleur, donc plus optimisé et rapide.\\
+	Le code en lui même est assez simple et suit celui de l'exemple ci-dessous. La vrai difficulté de cette partie était de trouver comment traduire en assembleur les différentes instructions, ce langage étant par nature limité. Nous avons de plus décidé de ne pas importer de fonctions C dans notre code afin de ne pas risquer de problème de librairies manquantes et surtout de conserver uniquement du code assembleur, donc plus optimisé et rapide.\\
 	
 	\begin{figure}[H]
 \fontfamily{pcr}
@@ -695,7 +689,7 @@ def abstractSimpleExp(self, simpleExpNode):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Guide d'utilisation}
 
-Le programme étant écrit en python il est aisé de le lancer\footnote{Il nécessite juste d'installer python 2.7}.\\
+Le programme étant écrit en Python il est aisé de le lancer\footnote{Il nécessite juste d'installer python 2.7}.\\
 Une fois dans le dossier, il suffit de lancer la commande :
 \begin{center}
 	python compilateur.py -v -i  $<$fichier perl$>$
