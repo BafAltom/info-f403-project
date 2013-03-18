@@ -22,7 +22,8 @@ numberstyle=\tiny,
 numbersep=5pt,
 showstringspaces=false,
 tabsize=2,
-breaklines=true
+breaklines=true,
+morekeywords={elsif}
 }
 \usepackage{hyperref}
 \hypersetup{
@@ -663,7 +664,7 @@ def abstractSimpleExp(self, simpleExpNode):
 	\subsubsection{Traductions des instructions en code ASM}
 		On défini une série de fonctions traduisant un instruction spécifique en code assembleur, souvent ces fonctions s'appellent mutuellement entre-elles.\\
 		\paragraph{Les expressions}~\\
-			Ce sont les opérations de bases. On commence par mettre dans deux registres vides les deux paramètres du calculs (ces deux paramètres pouvant nécessité d'être calculé via un appel de fonction, une autre expression, ... ). Il suffit alors de faire le calcul correspondant à l'expression sur ces deux registres. On renvoi ensuite le (numéro du) registre contenant le résultat. Puis on vide éventuellement les registres si on les utilise plus.
+			Ce sont les opérations de bases. On commence par mettre dans deux registres vides les deux paramètres du calculs (ces deux paramètres pouvant nécessité d'être calculé via un appel de fonction, une autre expression, ... ). Il suffit alors de faire le calcul correspondant à l'expression sur ces deux registres. On renvoi ensuite le (numéro du) registre contenant le résultat. Puis on vide éventuellement les registres si on ne les utilise plus.
 				\begin{figure}[H]
 \fontfamily{pcr}
 \begin{lstlisting}
@@ -729,7 +730,7 @@ def abstractSimpleExp(self, simpleExpNode):
 				\item Une expressions.\\
 					On appelle donc la fonction les analysant.
 				\item Une liste d'instruction.\\
-					On appelle donc la fonction instruct-list \ref{instruct-list}.
+					On appelle donc la fonction instruct-list (\ref{instruct-list}).
 				\item Un else ou elsif le suivant.\\
 					On appelle donc récursivement la fonction gérant les conditions.
 			\end{enumerate}
@@ -828,7 +829,7 @@ end6:
 				Par manque de temps nous n'avons malheureusement pas eut le temps d'implémenter la gestion de plus de quatre paramètres, cela aurait nécessité d'utiliser le stack, mais nous n'avons pas eut le temps d'implémenter cette partie.
 		\end{itemize}
 		
-			\paragraph{les listes d'instructions et de fonctions}~\\
+			\paragraph{les listes d'instructions et de fonctions}\label{instruct-list}~\\
 				Ces deux parties sont gérées respectivement par \verb?instruct-list? et \verb?funct-list? qui se résument en fait à parcourir ces listes d'instructions ou de fonctions et à appeler les différents méthodes vue ci-dessus.\\
 				~\\
 				\verb?funct-list? nécessite cependant une instruction supplémentaire à la fin de chaque fonction. Il faut y rajouter "BX	LR" pour quitter la fonction et revenir à l'instruction suivant l'appel de la fonction (cela correspond plus ou moins à "MOV		PC, LR").
@@ -845,7 +846,7 @@ end6:
 			\item A chaque variable créée dans la condition : On l'ajoute à la dernière couche (i.e on l'ajoute dans la dernière liste)
 			\item En sortant d'une condition : On supprime le dernière couche (i.e On supprime la dernière liste)
 		\end{itemize}
-		Rem : On utilise des dictionnaires afin de coupler cela avec la position des variables pour simplifier notre programme. En effet il est très pratique d'utiliser un dictionnaire ayant pour clé la variable et pour valeur son numéro de registre. On peut ainsi vérifier la porté des variables et leur localisation en même temps.\\
+		Rem : On utilise des dictionnaires afin de coupler cela avec la position des variables (c'est-à-dire le numéro du registre dans lequel elle se trouve) pour simplifier notre programme. En effet il est très pratique d'utiliser un dictionnaire ayant pour clé la variable et pour valeur son numéro de registre. On peut ainsi vérifier la portée des variables et leur localisation en même temps.\\
 		~\\
 		Ce système permettrait aussi de gérer les variables globales, qu'on pourrait imaginer être définie dans le code ou avant les listes de fonctions ou instructions. Il suffirait de leur réserver le premier dictionnaire de notre liste de dictionnaire. Ainsi elle seraient accessibles à tout endroit du code, mais vu qu'on parcours la liste par sa fin pour trouver les variables, elles ne seraient trouvées qu'en dernier. En cas de conflit de nom, ce serait donc la variable locale qui serait trouvée en première.\\
 		~\\
@@ -1093,7 +1094,7 @@ def match(self):
  
 \subsection{Grammaire initiale}\label{gramm-init}
 
-\hspace{-3.0cm}\begin{tabular}{rrl}
+\hspace{-1.0cm}\begin{tabular}{rrl}
 1)&$<$PROGRAM$>$		& $\rightarrow$ $<$FUNCT-LIST$>$ $<$INSTRUCT-LIST$>$\\ 
 2)&					& $\rightarrow$ $<$FUNCT-LIST$>$\\  
 3)&					& $\rightarrow$ $<$INSTRUCT-LIST$>$\\  					
