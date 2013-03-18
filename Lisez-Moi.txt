@@ -1,0 +1,31 @@
+Pour lancer le programme, tapez l commande :
+
+	python compilateur.py -v -i  $<$fichier perl$>$
+
+L'option -v est optionnelle, si sélectionnée, le programme affichera dans le terminal le résultat de chaque étape intermédiaire.
+Le code sera créé dans un fichier de même nom que celui du fichier d'input
+
+
+Il est également possible de lancer chaque partie séparément, elle afficheront alors dans le terminal le résultat.
+Cela se fait au moyen de ces commandes :
+
+	python scanner.py -i $<$fichier perl$>$ 
+	python parser.py -i $<$fichier perl$>$ 
+	python syntaxtreeabstracter.py -i $<$fichier perl$>$
+	python codeGeneration.py -i $<$fichier perl$>$ 
+
+
+
+
+
+Le code assembleur assembleur ainsi produit a été conçu et tester pour être compiler avec le compilateur android-ndk-r8d et tester avec adb, via ces commandes (une fois l'émulateur lancé, ou un smartphone android connecté).
+
+	android-ndk-r8d/toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86/bin/arm-linux-androideabi-as -o program.o program.S
+	android-ndk-r8d/toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86/bin/arm-linux-androideabi-ld -s -o exécutable program.o
+	adb push exécutable /data/local/tmp/
+	adb shell /data/local/tmp/exécutable
+
+Il suffit de modifier la partie $<$linux-x86$>$ en fonction du système d'exploitation.\\
+
+
+Nous avons également inclus un fichier perl contenant des instructions gérées par notre grammaire, ainsi que le fichier assembleur correspondant généré par notre compilateur, dans le dossier inputTests

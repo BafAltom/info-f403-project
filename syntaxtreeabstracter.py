@@ -1,5 +1,5 @@
-from scanner import scanner
-from scanner import token
+import scanner
+import token
 import parser
 from parseTreeNode import parseTreeNode
 
@@ -27,7 +27,6 @@ class SyntaxTreeAbstracter:
 		depthIntrList = 3 if thereWasAFctList else 2
 
 		for instrListRoot in self.currentInputNode.findToken("INSTRUCT-LIST", maxDepth=depthIntrList):
-			print "adding one instruction"
 			self.currentAbstractNode.giveNodeChild(self.abstractInstrList(instrListRoot))
 
 	def abstractFct(self, inputFctNode):

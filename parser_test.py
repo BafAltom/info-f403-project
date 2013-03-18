@@ -1,6 +1,6 @@
 import parser
-from scanner import token
-from scanner import scanner
+import token
+import scanner
 
 def test_1():
 	from grammars_examples import g1

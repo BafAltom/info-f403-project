@@ -314,10 +314,6 @@ Pour rendre cette grammaire LL(1), nous avons suivi plusieurs étapes :
 					
 \end{tabular}
 
-
-
-\textcolor{red}{Attention, bien préciser que nos modifications font qu'on force certaines choses pour pouvoir retirer des ambiguités et donc parser en LL(1).}
-
 \subsection{Implémentation}
 
 Afin de représenter la grammaire dans notre code, Nous avons utilisé une classe \verb?CFGrammar?\footnote{En effet, les grammaires LL(k) sont des CFG} contenant :
@@ -857,9 +853,7 @@ end6:
 
 	
 	\subsubsection{Type checking}
-		Sur le même principe, nous vérifions que :\\
-		
-		TO DO
+		Sur le même principe, nous vérifions que les fonctions prennent le bon nombre d'argument. Pour cela nous utilisons un dictionnaires contenant comme clé le nom de la fonction et comme valeur son nombre de paramètre. Nous remplissons ce dictionnaire lors de la création des fonctions (dans \verb?funct-list?) puis lors de chaque appel nous vérifions que le nombre de paramètre correspond à celui stocké dans le dictionnaire.
 
 	\subsubsection{Gestion du stack ASM}
 		Par manque de temps nous n'avons pas eut le temps d'implémenter cette partie, ce qui entraîne certaines limitations : \begin{itemize}
@@ -889,12 +883,14 @@ Une fois dans le dossier, il suffit de lancer la commande :
 	python compilateur.py -v -i  $<$fichier perl$>$
 \end{center}
 L'option -v est optionnelle, si sélectionnée, le programme affichera dans le terminal le résultat de chaque étape intermédiaire.\\
+Le code sera créé dans un fichier de même nom que celui du fichier d'input.\\
 ~\\
 Il est également possible de lancer chaque partie séparément, elle afficheront alors dans le terminal le résultat.
 \begin{itemize}
 	\item python scanner.py -i $<$fichier perl$>$ 
 	\item python parser.py -i $<$fichier perl$>$ 
-	\item python syntaxtreeabstracter.py -i $<$fichier perl$>$ 
+	\item python syntaxtreeabstracter.py -i $<$fichier perl$>$
+	\item python codeGeneration.py -i $<$fichier perl$>$ 
 \end{itemize}
 ~\\
 Le code assembleur assembleur ainsi produit a été conçu et tester pour être compiler avec le compilateur \verb?android-ndk-r8d? et tester avec \verb?adb?, via ces commandes (une fois l'émulateur lancé, ou un smartphone android connecté).
@@ -1148,5 +1144,14 @@ def match(self):
 					
 					
 \end{tabular}
+
+\subsection{Exemple d'utilisation}
+En lançant le code assembleur obtenu à partir du code perl contenu dans le dossier \verb?inputTests?, nous obtenons : 
+ \begin{figure}[H] \hspace*{-2cm} 
+   \centering
+   	  \includegraphics[width=375pt]{exemple.jpg} 
+			\caption{Exemple d'utilisation}
+			\label{ExempleUtilisation}
+ \end{figure}	
 
 \end{document}

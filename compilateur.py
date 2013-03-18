@@ -1,5 +1,5 @@
 import codeGeneration
-from scanner import scanner
+import scanner
 import parser
 import syntaxtreeabstracter
 import sys
@@ -85,3 +85,5 @@ code = compilePerl(verbose, perlFile)
 outputFile = open(asmFile, "w")
 outputFile.write(code)
 outputFile.close()
+
+print "The ASM code have been created in the file "+ str(asmFile)

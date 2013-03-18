@@ -81,7 +81,6 @@ rules = [
 	['PROG-END', 'FUNCT-LIST'],
 	['PROG-END', 'INSTRUCT'],
 	['FUNCT-LIST', 'FUNCT', 'FUNCT-LIST-END'],
-	#['FUNCT-LIST', 'EPSILON'],
 	['FUNCT-LIST-END', 'FUNCT-LIST'],
 	['FUNCT-LIST-END', 'EPSILON'],
 	['FUNCT', 'FUNCT-DEF', 'ID', 'FUNCT-END'],
@@ -125,7 +124,6 @@ rules = [
 	['INSTRUCT', 'EXP', 'INSTRUCT-END'],
 	['INSTRUCT', 'FUNCT-CALL', 'INSTRUCT-END'],
 	['INSTRUCT', 'ASSIGNATION', 'INSTRUCT-END'],
-	#['INSTRUCT', 'EPSILON'],
 	['INSTRUCT-END', 'SEMICOLON', 'INSTRUCT-END2'],
 	['INSTRUCT-END2', 'INSTRUCT'],
 	['INSTRUCT-END2', 'EPSILON'],
@@ -192,15 +190,12 @@ g5 = cfgrammar.CFGrammar(rules, terminals)
 
 # ---------------------------------------------------------------------------
 # G6 : grammaire du projet : Grammaire simplifiee
-# Thomas : j'ai retire les EXPi-TAIL dans les regles des EXPi-TAIL
-#          Ca veut dire qu'on ne peut plus ecrire par ex. 3 + 4 + 5 mais ca oblige a ecrire 3 + (4 + 5)
-#          Je trouve que ca se justifie :)
+
 rules = [
 	['S', 'PROGRAM', 'END-SYMBOL'],
 	['PROGRAM', 'FUNCT-LIST', 'PROG-TAIL'],
 	['PROGRAM', 'INSTRUCT-LIST'],
 	['PROG-TAIL', 'INSTRUCT-LIST'],
-	#['PROG-TAIL', EPSILON],
 	['FUNCT-LIST', 'FUNCT-LIST-BEG', 'FUNCT-LIST-END'],
 	['FUNCT-LIST-BEG', 'FUNCT'],
 	['FUNCT-LIST-END', 'FUNCT', 'FUNCT-LIST-END'],

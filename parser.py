@@ -1,4 +1,4 @@
-from scanner import token
+import token
 from parseTreeNode import parseTreeNode
 
 
@@ -118,7 +118,7 @@ class ParseError(Exception):
 		
 if __name__ == '__main__':
 	from grammars_examples import g6
-	from scanner import scanner
+	import scanner
 	import re
 	import sys
 	import getopt
