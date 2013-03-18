@@ -6,7 +6,6 @@ class ASMcodeGenerator:
 		self.header = ""  # contiendra le header avec les param ASM et les variables qu'on doit definir avant (string, ...)
 		self.tree = abstractTree
 		self.listRegister = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		#self.listVariable = dict()  # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listVar = list()
 		globalVariable = dict()  # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listVar.append(globalVariable)
@@ -180,8 +179,6 @@ class ASMcodeGenerator:
 				result = self.expression(child)
 				self.code = self.code + "	MOV 	R"+str(var)+", R"+str(result)+"\n"
 				# Si on a plus besoin du registre contenant le resultat de l assignation on l efface
-				#if result not in self.listVariable.values():
-				#	self.listRegister[result] = 0
 				self.cleanRegister(result)
 			elif child.value.name == "STRING":
 				# Les string doivent etre declare avant le code, donc ajoute au header
@@ -207,8 +204,6 @@ class ASMcodeGenerator:
 				result = self.expression(child)
 				self.code = self.code + "	MOV 	R0, R"+str(result)+"\n"
 				# Si on a plus besoin du registre contenant le resultat de l assignation on l efface
-				#if result not in self.listVariable.values():
-				#	self.listRegister[result] = 0
 				self.cleanRegister(result)
 			elif child.value.name == "STRING":
 				# Les string doivent etre declare avant le code, donc ajoute au header
@@ -278,10 +273,6 @@ class ASMcodeGenerator:
 		# On regardera pour effacer le troisieme registre du resltat dans la fonction appelante
 		self.cleanRegister(Reg[0])
 		self.cleanRegister(Reg[1])
-		#if Reg[0] not in self.listVariable.values():
-		#	self.listRegister[Reg[0]] = 0
-		#if Reg[1] not in self.listVariable.values():
-		#	self.listRegister[Reg[1]] = 0
 			
 		if op == "ADD" or op == "SUB" or op == "MUL":
 			return Reg[2]
