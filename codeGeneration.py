@@ -38,9 +38,9 @@ class ASMcodeGenerator:
 		self.header += "	.eabi_attribute 18 , 4\n \n"
 		self.header += "	.data\n \n"
 
+		self.code = self.code + "	.text\n \n"
 		for codeNode in self.tree.children:
 			if codeNode.value.name == "Funct-List":
-				self.code = self.code + "	.text\n \n"
 				self.funct_list(codeNode)
 			elif codeNode.value.name == "Instr-List":
 				self.code = self.code + "	.global _start\n"
@@ -67,8 +67,8 @@ class ASMcodeGenerator:
 			self.saveListVar.append(self.listVar)
 			self.saveListRegister.append(self.listRegister)
 			self.listVar = list()
-			globalVariable = dict()
-			self.listVar.append(globalVariable)
+			globalVar = dict()
+			self.listVar.append(globalVar)
 			self.listRegister = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 			
 			cmpt = 0
@@ -128,7 +128,7 @@ class ASMcodeGenerator:
 						self.code = self.code + "	MOV 	R"+str(cmpt)+", R"+str(self.getRegisterOfVariable(stringNode.value.value))+"\n"
 						cmpt = cmpt +1
 					else:
-						raise Exception("the functions "+str(codeNode.value.value)+"take only variable as parameters")
+						raise Exception("the functions "+str(codeNode.value.value)+" take only variable as parameters")
 				self.code = self.code + "	BL	"+codeNode.value.value+"\n"
 				if cmpt != self.listFunction[codeNode.value.value]:
 					raise Exception("the functions "+str(codeNode.value.value)+" must have "+str(self.listFunction[codeNode.value.value])+" parameters")

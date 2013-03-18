@@ -146,9 +146,7 @@ def test_4():
 
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
 	perl_scanner = scanner.PerlScanner()
-	inputTokens = perl_scanner.scans("inputTests/test.pl")
-	#inputTokens = scanner4.scanner("inputTests/test_nofunction.pl")
-	#print inputTokens
+	inputTokens = perl_scanner.scans("inputTests/test5.pl")
 	ll1_parser.parse(inputTokens)
 	print ll1_parser.parseTree
 
