@@ -566,7 +566,9 @@ Le scanner (l'analyse lexicale) renvoie une liste de lexèmes. Le rôle du parse
 
 Notre parser est implémenté en une instance de notre classe \verb?LL1Parser? dont l'attribut \verb?grammar? est une instance de \verb?CFGrammar? représentant la grammaire décrite précédemment. Lors du parsing, il maintient deux structures de données : une liste \verb?output? décrivant les actions effectuées à chaque étape (\verb?M? pour un matching, \verb?Pi? pour l'application de la règle $i$, \verb?A? si l'input est accepté et \verb?E? si l'input est refusé) et un arbre \verb?parseTree? structurant les tokens. Celui-ci est composé de \verb?ParseTreeNode?, contenant une référence vers un token (\verb?value?), une référence vers le noeud père (\verb?father?) et une liste ordonnée de noeuds enfants (\verb?children?). Le parser possède donc également une référence \verb?currentNode? vers le noeud actuel dans le parse tree.\\
 
-Le détail de l'implémentation est donné à l'annexe \ref{anx:parserImpl}. Celle-ci se base sur une fonction récursive qui récupère le noeud actuel dans le parse tree et le premier symbole de l'input restant, puis décide de la règle (ou du matching) à appliquer sur base de la table d'action. Dans le cas où on applique une règle, la fonction s'appelle elle-même pour chaque symbole produit par la règle.
+Le détail de l'implémentation est donné à l'annexe \ref{anx:parserImpl}. Celle-ci se base sur une fonction récursive qui récupère le noeud actuel dans le parse tree et le premier symbole de l'input restant, puis décide de la règle (ou du matching) à appliquer sur base de la table d'action. Dans le cas où on applique une règle, la fonction s'appelle elle-même pour chaque symbole produit par la règle.\\
+
+Remarque : Notre classe \verb?Parser? fonctionne avec toute grammaire LL(1). D'autres exemples de telles grammaires (inspirées des séances d'exercices) sont données dans le fichier \verb?grammars_examples.py? et des exemples d'utilisations sont donnés dans \verb?parser_test.py?.
 
 \subsection{Transformation en AST}
 
