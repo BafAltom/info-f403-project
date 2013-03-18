@@ -1,7 +1,7 @@
 # Teste avec des fonctions
 
 # function declaration
-sub testCond ($number, $arg1, $arg2) {
+sub testCond ($number, $arg1, $arg2, $arg3) {
 
 	print ('funct0 : testCond\n');
 	
@@ -35,6 +35,34 @@ sub testCond ($number, $arg1, $arg2) {
 	else { print ('premier if : else : erreur'); };
 	
 	return 4;
+	
+}
+
+
+sub metA1 ($arg1) {
+	$arg1 = 1;
+	print ('funct2\n');
+	return $arg1;
+}
+
+sub metA2Util ($arg1) {
+	print ('funct4\n');
+	return 2;
+}
+
+sub metA2 ($arg1) {
+	print ('funct3\n');
+	return &metA2Util($arg1);
+}
+
+sub recursif ($arg1) {
+	$arg1 = $arg1 +1;
+	if($arg1 > 5){ 
+		print ('funct5\n');}
+	else { 
+		$arg1 = &recursif($arg1);};
+	
+	return $arg1;
 	
 }
 
@@ -79,29 +107,8 @@ sub testFunct ($number, $arg1, $arg2) {
 	return 4;
 	
 }
-sub metA1 ($arg1) {
-	$arg1 = 1;
-	print ('funct2\n');
-	return $arg1;
-}
-sub metA2 ($arg1) {
-	print ('funct3\n');
-	return &metA2Util($arg1);
-}
-sub metA2Util ($arg1) {
-	print ('funct4\n');
-	return 2;
-}
-sub recursif ($arg1) {
-	$arg1 = $arg1 +1;
-	if($arg1 > 5){ 
-		print ('funct5\n');}
-	else { 
-		$arg1 = &recursif($arg1);};
-	
-	return $arg1;
-	
-}
+
+
 sub testExp ($arg1) {
 	$arg2 =2;
 	$number = 3;
@@ -109,6 +116,14 @@ sub testExp ($arg1) {
 	
 	if $arg1 == 12 { print ('exp : ok\n'); } 
 	else { print ('exp : erreur'); };	
+	
+	$arg1 = $arg1 * $arg2;
+	if $arg1 == 24 { print ('exp : ok\n'); } 
+	else { print ('exp : erreur'); };
+	
+	$arg1 = 4 - $arg2;
+	if $arg1 == 2 { print ('exp : ok\n'); } 
+	else { print ('exp : erreur'); };
 	
 	return $arg1;
 }
@@ -125,10 +140,10 @@ $arg8 = 'hdjgsf';
 
 
 
-print ('teste cond + assign + funct + exp\n'); # function call
+print ('teste compilateur\n'); # function call
 
 
-&testCond($number, $arg1, $arg2);
+&testCond($number, $arg1, $arg2, $arg8);
 
 $arg1 = 2;
 $arg2 = 3;
@@ -140,5 +155,5 @@ $number = 4;
 &testExp($number);
 
 
-$arg1 = $arg1 * $arg2;
-$arg1 = $arg2 + 4;
+
+

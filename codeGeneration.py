@@ -9,8 +9,10 @@ class ASMcodeGenerator:
 		self.listVariable = dict()  # cle = nom de la variable, value = numero du registre ou elle est stockee
 		self.listString = dict()  # cle = string, value = lien vers le string (str1, ...)
 		self.listStringLen = dict()  # cle = string, value = lien vers la longueur du string (len1, ...)
+		self.listFunction = dict()  # cle = nom de la fonction, value = nombre de parametre
 		self.saveListVariable = list()  # utilise quand doit sauver le contexte lors du passage dans une fonction
 		self.saveListRegister = list()  # idem
+		
 
 		# Pour gerer les conditions imbriquees, on utilise ces quatres parametres afin
 		# de retenir dans quel condition on est ce qui permet de gerer les JUMP
@@ -60,7 +62,7 @@ class ASMcodeGenerator:
 
 
 		print "fin generation du code"
-
+		print self.listFunction
 		return self.header + "\n \n" + "\n \n" + self.code
 
 	def funct_list(self, codeNode):
@@ -87,12 +89,14 @@ class ASMcodeGenerator:
 			for child2 in child.children:
 				if child2.value.name == "arg":
 					#print "voir comment gere les arguments"
-					if cmpt > 3:
+					if cmpt > 4:
 						raise Exception("a function take at most 4 parameters") # POUR LE MOMENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					
 					var = self.setRegisterOfVariable(child2.value.value)	
 					self.code = self.code + "	MOV 	R"+str(var)+", R"+str(cmpt)+"\n"
 					cmpt = cmpt + 1
+					self.listFunction[child.value.value] = cmpt
+					
 					
 				else: # instructions
 					assert child2.value.name == "Instr-List", "instruct-list au mauvais endroit"
@@ -150,18 +154,19 @@ class ASMcodeGenerator:
 			
 		else: # fonctions definies par l utilisateur
 			print "funct de l'user"
-			cmpt = 0
-			for stringNode in codeNode.children:
-				if stringNode.value.name == "VARIABLE":
-					self.code = self.code + "	MOV 	R"+str(cmpt)+", R"+str(self.getRegisterOfVariable(stringNode.value.value))+"\n"
-					cmpt = cmpt +1
-				else:
-					raise Exception("the functions take only variable as parameters")
-			self.code = self.code + "	BL	"+codeNode.value.value+"\n"
-		
-		
-		
-		
+			if codeNode.value.value in self.listFunction.keys():
+				cmpt = 0
+				for stringNode in codeNode.children:
+					if stringNode.value.name == "VARIABLE":
+						self.code = self.code + "	MOV 	R"+str(cmpt)+", R"+str(self.getRegisterOfVariable(stringNode.value.value))+"\n"
+						cmpt = cmpt +1
+					else:
+						raise Exception("the functions "+str(codeNode.value.value)+"take only variable as parameters")
+				self.code = self.code + "	BL	"+codeNode.value.value+"\n"
+				if cmpt != self.listFunction[codeNode.value.value]:
+					raise Exception("the functions "+str(codeNode.value.value)+" must have "+str(self.listFunction[codeNode.value.value])+" parameters")
+			else:
+				raise Exception("the functions "+str(codeNode.value.value)+" must be declared before you can use it")
 		
 		
 	
