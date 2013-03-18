@@ -34,12 +34,12 @@ morekeywords={elsif}
 	pdffitwindow=false,     % window fit to page when opened
 	pdfstartview={FitH},    % fits the width of the page to the window
 	pdftitle={INFO-F403 : rapport},
-    pdfauthor={Chapeaux Thomas, Dagnely Pierre},
-    colorlinks=true,       % false: boxed links; true: colored links
-    linkcolor=black,          % color of internal links
-    citecolor=green,        % color of links to bibliography
-    filecolor=magenta,      % color of file links
-    urlcolor=cyan           % color of external links
+	pdfauthor={Chapeaux Thomas, Dagnely Pierre},
+	colorlinks=true,       % false: boxed links; true: colored links
+	linkcolor=black,          % color of internal links
+	citecolor=green,        % color of links to bibliography
+	filecolor=magenta,      % color of file links
+	urlcolor=cyan           % color of external links
 }
 \let\oldtabular=\tabular
 \def\tabular{\footnotesize\oldtabular}
@@ -620,8 +620,8 @@ def abstractSimpleExp(self, simpleExpNode):
 	Nous mettons dans \verb?header? les données ASM nécessaire au lancement du programme et nous y définissons en global tous les strings rencontrés au cours du parcours de l'AST (la partie \verb?.data? donc).\\
 	\verb?code? contiendra donc toutes les instructions assembleurs, d'abord les éventuelles fonctions puis le code du main (la partie \verb?.text?).\\
 	~\\
-	Le code en lui même est assez simple et suit celui de l'exemple ci-dessous. La vrai difficulté de cette partie était de trouver comment traduire en assembleur les différentes instructions, ce langage étant par nature limité. Nous avons de plus décidé de ne pas importer de fonctions C dans notre code afin de ne pas risquer de problème de librairies manquantes et surtout de conserver uniquement du code assembleur, donc plus optimisé et rapide.\\
-	
+	Le code en lui même est assez simple et suit celui de l'exemple ci-dessous. La vrai difficulté de cette partie était de trouver comment traduire en assembleur les différentes instructions, ce langage étant par nature limité. Nous avons de plus décidé de ne pas importer de fonctions C dans notre code par simplicité, afin de ne pas risquer de problème de librairies manquantes.\\
+
 	\begin{figure}[H]
 \fontfamily{pcr}
 \begin{lstlisting}
@@ -851,9 +851,11 @@ end6:
 		Ce système permettrait aussi de gérer les variables globales, qu'on pourrait imaginer être définie dans le code ou avant les listes de fonctions ou instructions. Il suffirait de leur réserver le premier dictionnaire de notre liste de dictionnaire. Ainsi elle seraient accessibles à tout endroit du code, mais vu qu'on parcours la liste par sa fin pour trouver les variables, elles ne seraient trouvées qu'en dernier. En cas de conflit de nom, ce serait donc la variable locale qui serait trouvée en première.\\
 		Mais comme les variables globales ne sont pas gérées par notre grammaire, nous ne l'avons pas implémenté.
 
+	\subsubsection{Systematic checking}
+		Sur le même principe, nous vérifions que les fonctions prennent le bon nombre d'argument. Pour cela nous utilisons un dictionnaires contenant comme clé le nom de la fonction et comme valeur son nombre de paramètre. Nous remplissons ce dictionnaire lors de la création des fonctions (dans \verb?funct-list?) puis lors de chaque appel nous vérifions que le nombre de paramètre correspond à celui stocké dans le dictionnaire.
 
 	\subsubsection{Type checking}
-		Sur le même principe, nous vérifions que les fonctions prennent le bon nombre d'argument. Pour cela nous utilisons un dictionnaires contenant comme clé le nom de la fonction et comme valeur son nombre de paramètre. Nous remplissons ce dictionnaire lors de la création des fonctions (dans \verb?funct-list?) puis lors de chaque appel nous vérifions que le nombre de paramètre correspond à celui stocké dans le dictionnaire.
+		Notre code ne gère pas le type checking par manque de temps. En effet, celà doit être fait en runtime et demande de stocker les variables dans des structures gérées en ASM/ARM comprenant le type de la variable. À chaque appel de fonction et à chaque opération, on vérifie que les types sont compatibles et on appelle des fonctions de conversion (éventuellement écrite en C puis convertie en ASM/ARM) quand c'est possible.
 
 	\subsubsection{Gestion du stack ASM}
 		\label{sct:gestionStack}
@@ -868,7 +870,7 @@ end6:
 		Inversement quand on veut un registre vide et qu'ils sont tous occupés, il suffirait de pusher un des registres pour le libérer, la variable "perdue" pouvant être aisément retrouvée par la suite, cela ne prête donc pas à conséquence et permet d'utiliser presque autant de variable que l'on désire (en restant dans les limites matérielles possibles).\\
 		~\\
 		Encore une fois nous n'avons malheureusement pas eu le temps de finir cette partie.
-	
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %%
