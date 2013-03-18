@@ -536,7 +536,7 @@ INSTRUCT-LIST		& 	& 14& 14&  \\ \hline
 	\subsubsection{Implémentation}
 	Nous définissons une méthode \verb?scans? (de la classe \verb?PerlScanner?) qui reçoit le fichier Perl en paramètre. Celui-ci est alors chargé en mémoire et on appelle la fonction \verb?getNextToken?\\
 	Celle-ci reçoit un string en paramètre, puis utilise les regex définies dans les DFA pour reconnaître le premier token du string.\\
-	Elle renvoi alors le token (une instance de la classe \verb?Token?) et le string duquel elle a retiré le token.\\
+	Elle renvoie alors le token (une instance de la classe \verb?Token?) et le string duquel elle a retiré le token.\\
 	~\\
 	le scanner appelle donc \verb?getNextToken? jusqu'à ce que les strings représentant le document soient vide.\\
 	~\\
@@ -664,7 +664,7 @@ def abstractSimpleExp(self, simpleExpNode):
 	\subsubsection{Traductions des instructions en code ASM}
 		On définit une série de fonctions traduisant une instruction spécifique en code assembleur, souvent ces fonctions s'appellent mutuellement entre elles.\\
 		\paragraph{Les expressions}~\\
-			Ce sont les opérations de base. On commence par mettre dans deux registres vides les deux paramètres du calcul (ces deux paramètres pouvant nécessiter d'être calculés via un appel de fonction, une autre expression, ... ). Il suffit alors de faire le calcul correspondant à l'expression sur ces deux registres. On renvoi ensuite le (numéro du) registre contenant le résultat. Puis on vide éventuellement les registres si on ne les utilise plus.
+			Ce sont les opérations de base. On commence par mettre dans deux registres vides les deux paramètres du calcul (ces deux paramètres pouvant nécessiter d'être calculés via un appel de fonction, une autre expression, ... ). Il suffit alors de faire le calcul correspondant à l'expression sur ces deux registres. On renvoie ensuite le (numéro du) registre contenant le résultat. Puis on vide éventuellement les registres si on ne les utilise plus.
 				\begin{figure}[H]
 \fontfamily{pcr}
 \begin{lstlisting}
