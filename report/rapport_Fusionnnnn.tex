@@ -837,19 +837,19 @@ end6:
 		Nous profitons également de ce parcours récursif de l'AST pour vérifier que le code ne viole pas certaines règles. En particulier nous vérifions qu'il ne fait pas appel à des variables inaccessibles.\\
 		~\\
 		Cette vérification se fait en plusieurs étapes. D'abord à chaque création/assignation de variable nous l'ajoutons dans une liste les reprenant toutes, ainsi lors d'un appel nous pouvons aisément vérifier si cette variable a déjà été créée, sinon un message d'erreur apparaîtra.\\
-		Ensuite nous sommes particulièrement attentif aux variables utilisées dans les fonctions, afin d'éviter qu'elles n'utilisent des variables du main. Pour cela à chaque appel de fonction, on "push" la liste des variables et on en crée un nouvelle qui ne contient que les variables passées en paramètres.\\
-		On peut ainsi vérifier qu'on n'accède qu'aux variables accessibles. Il suffit de "poper" cette liste à la fin pour retrouver le contexte initiale.\\
+		Ensuite nous sommes particulièrement attentif aux variables utilisées dans les fonctions, afin d'éviter qu'elles n'utilisent des variables du main. Pour cela à chaque appel de fonction, on "push" la liste des variables et on en crée une nouvelle qui ne contient que les variables passées en paramètres.\\
+		On peut ainsi vérifier qu'on n'accède qu'aux variables accessibles (c'est-à-dire aux variables stockées dans cette liste). Il suffit de "poper" cette liste à la fin pour retrouver le contexte initiale.\\
 		~\\
-		Pour être complet, il aurait fallu se baser sur le même principe pour gérer les conditions en créant "plusieurs couches" de stacks (par exemple au moyen d'une liste contenant des dictionnaires de variables) : \begin{itemize}
-			\item A chaque entrée dans une condition : On crée une couche (donc on ajoute une liste dans la liste représentant le stack)
-			\item A chaque variable créée dans la condition : On l'ajoute à la dernière couche (donc on l'ajoute dans la dernière liste)
-			\item En sortant d'une condition : On supprime le dernière couche (donc on supprime la dernière liste)
+		Nous utilisons plus ou moins le même principe pour gérer les conditions en créant "plusieurs couches" de stacks (au moyen d'une liste contenant des dictionnaires de variables) : \begin{itemize}
+			\item A chaque entrée dans une condition : On crée une couche (donc on ajoute un dictionnaire dans la liste représentant le stack)
+			\item A chaque variable créée dans la condition : On l'ajoute à la dernière couche (donc on l'ajoute dans le dernier dictionnaire)
+			\item En sortant d'une condition : On supprime le dernière couche (donc on supprime le dernier dictionnaire et les variables qu'il contient)
 		\end{itemize}
+		Ainsi nous sommes sûr de n'utiliser que des variables vraiment accessibles.\\
 		Rem : On utilise des dictionnaires afin de coupler cela avec la position des variables (c'est-à-dire le numéro du registre dans lequel elle se trouve) pour simplifier notre programme. En effet il est très pratique d'utiliser un dictionnaire ayant pour clé la variable et pour valeur son numéro de registre. On peut ainsi vérifier la portée des variables et leur localisation en même temps.\\
 		~\\
 		Ce système permettrait aussi de gérer les variables globales, qu'on pourrait imaginer être définie dans le code ou avant les listes de fonctions ou instructions. Il suffirait de leur réserver le premier dictionnaire de notre liste de dictionnaire. Ainsi elle seraient accessibles à tout endroit du code, mais vu qu'on parcours la liste par sa fin pour trouver les variables, elles ne seraient trouvées qu'en dernier. En cas de conflit de nom, ce serait donc la variable locale qui serait trouvée en première.\\
-		~\\
-		Malheureusement nous n'avons pas eu le temps d'implémenter cette partie (voir section \ref{sct:gestionStack}.
+		Mais comme les variables globales ne sont pas gérées par notre grammaire, nous ne l'avons pas implémenté.
 
 
 	\subsubsection{Type checking}

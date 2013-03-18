@@ -5,11 +5,11 @@ sub testCond ($number, $arg1, $arg2, $arg3) {
 
 	print ('funct0 : testCond\n');
 	
-	if $number == 1 { print ('premiere if : erreur'); } 
+	if $number == 1 { print ('premiere if : erreur');} 
 	elsif $number == 6 { 
-		if $arg1 > $number { print ('deuxieme if : erreur'); } 
+		if $arg1 > $number { print ('deuxieme if : erreur');} 
 		elsif $arg1 == $arg2 { 	
-			if $number == 6 { print ('troisieme if : ok\n'); } 
+			if $number == 6 { print ('troisieme if : ok\n');} 
 			elsif $number == 8 { print ('troisieme if : elsif : erreur');} 
 			else { print ('troisieme if : else : erreur'); };
 		}
@@ -35,7 +35,6 @@ sub testCond ($number, $arg1, $arg2, $arg3) {
 	else { print ('premier if : else : erreur'); };
 	
 	return 4;
-	
 }
 
 

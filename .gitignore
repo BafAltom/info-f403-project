@@ -3,6 +3,7 @@
 Project-1213.pdf
 
 report/*
+!report/exemple.jpg
 !report/report.tex
 !report/report.pdf
 !report/rapport.tex
