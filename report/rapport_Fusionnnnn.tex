@@ -1165,7 +1165,7 @@ sub incr ($arg1) {
 # main
 print ('teste compilateur\n'); # function call
 $arg1 = 1;
-&incr($arg1);
+$arg1 = &incr($arg1);
 if $arg1 == 2 { print ('increment sucessfull\n'); } 
 else { print ('erreur'); };	
 \end{lstlisting}
@@ -1179,7 +1179,7 @@ else { print ('erreur'); };
 \begin{figure}[H]
 \fontfamily{pcr}
 \begin{lstlisting} 
- (name=AST-ROOT, value=)
+(name=AST-ROOT, value=)
 	(name=Funct-List, value=)
 		(name=Funct, value=incr)
 			(name=arg, value=arg1)
@@ -1194,8 +1194,9 @@ else { print ('erreur'); };
 			(name=STRING, value=teste compilateur\n)
 		(name=Assign, value=arg1)
 			(name=INT, value=1)
-		(name=Fct-Call, value=incr)
-			(name=VARIABLE, value=arg1)
+		(name=Assign, value=arg1)
+			(name=Fct-Call, value=incr)
+				(name=VARIABLE, value=arg1)
 		(name=Cond, value=)
 			(name=OPERATOR, value=EQUIV)
 				(name=VARIABLE, value=arg1)
@@ -1229,7 +1230,7 @@ Ce qui nous donne le code ASM suivant :
 	.eabi_attribute 25 , 1
 	.eabi_attribute 26 , 2
 	.eabi_attribute 30 , 6
-	.eabi_attribute 18 , 4 
+	.eabi_attribute 18 , 4
 	.data
 str0:	.string "teste compilateur\n"
 len0 = . - str0
@@ -1247,7 +1248,6 @@ incr:
 	MOV 	R5, #1
 	ADD		R6, R4, R5
 	MOV 	R0, R6
-
 	POP	{R4-R11,R14}
 	BX	LR
  
@@ -1261,6 +1261,7 @@ _start :
 	MOV 	R4, #1
 	MOV 	R0, R4
 	BL	incr
+	MOV 	R4, R0
 	MOV 	R5, #2
 	CMP		R4, R5
 	BNE else00
@@ -1280,10 +1281,9 @@ end0:
 	MOV     R0, #0
 	MOV     R7, #1
 	SWI     #0
-
 \end{lstlisting}
 \fontfamily{}
-\caption{AST : du code Perl ci-dessus}
+\caption{ASM : du code Perl ci-dessus}
 \label{lst:exemple_ast}
 \end{figure}
 
