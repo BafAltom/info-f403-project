@@ -172,9 +172,12 @@ class ASMcodeGenerator:
 			self.code = self.code + " else"+str(self.currentCondBlock)+str(self.listOfCond[self.currentCondBlock])+"\n"
 					
 		if codeNode.children[0].value.name == "Instr-List": # On a un instruc-list
+			self.currentCondBlock = self.currentCondBlock +1
+			self.listOfCond.append(0) # Moche faudrait voir ou le mettre, la cree des list plus grande que ce dont on a besoin
 			self.instruct_list(codeNode.children[0])
+			self.currentCondBlock = self.currentCondBlock -1
 
-		elif codeNode.children[1].value.name == "Instr-List": # On a un instruc-list
+		elif codeNode.children[1].value.name == "Instr-List": # On a un instruc-list		
 			self.currentCondBlock = self.currentCondBlock +1
 			self.listOfCond.append(0) # Moche faudrait voir ou le mettre, la cree des list plus grande que ce dont on a besoin
 			self.instruct_list(codeNode.children[1])
@@ -222,13 +225,9 @@ class ASMcodeGenerator:
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
 				self.registerString(child.value.value)
-				#if child.value.value not in self.listString.keys():
-				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
-				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
-				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
-
+				
 				# On gere ensuite l assignation
-				self.code = self.code + "	LDR 	R"+str(var)+", "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R"+str(var)+", ="+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
 				self.code = self.code + "	MOV 	R"+str(var)+", #"+child.value.value+"\n"
@@ -260,13 +259,9 @@ class ASMcodeGenerator:
 			elif child.value.name == "STRING": # On a un string
 				# Les string doivent etre declare avant le code, donc ajoute au header
 				self.registerString(child.value.value)
-				#if child.value.value not in self.listString.keys():
-				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
-				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
-				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
 
 				# On gere ensuite l assignation
-				self.code = self.code + "	LDR 	R0, "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R0, ="+self.listString[child.value.value]+"\n"
 
 			elif child.value.name == "INT": # On a un entier
 				self.code = self.code + "	MOV 	R0, #"+child.value.value+"\n"
@@ -318,16 +313,10 @@ class ASMcodeGenerator:
 			elif child.value.name == "STRING":
 				# Les string doivent etre declare avant le code, donc ajoute au header
 				self.registerString(child.value.value)
-				#if child.value.value not in self.listString.keys():
-				#	self.listString[child.value.value] =  "str" + str(len(self.listString))
-				#	self.header = self.header + self.listString[child.value.value]+ ":	.string \""+child.value.value+"\"\n"
-				#	self.header = self.header + "len" + str(len(self.listString)-1)+ " = . - "+self.listString[child.value.value]+"\n"
-				
-				
-				
+								
 				# ensuite on s occupe des calculs
 				Reg.append(self.getFreeRegister())
-				self.code = self.code + "	LDR 	R"+ str(Reg[cmpt])+", "+self.listString[child.value.value]+"\n"
+				self.code = self.code + "	LDR 	R"+ str(Reg[cmpt])+", ="+self.listString[child.value.value]+"\n"
 					
 			elif child.value.name == "OPERATOR":
 				Reg.append(self.expression(child))
@@ -355,7 +344,7 @@ class ASMcodeGenerator:
 		if Reg[1] not in self.listVariable.values():
 			self.listRegister[Reg[1]] = 0
 			
-		if op == "ADD" or op == "SUB" or op == "MUL" or op == "???": # Operateur "standard"
+		if op == "ADD" or op == "SUB" or op == "MUL": # Operateur "standard"
 			return Reg[2]
 	
 	

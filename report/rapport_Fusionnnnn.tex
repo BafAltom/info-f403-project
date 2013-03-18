@@ -79,16 +79,16 @@ La première partie de ce rapport se concentrera sur l'analyse du langage, c'est
 
 \section{La grammaire}
 
-\subsection{Définition des tokens}
+\subsection{Définition des unités lexicales}
 
-La première étape de ce projet consiste à récupérer et analyser tous les tokens du langage, c'est à dire tous les "composants" possibles.\\
+La première étape de ce projet consiste à récupérer et analyser toutes les unités lexicales du langage, c'est à dire tous les "composants" possibles.\\
 Pour cette partie nous nous sommes basés sur la grammaire complète donnée au début du projet.\\
-Le scanner utilise aussi cette grammaire, mais les étapes suivantes ne se basent plus que sur la grammaire simplifiée, ainsi certains tokens ne sont pas supportés par notre compilateur : seul ceux cités dans la grammaire le sont.\\
+Le scanner utilise aussi cette grammaire, mais les étapes suivantes ne se basent plus que sur la grammaire simplifiée, ainsi certaines unités lexicales ne sont pas supportés par notre compilateur : seul ceux cités dans la grammaire le sont.\\
 \begin{tabular}{cc}
 
 \begin{tabular}{|c|l|}
 \hline
-Lexical units  		& regular expressions \\ \hline
+unité lexicale		& expression régulière \\ \hline
 INT					& ([0-9])* \\ \hline
 FLOAT				& ([0-9])*.DOT.([0-9])* \\ \hline
 BOOL				& (0+1+true+false+'') \\ \hline
@@ -119,7 +119,7 @@ NE-S				& ne \\ \hline
 
 \begin{tabular}{|c|l|}
 \hline
-Lexical units  		& regular expressions \\ \hline
+unité lexicale		& expression régulière \\ \hline
 EQUAL				& = \\ \hline
 DOT					& . \\ \hline
 SEMICOLON			& ; \\ \hline
@@ -153,10 +153,8 @@ VARIABLE			& \$.STRING \\ \hline
 \subsection{Modification}\label{sct:gramModif}
 
 	
-Nous nous sommes basés sur la grammaire simplifiée afin de faciliter certaines étapes du projet.\\
-La grammaire complète du début du projet présentant certaines difficultés intrinsèques, (??)\\
-nous avons ajoutés la grammaire initiale en annexe, ainsi ne sont reprise ci-dessous que les règles après modifications.\\
-Mais un numéro de ligne indique à chaque fois quelle ligne a été modifiée.\\
+Nous nous sommes basés sur la grammaire simplifiée afin de faciliter certaines étapes du projet, la grammaire complète présentant certaines difficulté. Nous avons ajoutés la grammaire simplifiée initiale en annexe \ref{gramm-init}, ainsi ne sont reprise ci-dessous que les règles après modifications.\\
+Mais un numéro de ligne indique à chaque fois quelle règle a été modifiée.\\
 ~\\
 Pour rendre cette grammaire LL(1), nous avons suivi plusieurs étapes : 
 \subsubsection{Suppression des symboles inutiles}
@@ -183,8 +181,9 @@ Pour rendre cette grammaire LL(1), nous avons suivi plusieurs étapes :
 	\end{tabular}\end{center}
 
 \subsubsection{left factoring}
-	On modifie toute règle ayant un même "début".\\
+	On modifie toute règle ayant un même premier symbole généré.\\
 	Cela ne concerne que les règles EXP, EXP-2, EXP-3 et PROGRAM(1-3) : \\
+	Cependant cette étape impacte l'associativité gauche des opérations, afin de résoudre ce problème de la manière la plus simple, nous avons décidé d'imposer l'utilisation des parenthèses dans les calculs.
 	\begin{center}\begin{tabular}{rl}
 		$<$PROGRAM$>$		& $\rightarrow$ $<$FUNCT-LIST$>$ $<$PROG-TAIL$>$\\
 							& $\rightarrow$ $<$INSTRUCT-LIST$>$\\
@@ -252,9 +251,7 @@ Pour rendre cette grammaire LL(1), nous avons suivi plusieurs étapes :
 	Mais nous avons également pratiquées quelques modifications afin de simplifier la grammaire et parfois éviter certaines ambiguïtés.\\
 	~\\
 	Nous avons : \begin{enumerate}
-		\item Ajouter la fonction Perl print, afin de produire du code ASM plus facilement utilisable.
-		\item Imposer l'utilisation des parenthèses lors des calculs.\\
-			Il faut ainsi toujours utiliser (4+(3*5)) au lieu de 4+3*5
+		\item Ajouter la fonction Perl print, afin de produire du code ASM plus facilement utilisable.			
 		\item Supprimer la possibilité de faire des divisions.\\
 			En effet celle-ci ne sont pas nativement gérées en assembleur par les processeurs ARM.\\
 			Il nous semblait donc préférable de ne pas les implémenter afin de simplifier cette partie et nous concentrer sur le compilateur, le vrai but de ce projet. Nous les avons néanmoins laissés dans la grammaire, mais elle ne sont pas gérée par le générateur de code\\	
@@ -663,22 +660,217 @@ def abstractSimpleExp(self, simpleExpNode):
 \caption{Extrait de code du générateur de code}
 \label{lst:codeGeneration}
 \end{figure}
+
+
+	\subsubsection{Traductions des instructions en code ASM}
+		On défini une série de fonctions traduisant un instruction spécifique en code assembleur, souvent ces fonctions s'appellent mutuellement entre-elles.\\
+		\paragraph{Les expressions}~\\
+			Ce sont les opérations de bases. On commence par mettre dans deux registres vides les deux paramètres du calculs (ces deux paramètres pouvant nécessité d'être calculé via un appel de fonction, une autre expression, ... ). Il suffit alors de faire le calcul correspondant à l'expression sur ces deux registres. On renvoi ensuite le (numéro du) registre contenant le résultat. Puis on vide éventuellement les registres si on les utilise plus.
+				\begin{figure}[H]
+\fontfamily{pcr}
+\begin{lstlisting}
+	MOV 	R0, R5 		
+	BL		metA1		
+	MOV 	R7, R0		
+	MOV 	R8, #3		
+	ADD		R9, R7, R8	
+\end{lstlisting}
+\fontfamily{}
+\caption{Exemple d'expression (\$number = \&metA1(\$arg1)+3;) en ASM}
+\label{lst:ExExpression}
+\end{figure}
+
+		\paragraph{Les assignations}~\\
+			On commence par analyser la variable, si elle existe on récupère le registre ou elle est stockée (via un dictionnaire ayant en clé le nom de la variable et en valeur son numéro de registre) sinon on lui attribue un nouveau registre libre. Ensuite on calcule la valeur de l'assignation, ce qui peut nécessiter à nouveau d'autres calculs et codes assembleur. L'assignation se résume alors à mettre dans le registre de la variable la valeur du registre contenant le résultat de cette assignation.
+				\begin{figure}[H]
+\fontfamily{pcr}
+\begin{lstlisting}
+	SUB		R7, R6, R5
+	ADD		R8, R5, R7
+	MUL		R7, R4, R8
+	MOV 	R4, R7
+\end{lstlisting}
+\fontfamily{}
+\caption{Exemple d'assignation (\$arg1=\$arg1*(\$arg2+(\$arg3-\$arg2));) en ASM}
+\label{lst:ExAssignation}
+\end{figure}		
+		
+		\paragraph{Les returns}~\\
+			Return fonctionne de la même manière, sauf qu'au lieu de mettre le résultat de l'assignation dans le registre d'une variable, on le met dans le registre 0, conçu pour contenir la valeur de retour des fonctions.
+				\begin{figure}[H]
+\fontfamily{pcr}
+\begin{lstlisting}
+	def retur(self, codeNode):
+		for child in codeNode.children:
+			if child.value.name == "OPERATOR": 
+				result = self.expression(child)
+				self.code = self.code + "	MOV 	R0, R"+str(result)+"\n"
+				if result not in self.listVariable.values():
+					self.listRegister[result] = 0					
+			elif child.value.name == "STRING": 
+				self.registerString(child.value.value)
+				self.code = self.code + "	LDR 	R0, ="+self.listString[child.value.value]+"\n"
+			elif child.value.name == "INT": 
+				self.code = self.code + "	MOV 	R0, #"+child.value.value+"\n"				
+			elif child.value.name == "VARIABLE": 
+				self.code = self.code + "	MOV 	R0, R"+str(self.getRegisterOfVariable(child.value.value))+"\n"				
+			elif child.value.name == "Fct-Call": 
+				self.funct_call(child)
+				# le resultat est deja ans R0		
+			else:
+				raise Exception("An error occurs during a return")
+\end{lstlisting}
+\fontfamily{}
+\caption{Fonction calculant les returns}
+\label{lst:ExReturn}
+\end{figure}	
+
+		\paragraph{Les conditions}~\\
+			L'AST représente les conditions sous forme d'arbres en ajoutant les else/elsif comme étant un fils du if/elsif précédant. Un élément de la condition contient donc comme fils possibles : 
+			\begin{enumerate}
+				\item Une expressions.\\
+					On appelle donc la fonction les analysant.
+				\item Une liste d'instruction.\\
+					On appelle donc la fonction instruct-list \ref{instruct-list}.
+				\item Un else ou elsif le suivant.\\
+					On appelle donc récursivement la fonction gérant les conditions.
+			\end{enumerate}
+			~\\
+			Le principal problème des conditions est qu'elles peuvent être imbriquées. Or en assembleur les conditions sont gérées via des branchements utilisant différents labels. Pour appeler les bons labels on doit donc à chaque fois savoir précisément à quel niveau on se trouve dans l'imbrication des conditions.\\
+			On définit deux types de labels :\begin{description}
+				\item[else$ab$] : permet de passer au else/elsif suivant (si la condition du if/elsif courant n'est pas remplie)\\
+				$a$ est un nombre identifiant dans qu'elle bloc de condition on se trouve.\\
+				$b$ est un nombre identifiant à quel niveau on se trouve dans ce bloc.
+				\item[end$a$] : permet de quitter les conditions. Si on est rentré dans un des if/elsif, à la fin on saute directement à ce point pour éviter les autres elsif/else défini ensuite.\\
+				Il n'y a donc besoin que du nombre identifiant dans qu'elle bloc de condition on se trouve, ce label étant commun à tous le niveau de la condition.
+			\end{description}
+\begin{figure}[H]
+\fontfamily{pcr}
+\begin{lstlisting}
+	MOV 	R7, #6
+	CMP		R4, R7
+	BNE else60
+	MOV 	R7, #2
+	CMP		R5, R7
+	BNE else70
+	MOV 	R7, #3
+	CMP		R6, R7
+	BNE else80
+	/* syscall write	*/ 
+
+	B end8
+else80: 
+	MOV 	R7, #3
+	CMP		R4, R7
+	BNE else81
+	/* syscall write	*/ 
+
+	B end8
+else81: 
+	/* syscall write	*/ 
+
+end8:
+	B end7
+else70: 
+	/* syscall write	*/ 
+
+end7:
+	B end6
+else60: 
+	/* syscall write	*/ 
+
+end6:
+\end{lstlisting}
+\fontfamily{}
+\caption{Exemple de conditions imbriquées en ASM}
+\label{lst:ExCond}
+\end{figure}
+
+\begin{figure}[H]
+\fontfamily{pcr}
+\begin{lstlisting}
+	if $arg1 == 6 { 
+		if $arg2 == 2 {
+			if $arg3 == 3 { print ('passage param : ok'); }
+			elsif $arg4 == 3 { print ('passage param : erreur'); } 
+			else { print ('passage param : erreur'); };
+		}
+		else { print ('passage param : erreur'); }; }
+	else { print ('passage param : erreur'); };
+\end{lstlisting}
+\fontfamily{}
+\caption{Code Perl correspondant au code ASM de la figure \ref{lst:ExCond}}
+\label{lst:ExCondSource}
+\end{figure}
+
+
+		\paragraph{les appels de fonctions}~\\
+		Ils peuvent être de deux types : \begin{itemize}
+			\item Un appel à la fonction perl \verb?print?.\\
+				On utilise alors un system call write linux pour gérer cet affichage
+\begin{figure}[H]
+\fontfamily{pcr}
+\begin{lstlisting}
+	/* syscall write	*/ 
+	MOV 	R0, #1
+	LDR 	R1, =str12
+	LDR 	R2, =len12
+	MOV 	R7, #4
+	SWI 	#0
+\end{lstlisting}
+\fontfamily{}
+\caption{Exemple de print en ASM}
+\label{lst:ExPrintPerl}
+\end{figure}
+			
+			\item Un appel à une fonction définie dans le code.\\
+				Il suffit de mettre dans les registres 0 à 3 les arguments de la fonctions. Et d'écrire dans le code assembleur : "BL $<$nom de la fonction$>$".\\
+				Le programme ira alors à la première instruction de la fonction. Puis quand celle-ci sera finie, il reviendra automatiquement à l'instruction suivante dans le code appelant.\\
+				~\\
+				Par manque de temps nous n'avons malheureusement pas eut le temps d'implémenter la gestion de plus de quatre paramètres, cela aurait nécessité d'utiliser le stack, mais nous n'avons pas eut le temps d'implémenter cette partie.
+		\end{itemize}
+		
+			\paragraph{les listes d'instructions et de fonctions}~\\
+				Ces deux parties sont gérées respectivement par \verb?instruct-list? et \verb?funct-list? qui se résument en fait à parcourir ces listes d'instructions ou de fonctions et à appeler les différents méthodes vue ci-dessus.\\
+				~\\
+				\verb?funct-list? nécessite cependant une instruction supplémentaire à la fin de chaque fonction. Il faut y rajouter "BX	LR" pour quitter la fonction et revenir à l'instruction suivant l'appel de la fonction (cela correspond plus ou moins à "MOV		PC, LR").
 	
-	\subsubsection{Scope checking (? autre titre)}
+	\subsubsection{Variable shadowing}
 		Nous profitons également de ce parcours récursif de l'AST pour vérifier que le code ne viole pas certaines règles. En particulier nous vérifions qu'il ne fait pas appel à des variables inaccessibles.\\
 		~\\
 		Cette vérification se fait en plusieurs étapes. D'abord à chaque création/assignation de variable nous l'ajoutons dans une liste les reprenant toutes, ainsi lors d'un appel nous pouvons aisément vérifier si cette variable a déjà été créée, sinon un message d'erreur apparaîtra.\\
 		Ensuite nous sommes particulièrement attentif aux variables utilisées dans les fonctions, afin d'éviter qu'elles n'utilisent des variables du main. Pour cela à chaque appel de fonction, on "push" la liste des variables et on en crée un nouvelle qui ne contient que les variables passées en paramètres.\\
-		On peut ainsi vérifier qu'on n'accède qu'aux variables accessibles.\\
+		On peut ainsi vérifier qu'on n'accède qu'aux variables accessibles. Il suffit de "poper" cette liste à la fin pour retrouver le contexte initiale.\\
 		~\\
-		Rem : On suppose que toutes les variables perl sont locales et non globales.
+		Pour être complet, il aurait fallu se baser sur le même principe pour gérer les conditions en créant "plusieurs couches" de stacks (par exemple au moyen d'une liste contenant des dictionnaires de variables) : \begin{itemize}
+			\item A chaque entrée dans une condition : On crée une couche (i.e on ajoute une liste dans la liste représentant le stack)
+			\item A chaque variable créée dans la condition : On l'ajoute à la dernière couche (i.e on l'ajoute dans la dernière liste)
+			\item En sortant d'une condition : On supprime le dernière couche (i.e On supprime la dernière liste)
+		\end{itemize}
+		Rem : On utilise des dictionnaires afin de coupler cela avec la position des variables pour simplifier notre programme. En effet il est très pratique d'utiliser un dictionnaire ayant pour clé la variable et pour valeur son numéro de registre. On peut ainsi vérifier la porté des variables et leur localisation en même temps.\\
+		~\\
+		Ce système permettrait aussi de gérer les variables globales, qu'on pourrait imaginer être définie dans le code ou avant les listes de fonctions ou instructions. Il suffirait de leur réserver le premier dictionnaire de notre liste de dictionnaire. Ainsi elle seraient accessibles à tout endroit du code, mais vu qu'on parcours la liste par sa fin pour trouver les variables, elles ne seraient trouvées qu'en dernier. En cas de conflit de nom, ce serait donc la variable locale qui serait trouvée en première.\\
+		~\\
+		Malheureusement nous n'avons pas eut le temps d'implémenter cette partie.
+
 	
 	\subsubsection{Type checking}
 		Sur le même principe, nous vérifions que :\\
 		
 		TO DO
 
-
+	\subsubsection{Gestion du stack ASM}
+		Par manque de temps nous n'avons pas eut le temps d'implémenter cette partie, ce qui entraîne certaines limitations : \begin{itemize}
+			\item On ne peut utiliser plus de 8 variables en parallèles.
+			\item On ne peut passer plus de 4 arguments à une fonction.
+		\end{itemize}
+		Avec plus de temps, il aurait été possible de gérer cela assez finement. Il aurait suffit de représenter l'état du stack de chaque registre avec une liste (éventuellement toutes regroupées elle-même dans une liste pour plus de facilité.). Lorsqu'on cherche une variable qui ne se trouve pas dans un des registres, on la cherche alors dans les stack de ces différents registres.\\
+		On parcours alors les listes jusqu'à trouver cette variables. Une fois trouvée, on "pop" le stack petit à petit, c'est-à-dire qu'on pop la dernière variable du stack, qu'on la déplace dans un registre vide, qu'on pop la variable suivantes, ... jusqu'à ce que la variable qui nous intéresse sorte du stack et se retrouve dans le registre. Permettant ainsi de l'utiliser.\\
+		~\\
+		Inversement quand on veut un registre vide et qu'ils sont tous occupés, il suffirait de pusher un des registres pour le libérer, la variable "perdue" pouvant être aisément retrouvée par la suite, cela ne prête donc pas à conséquence et permet d'utiliser presque autant de variable que l'on désire (en restant dans les limites matérielles possibles).\\
+		~\\
+		Encore une fois nous n'avons malheureusement pas eut le temps de finir cette partie.
+	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %%
@@ -702,7 +894,6 @@ Il est également possible de lancer chaque partie séparément, elle afficheron
 	\item python parser.py -i $<$fichier perl$>$ 
 	\item python syntaxtreeabstracter.py -i $<$fichier perl$>$ 
 \end{itemize}
-TO DO nettoyer et aménager le code.\\
 ~\\
 Le code assembleur assembleur ainsi produit a été conçu et tester pour être compiler avec le compilateur \verb?android-ndk-r8d? et tester avec \verb?adb?, via ces commandes (une fois l'émulateur lancé, ou un smartphone android connecté).
 \begin{enumerate}
@@ -726,7 +917,7 @@ Nous avons également inclus un fichier perl contenant des instructions gérées
 
 
 
-
+\pagebreak
 
 \section{Annexes}
 
@@ -902,7 +1093,7 @@ def match(self):
 \end{figure}
 
  
-\subsection{Grammaire initiale}
+\subsection{Grammaire initiale}\label{gramm-init}
 
 \hspace{-3.0cm}\begin{tabular}{rrl}
 1)&$<$PROGRAM$>$		& $\rightarrow$ $<$FUNCT-LIST$>$ $<$INSTRUCT-LIST$>$\\ 

@@ -44,7 +44,8 @@ sub testFunct ($number, $arg1, $arg2) {
 	
 	if $number == 6 { 
 		if $arg1 == 2 {
-			if $arg2 == 3 { print ('passage param : ok\n'); } 
+			if $arg2 == 3 { print ('passage param : ok\n'); }
+			elsif $number == 3 { print ('passage param : erreur'); } 
 			else { print ('passage param : erreur'); };
 		}
 		else { print ('passage param : erreur'); }; }
@@ -120,7 +121,7 @@ sub testExp ($arg1) {
 $arg1 = 2;
 $arg2 = 2;
 $number = 6;
-$arg8 = 9;
+$arg8 = 'hdjgsf';
 
 
 
@@ -139,59 +140,5 @@ $number = 4;
 &testExp($number);
 
 
-
-
-
-
-
-
-$arg11 = 11;
-	$arg12 = 12;
-	$arg13 = 13;
-	$arg14 = 14;
-	$arg15 = 15;
-	$arg16 = 16;
-	$arg17 = 17;
-	$arg18 = 18;
-	$arg19 = 19;
-	$arg20 = 20;
-	$arg21 = 21;
-	$arg22 = 22;
-	$arg23 = 23;
-	$arg24 = 24;
-	$arg25 = 25;
-	$arg26 = 26;
-	$arg27 = 27;
-	$arg28 = 28;
-	$arg29 = 29;
-	$arg30 = 30;
-	$arg31 = 31;
-	$arg32 = 32;
-	$arg33 = 33;
-	$arg34 = 34;
-	$arg35 = 35;
-	$arg36 = 36;
-	$arg37 = 37;
-	$arg38 = 38;
-	$arg39 = 39;
-	$arg40 = 40;
-	$arg41 = 41;
-	$arg42 = 42;
-	$arg43 = 43;
-	$arg44 = 44;
-	$arg45 = 45;
-	$arg46 = 46;
-	$arg47 = 47;
-	$arg48 = 48;
-	$arg49 = 49;
-	$arg50 = 50;
-	$arg51 = 51;
-	$arg52 = 52;
-	$arg53 = 53;
-	$arg54 = 54;
-	$arg55 = 55;
-	$arg56 = 56;
-	$arg57 = 57;
-	$arg58 = 58;
-	$arg59 = 59;
-	$arg60 = 60;
+$arg1 = $arg1 * $arg2;
+$arg1 = $arg2 + 4;
