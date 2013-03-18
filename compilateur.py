@@ -1,5 +1,5 @@
 import codeGeneration
-from scanner import scanner
+import scanner
 import parser
 import syntaxtreeabstracter
 import sys
@@ -9,7 +9,6 @@ import re
 def compilePerl(verbose, perlFile):
 
 	from grammars_examples import g6
-	
 
 	perl_scanner = scanner.PerlScanner()
 	inputTokens = perl_scanner.scans(perlFile)
@@ -25,14 +24,12 @@ def compilePerl(verbose, perlFile):
 	ll1_parser.parse(inputTokens)
 	parseTree = ll1_parser.parseTree
 
-	
 	sta = syntaxtreeabstracter.SyntaxTreeAbstracter(parseTree)
 	sta.abstract()
-		
 
 	code_generator = codeGeneration.ASMcodeGenerator(sta.ast)
 	code = code_generator.generate_code()
-	
+
 	if verbose:
 		print "-------------------------------------------------------------------------------------------------"
 		print " parse tree :\n"
@@ -46,7 +43,6 @@ def compilePerl(verbose, perlFile):
 		print "ASM code :\n"
 		print "-------------------------------------------------------------------------------------------------"
 		print code
-		
 	return code
 
 
@@ -54,23 +50,22 @@ def compilePerl(verbose, perlFile):
 
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "i:v", ["help", "input="])
+	opts, args = getopt.getopt(sys.argv[1:], "i:v", ["help", "input="])
 except getopt.GetoptError as err:
-    print(err) 
-    sys.exit(2)
- 
+	print(err)
+	sys.exit(2)
+
 perlFile = None
 asmFile = None
 verbose = False
 for o, a in opts:
-    if o == "-v":
-        verbose = True
-    elif o in ("-i", "--input"):
-        perlFile = a
-    else:
-        print("Option {} unknow".format(o))
-        sys.exit(2)
-
+	if o == "-v":
+		verbose = True
+	elif o in ("-i", "--input"):
+		perlFile = a
+	else:
+		print("Option {} unknow".format(o))
+		sys.exit(2)
 
 asmFile = re.search("[/].*\.pl", perlFile)
 if not asmFile:
@@ -85,3 +80,5 @@ code = compilePerl(verbose, perlFile)
 outputFile = open(asmFile, "w")
 outputFile.write(code)
 outputFile.close()
+
+print "The ASM code has been created in the file " + str(asmFile)

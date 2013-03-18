@@ -1,7 +1,6 @@
 import token
 import re
 
-
 class PerlScanner:
 	def __init__(self, verbose=False):
 		self.verbose = verbose
@@ -15,10 +14,6 @@ class PerlScanner:
 				line = line + line2
 
 			while line != "":
-						# Ca fait des plombes que je cherche a modifier line en la passant par reference, mais ca marche pas, donc je la return, voir avec thomas s il y a
-						# un moyen plus propre
-						# (thomas) : il faudrait faire une classe je pense.
-						# (pierre) : marche pas non plus, line n'est pas mis a jour ?
 				tok, line = self.getNextToken(line)
 				if tok.name != "":
 					tokenList.append(tok)
@@ -32,11 +27,6 @@ class PerlScanner:
 		return tokenList
 
 	def getNextToken(slef, line):
-		# On retire le caractere de fin de ligne :
-		#line = line.replace("\n", "")
-		# On retire les commentaires de la lignes :
-		#line = line.split("#")[0]
-		# On retire les caractere vide au debut de la ligne :
 		line = line.lstrip()
 
 		while re.match("\n", line):
@@ -114,7 +104,7 @@ class PerlScanner:
 			if re.match("\&\&", line):
 				line = line[2:]
 				return token.token("AND", ""), line
-			if re.match("''", line):  # Dans l'enonce on peut definir un false avec un string vide !!!!!!!!!!!!!!!!!!!!!!!!!
+			if re.match("''", line):
 				line = line[2:]
 				return token.token("BOOL", "false"), line
 

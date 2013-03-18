@@ -1,6 +1,6 @@
 import parser
-from scanner import token
-from scanner import scanner
+import token
+import scanner
 
 def test_1():
 	from grammars_examples import g1
@@ -143,24 +143,6 @@ def test_3():
 
 def test_4():
 	from grammars_examples import g6
-
-	"""
-	print "first"
-	first = g6.first_1()
-	for a, b in first.items():
-		if a not in g6.terminals:
-			print a, b
-	print "follow"
-	follow = g6.follow_1()
-	for a, b in follow.items():
-		if a not in g6.terminals:
-			print a, b
-	print "actionTable"
-	aT = g6.actionTable()
-	for a, b in aT.items():
-		if a not in g6.terminals:
-			print a, b
-	# """
 
 	ll1_parser = parser.LL1Parser(g6, verbose=False)
 	perl_scanner = scanner.PerlScanner()

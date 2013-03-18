@@ -12,7 +12,6 @@ def test_1():
 
 	assert EPSILON not in first['add-op']
 	assert ')' not in follow['st']
-	# TODO : More verifications
 
 def test_2():
 	from grammars_examples import g2
@@ -69,8 +68,7 @@ def test_3():
 	assert M['T2']['$'] == 6
 	assert len(M['F']) == 2
 	assert M['F']['id'] == 8
-	
-	
+
 def test_6():
 	from grammars_examples import g6
 	first = g6.first_1()
