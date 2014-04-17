@@ -32,6 +32,6 @@ Le code assembleur ainsi produit a été conçu et testé pour être compilé av
 Il suffit de modifier la partie <linux-x86> en fonction du système d'exploitation.
 
 Nous avons également développé quelques outils au cours du projet qui, s'ils ne sont pas nécessaire pour notre compilateur, nous semblaient néanmoins intéressants. Nous les avons donc laissé :
-	python printFirstFollowActionTable.py	# Affiche les first, follow et action table de notre grammaire
-	python cfgrammar_tests.py		# Vérifie que les grammaires stockées dans cfgrammar (grammaire du projet et des TP) sont LL(1)
-	python parser_test.py			# Affiche le parseTree du fichier <test5.pl> qui est présenté dans l'annexe du rapport (Fig 17)
+* `python printFirstFollowActionTable.py` Affiche les first, follow et action table de notre grammaire
+* `python cfgrammar_tests.py` Vérifie que les grammaires stockées dans cfgrammar (grammaire du projet et des TP) sont LL(1)
+* `python parser_test.py` Affiche le parseTree du fichier <test5.pl> qui est présenté dans l'annexe du rapport (Fig 17)
